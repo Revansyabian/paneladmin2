@@ -1,37 +1,37 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel Admin (Anti Error)</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Panel Admin</h1>
+  <div class="container">
+    <h1>Panel Admin</h1>
 
-  <section>
-    <h2>Harga</h2>
-    <input type="number" id="hargaInput" placeholder="Contoh: 5000" />
-    <button onclick="updateHarga()">Update Harga</button>
-    <p><strong>Harga sekarang:</strong> <span id="currentHarga">Memuat...</span></p>
-  </section>
+    <div class="section">
+      <h2>Daftar Harga</h2>
+      <input id="hargaInput" type="text" placeholder="Contoh: 50k = 5.000" />
+      <button onclick="simpanHarga()">Simpan Harga</button>
+    </div>
 
-  <section>
-    <h2>Testimoni</h2>
-    <input type="text" id="testimoniInput" placeholder="Tambah testimoni..." />
-    <button onclick="tambahTestimoni()">Tambah</button>
-    <ul id="testimoniList"></ul>
-  </section>
+    <div class="section">
+      <h2>Promo Spesial</h2>
+      <input id="promoInput" type="text" placeholder="Contoh: Diskon 10% Minggu Ini" />
+      <button onclick="simpanPromo()">Simpan Promo</button>
+    </div>
 
-  <section>
-    <h2>Promo</h2>
-    <input type="text" id="promoInput" placeholder="Tambah promo..." />
-    <button onclick="tambahPromo()">Tambah</button>
-    <ul id="promoList"></ul>
-  </section>
+    <div class="section">
+      <h2>Testimoni</h2>
+      <input id="testimoniInput" type="text" placeholder="Contoh: Pelayanan cepat & aman" />
+      <button onclick="simpanTestimoni()">Simpan Testimoni</button>
+    </div>
+  </div>
 
-  <div id="errorBox" style="color: red; margin-top: 20px;"></div>
+  <div id="toast"></div>
 
-  <script type="module" src="firebase.js"></script>
+  <!-- Firebase & Script -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
