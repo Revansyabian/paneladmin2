@@ -1,132 +1,83 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Panel</title>
+  <meta charset="UTF-8">
+  <title>Panel Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f4f4f4;
-    }
-
-    h2 {
-      color: #333;
-    }
-
+    body { font-family: sans-serif; padding: 20px; }
+    h2 { margin-top: 30px; }
     input, textarea {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      width: 100%; padding: 10px; margin: 5px 0 20px;
+      border: 1px solid #ccc; border-radius: 8px;
     }
-
-    .section {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
     #toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #333;
-      color: white;
-      padding: 12px 18px;
-      border-radius: 8px;
+      position: fixed; bottom: 20px; right: 20px;
+      background: #333; color: white;
+      padding: 10px 20px; border-radius: 6px;
       display: none;
-      z-index: 9999;
     }
   </style>
 </head>
 <body>
+  <h1>Admin Panel</h1>
 
-  <h2>Admin Panel</h2>
+  <h2>Harga</h2>
+  <input id="harga1" placeholder="Paket 1">
+  <input id="harga2" placeholder="Paket 2">
 
-  <div class="section">
-    <label>Harga:</label>
-    <textarea id="hargaInput" placeholder="Contoh: 100 DM = 10.000"></textarea>
-  </div>
+  <h2>Promo</h2>
+  <textarea id="promo" rows="2" placeholder="Tulis promo di sini..."></textarea>
 
-  <div class="section">
-    <label>Testimoni:</label>
-    <textarea id="testimoniInput" placeholder="Masukkan testimoni..."></textarea>
-  </div>
-
-  <div class="section">
-    <label>Promo Spesial:</label>
-    <textarea id="promoInput" placeholder="Masukkan promo spesial..."></textarea>
-  </div>
+  <h2>Testimoni</h2>
+  <textarea id="testi1" rows="2" placeholder="Testimoni 1"></textarea>
+  <textarea id="testi2" rows="2" placeholder="Testimoni 2"></textarea>
 
   <div id="toast"></div>
 
   <script type="module">
-    // Firebase Config kamu
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBTy1lXwCm1S_vOpQleFYx4vZKGu9f-_f4",
+      apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
       authDomain: "paneladmin-83c8a.firebaseapp.com",
-      databaseURL: "https://paneladmin-83c8a-default-rtdb.asia-southeast1.firebasedatabase.app",
+      databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
       projectId: "paneladmin-83c8a",
       storageBucket: "paneladmin-83c8a.appspot.com",
-      messagingSenderId: "708213044160",
-      appId: "1:708213044160:web:bd2e5540ecb8616463541c"
+      messagingSenderId: "343729471216",
+      appId: "1:343729471216:web:14c357375fa83083c44c35"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    function showToast(msg, success = true) {
-      const toast = document.getElementById('toast');
+    const showToast = (msg) => {
+      const toast = document.getElementById("toast");
       toast.innerText = msg;
-      toast.style.background = success ? "#28a745" : "#dc3545";
-      toast.style.display = 'block';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, 3000);
-    }
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 2500);
+    };
 
-    // Fungsi update ke Firebase
-    function updateData(path, value) {
+    const updateDB = (path, value) => {
       set(ref(db, path), value)
-        .then(() => showToast("Berhasil disimpan ✔️"))
-        .catch(() => showToast("Gagal menyimpan ❌", false));
-    }
+        .then(() => showToast("Tersimpan ✅"))
+        .catch(() => showToast("Gagal simpan ❌"));
+    };
 
-    // Tambahkan event listener realtime setiap ketik
-    document.getElementById("hargaInput").addEventListener("input", (e) => {
-      updateData("/harga", e.target.value);
-    });
+    // Auto update saat ketik
+    document.getElementById("harga1").addEventListener("input", e => updateDB("harga/paket1", e.target.value));
+    document.getElementById("harga2").addEventListener("input", e => updateDB("harga/paket2", e.target.value));
+    document.getElementById("promo").addEventListener("input", e => updateDB("promo", e.target.value));
+    document.getElementById("testi1").addEventListener("input", e => updateDB("testimoni/1", e.target.value));
+    document.getElementById("testi2").addEventListener("input", e => updateDB("testimoni/2", e.target.value));
 
-    document.getElementById("testimoniInput").addEventListener("input", (e) => {
-      updateData("/testimoni", e.target.value);
-    });
-
-    document.getElementById("promoInput").addEventListener("input", (e) => {
-      updateData("/promo", e.target.value);
-    });
-
-    // Ambil data dari Firebase saat load
-    window.addEventListener("DOMContentLoaded", () => {
-      get(ref(db, "/harga")).then(snap => {
-        if (snap.exists()) document.getElementById("hargaInput").value = snap.val();
-      });
-      get(ref(db, "/testimoni")).then(snap => {
-        if (snap.exists()) document.getElementById("testimoniInput").value = snap.val();
-      });
-      get(ref(db, "/promo")).then(snap => {
-        if (snap.exists()) document.getElementById("promoInput").value = snap.val();
-      });
-    });
+    // Load data awal
+    onValue(ref(db, "harga/paket1"), snap => document.getElementById("harga1").value = snap.val() || "");
+    onValue(ref(db, "harga/paket2"), snap => document.getElementById("harga2").value = snap.val() || "");
+    onValue(ref(db, "promo"), snap => document.getElementById("promo").value = snap.val() || "");
+    onValue(ref(db, "testimoni/1"), snap => document.getElementById("testi1").value = snap.val() || "");
+    onValue(ref(db, "testimoni/2"), snap => document.getElementById("testi2").value = snap.val() || "");
   </script>
 </body>
 </html>
