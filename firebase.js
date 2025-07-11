@@ -18,10 +18,14 @@ const db = getDatabase(app);
 const errorBox = document.getElementById("errorBox");
 
 // --- Harga ---
-const hargaRef = ref(db, 'harga');
-const hargaInput = document.getElementById('hargaInput');
-const currentHarga = document.getElementById('currentHarga');
+document.getElementById("hargaBaru").addEventListener("change", function () {
+  const harga = this.value;
+  const hargaRef = ref(database, "harga");
 
+  set(hargaRef, harga)
+    .then(() => showToast("Harga otomatis disimpan!", "green"))
+    .catch((error) => showToast("Gagal menyimpan: " + error.message, "red"));
+});
 get(hargaRef).then((snap) => {
   currentHarga.innerText = snap.exists() ? snap.val() : 'Belum diatur';
 }).catch(handleError);
