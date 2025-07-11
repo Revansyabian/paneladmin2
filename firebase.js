@@ -5,7 +5,8 @@ import { getDatabase, ref, set, get, push, onValue, remove } from "https://www.g
 const firebaseConfig = {
   apiKey: "AIzaSyB_pWpsAfO0UZ0DC6StRG0IkkZ7kkH2whQ",
   authDomain: "paneladmin-83c8a.firebaseapp.com",
-  databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com.firebasedatabase.app",
+  databaseURL:
+"https://paneladmin-83c8a-default-rtdb.firebaseio.com",",
   projectId: "paneladmin-83c8a",
   storageBucket: "paneladmin-83c8a.appspot.com",
   messagingSenderId: "338628300981",
