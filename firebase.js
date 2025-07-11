@@ -119,4 +119,26 @@ function clearError() {
 function handleError(error) {
   console.error(error);
   showError("Terjadi kesalahan saat memuat/menyimpan data.");
+};
+
+// Toast Notifikasi
+function showToast(pesan, warna = "#333") {
+  const toast = document.getElementById("toast");
+  toast.innerText = pesan;
+  toast.style.background = warna;
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 3000);
+}
+
+// Fungsi update harga
+function updateHarga() {
+  const harga = document.getElementById("hargaBaru").value;
+  const hargaRef = ref(database, "harga");
+
+  set(hargaRef, harga)
+    .then(() => showToast("Harga berhasil diupdate!", "green"))
+    .catch((error) => showToast("Gagal update: " + error.message, "red"));
 }
