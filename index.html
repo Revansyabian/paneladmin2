@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin (Anti Error)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Panel Admin</h1>
+
+  <section>
+    <h2>Harga</h2>
+    <input type="number" id="hargaInput" placeholder="Contoh: 5000" />
+    <button onclick="updateHarga()">Update Harga</button>
+    <p><strong>Harga sekarang:</strong> <span id="currentHarga">Memuat...</span></p>
+  </section>
+
+  <section>
+    <h2>Testimoni</h2>
+    <input type="text" id="testimoniInput" placeholder="Tambah testimoni..." />
+    <button onclick="tambahTestimoni()">Tambah</button>
+    <ul id="testimoniList"></ul>
+  </section>
+
+  <section>
+    <h2>Promo</h2>
+    <input type="text" id="promoInput" placeholder="Tambah promo..." />
+    <button onclick="tambahPromo()">Tambah</button>
+    <ul id="promoList"></ul>
+  </section>
+
+  <div id="errorBox" style="color: red; margin-top: 20px;"></div>
+
+  <script type="module" src="firebase.js"></script>
+</body>
+</html>
