@@ -1,123 +1,86 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    h2 { margin-top: 30px; }
+    body { font-family: sans-serif; padding: 20px; }
     input, textarea, button {
-      width: 100%; padding: 10px; margin: 5px 0 20px;
-      border: 1px solid #ccc; border-radius: 8px;
-      box-sizing: border-box;
+      display: block; width: 100%; margin-top: 10px; padding: 10px;
     }
-    button {
-      background-color: #28a745; color: white; border: none; font-weight: bold;
-      cursor: pointer;
-    }
+    .success { background: #4caf50; color: white; }
+    .error { background: #f44336; color: white; }
     #toast {
       position: fixed; bottom: 20px; right: 20px;
-      background: #333; color: white;
-      padding: 10px 20px; border-radius: 6px;
+      padding: 10px 20px; border-radius: 5px;
       display: none;
-      z-index: 9999;
     }
   </style>
 </head>
 <body>
-  <h1>Panel Admin</h1>
+  <h1>Panel Admin Firebase</h1>
 
-  <h2>Harga</h2>
-  <input id="harga1" placeholder="Paket 1">
-  <input id="harga2" placeholder="Paket 2">
+  <h2>Daftar Harga</h2>
+  <input id="hargaInput" placeholder="Contoh: 86 DM - 15.000" />
   <button onclick="simpanHarga()">Simpan Harga</button>
 
-  <h2>Promo</h2>
-  <textarea id="promo" rows="2" placeholder="Tulis promo di sini..."></textarea>
-  <button onclick="simpanPromo()">Simpan Promo</button>
-
   <h2>Testimoni</h2>
-  <textarea id="testi1" rows="2" placeholder="Testimoni 1"></textarea>
-  <textarea id="testi2" rows="2" placeholder="Testimoni 2"></textarea>
+  <textarea id="testiInput" placeholder="Masukkan testimoni baru..."></textarea>
   <button onclick="simpanTesti()">Simpan Testimoni</button>
+
+  <h2>Promo Spesial</h2>
+  <input id="promoInput" placeholder="Contoh: Promo 20% minggu ini!" />
+  <button onclick="simpanPromo()">Simpan Promo</button>
 
   <div id="toast"></div>
 
   <script type="module">
+    // Firebase Config kamu
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
+      apiKey: "AIzaSyCLSVgHzEt4a8C7F9KzT-R6rZomPKWWVJU",
       authDomain: "paneladmin-83c8a.firebaseapp.com",
       databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
       projectId: "paneladmin-83c8a",
       storageBucket: "paneladmin-83c8a.appspot.com",
-      messagingSenderId: "343729471216",
-      appId: "1:343729471216:web:14c357375fa83083c44c35"
+      messagingSenderId: "382280720512",
+      appId: "1:382280720512:web:b4298b7eab3ab1541d88cd"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const toast = (msg) => {
-      const t = document.getElementById("toast");
-      t.innerText = msg;
-      t.style.display = "block";
-      setTimeout(() => t.style.display = "none", 3000);
-    };
-
-    // Fungsi Simpan
-    window.simpanHarga = () => {
-      const h1 = document.getElementById("harga1").value;
-      const h2 = document.getElementById("harga2").value;
-      set(ref(db, "harga"), {
-        paket1: h1,
-        paket2: h2
-      }).then(() => toast("Harga tersimpan ✅"))
-        .catch(() => toast("Gagal simpan harga ❌"));
-    };
-
-    window.simpanPromo = () => {
-      const p = document.getElementById("promo").value;
-      set(ref(db, "promo"), p)
-        .then(() => toast("Promo tersimpan ✅"))
-        .catch(() => toast("Gagal simpan promo ❌"));
-    };
-
-    window.simpanTesti = () => {
-      const t1 = document.getElementById("testi1").value;
-      const t2 = document.getElementById("testi2").value;
-      set(ref(db, "testimoni"), {
-        1: t1,
-        2: t2
-      }).then(() => toast("Testimoni tersimpan ✅"))
-        .catch(() => toast("Gagal simpan testimoni ❌"));
-    };
-
-    // Load data dari Firebase
-    async function loadData() {
-      try {
-        const snapHarga = await get(ref(db, "harga"));
-        const snapPromo = await get(ref(db, "promo"));
-        const snapTesti = await get(ref(db, "testimoni"));
-
-        const harga = snapHarga.val() || {};
-        document.getElementById("harga1").value = harga.paket1 || "";
-        document.getElementById("harga2").value = harga.paket2 || "";
-
-        document.getElementById("promo").value = snapPromo.val() || "";
-
-        const testi = snapTesti.val() || {};
-        document.getElementById("testi1").value = testi[1] || "";
-        document.getElementById("testi2").value = testi[2] || "";
-      } catch (e) {
-        toast("Gagal load data ❌");
-      }
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = success ? "success" : "error";
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3000);
     }
 
-    loadData();
+    function simpanHarga() {
+      const val = document.getElementById("hargaInput").value;
+      set(ref(db, "harga/1"), val)
+        .then(() => showToast("Harga berhasil disimpan"))
+        .catch(() => showToast("Gagal simpan harga", false));
+    }
+
+    function simpanTesti() {
+      const val = document.getElementById("testiInput").value;
+      set(ref(db, "testimoni/1"), val)
+        .then(() => showToast("Testimoni berhasil disimpan"))
+        .catch(() => showToast("Gagal simpan testimoni", false));
+    }
+
+    function simpanPromo() {
+      const val = document.getElementById("promo"), input = document.getElementById("promoInput").value;
+      set(ref(db, "promo"), input)
+        .then(() => showToast("Promo berhasil disimpan"))
+        .catch(() => showToast("Gagal simpan promo", false));
+    }
   </script>
 </body>
 </html>
