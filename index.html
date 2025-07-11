@@ -1,37 +1,132 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    input, textarea {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      display: none;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Panel Admin</h1>
 
-    <div class="section">
-      <h2>Daftar Harga</h2>
-      <input id="hargaInput" type="text" placeholder="Contoh: 50k = 5.000" />
-      <button onclick="simpanHarga()">Simpan Harga</button>
-    </div>
+  <h2>Admin Panel</h2>
 
-    <div class="section">
-      <h2>Promo Spesial</h2>
-      <input id="promoInput" type="text" placeholder="Contoh: Diskon 10% Minggu Ini" />
-      <button onclick="simpanPromo()">Simpan Promo</button>
-    </div>
+  <div class="section">
+    <label>Harga:</label>
+    <textarea id="hargaInput" placeholder="Contoh: 100 DM = 10.000"></textarea>
+  </div>
 
-    <div class="section">
-      <h2>Testimoni</h2>
-      <input id="testimoniInput" type="text" placeholder="Contoh: Pelayanan cepat & aman" />
-      <button onclick="simpanTestimoni()">Simpan Testimoni</button>
-    </div>
+  <div class="section">
+    <label>Testimoni:</label>
+    <textarea id="testimoniInput" placeholder="Masukkan testimoni..."></textarea>
+  </div>
+
+  <div class="section">
+    <label>Promo Spesial:</label>
+    <textarea id="promoInput" placeholder="Masukkan promo spesial..."></textarea>
   </div>
 
   <div id="toast"></div>
 
-  <!-- Firebase & Script -->
-  <script type="module" src="script.js"></script>
+  <script type="module">
+    // Firebase Config kamu
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBTy1lXwCm1S_vOpQleFYx4vZKGu9f-_f4",
+      authDomain: "paneladmin-83c8a.firebaseapp.com",
+      databaseURL: "https://paneladmin-83c8a-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "paneladmin-83c8a",
+      storageBucket: "paneladmin-83c8a.appspot.com",
+      messagingSenderId: "708213044160",
+      appId: "1:708213044160:web:bd2e5540ecb8616463541c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    function showToast(msg, success = true) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.background = success ? "#28a745" : "#dc3545";
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    // Fungsi update ke Firebase
+    function updateData(path, value) {
+      set(ref(db, path), value)
+        .then(() => showToast("Berhasil disimpan ✔️"))
+        .catch(() => showToast("Gagal menyimpan ❌", false));
+    }
+
+    // Tambahkan event listener realtime setiap ketik
+    document.getElementById("hargaInput").addEventListener("input", (e) => {
+      updateData("/harga", e.target.value);
+    });
+
+    document.getElementById("testimoniInput").addEventListener("input", (e) => {
+      updateData("/testimoni", e.target.value);
+    });
+
+    document.getElementById("promoInput").addEventListener("input", (e) => {
+      updateData("/promo", e.target.value);
+    });
+
+    // Ambil data dari Firebase saat load
+    window.addEventListener("DOMContentLoaded", () => {
+      get(ref(db, "/harga")).then(snap => {
+        if (snap.exists()) document.getElementById("hargaInput").value = snap.val();
+      });
+      get(ref(db, "/testimoni")).then(snap => {
+        if (snap.exists()) document.getElementById("testimoniInput").value = snap.val();
+      });
+      get(ref(db, "/promo")).then(snap => {
+        if (snap.exists()) document.getElementById("promoInput").value = snap.val();
+      });
+    });
+  </script>
 </body>
 </html>
