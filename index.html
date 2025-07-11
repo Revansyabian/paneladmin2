@@ -5,39 +5,48 @@
   <title>Panel Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
     h2 { margin-top: 30px; }
-    input, textarea {
+    input, textarea, button {
       width: 100%; padding: 10px; margin: 5px 0 20px;
       border: 1px solid #ccc; border-radius: 8px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #28a745; color: white; border: none; font-weight: bold;
+      cursor: pointer;
     }
     #toast {
       position: fixed; bottom: 20px; right: 20px;
       background: #333; color: white;
       padding: 10px 20px; border-radius: 6px;
       display: none;
+      z-index: 9999;
     }
   </style>
 </head>
 <body>
-  <h1>Admin Panel</h1>
+  <h1>Panel Admin</h1>
 
   <h2>Harga</h2>
   <input id="harga1" placeholder="Paket 1">
   <input id="harga2" placeholder="Paket 2">
+  <button onclick="simpanHarga()">Simpan Harga</button>
 
   <h2>Promo</h2>
   <textarea id="promo" rows="2" placeholder="Tulis promo di sini..."></textarea>
+  <button onclick="simpanPromo()">Simpan Promo</button>
 
   <h2>Testimoni</h2>
   <textarea id="testi1" rows="2" placeholder="Testimoni 1"></textarea>
   <textarea id="testi2" rows="2" placeholder="Testimoni 2"></textarea>
+  <button onclick="simpanTesti()">Simpan Testimoni</button>
 
   <div id="toast"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
@@ -52,32 +61,63 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const showToast = (msg) => {
-      const toast = document.getElementById("toast");
-      toast.innerText = msg;
-      toast.style.display = "block";
-      setTimeout(() => toast.style.display = "none", 2500);
+    const toast = (msg) => {
+      const t = document.getElementById("toast");
+      t.innerText = msg;
+      t.style.display = "block";
+      setTimeout(() => t.style.display = "none", 3000);
     };
 
-    const updateDB = (path, value) => {
-      set(ref(db, path), value)
-        .then(() => showToast("Tersimpan ✅"))
-        .catch(() => showToast("Gagal simpan ❌"));
+    // Fungsi Simpan
+    window.simpanHarga = () => {
+      const h1 = document.getElementById("harga1").value;
+      const h2 = document.getElementById("harga2").value;
+      set(ref(db, "harga"), {
+        paket1: h1,
+        paket2: h2
+      }).then(() => toast("Harga tersimpan ✅"))
+        .catch(() => toast("Gagal simpan harga ❌"));
     };
 
-    // Auto update saat ketik
-    document.getElementById("harga1").addEventListener("input", e => updateDB("harga/paket1", e.target.value));
-    document.getElementById("harga2").addEventListener("input", e => updateDB("harga/paket2", e.target.value));
-    document.getElementById("promo").addEventListener("input", e => updateDB("promo", e.target.value));
-    document.getElementById("testi1").addEventListener("input", e => updateDB("testimoni/1", e.target.value));
-    document.getElementById("testi2").addEventListener("input", e => updateDB("testimoni/2", e.target.value));
+    window.simpanPromo = () => {
+      const p = document.getElementById("promo").value;
+      set(ref(db, "promo"), p)
+        .then(() => toast("Promo tersimpan ✅"))
+        .catch(() => toast("Gagal simpan promo ❌"));
+    };
 
-    // Load data awal
-    onValue(ref(db, "harga/paket1"), snap => document.getElementById("harga1").value = snap.val() || "");
-    onValue(ref(db, "harga/paket2"), snap => document.getElementById("harga2").value = snap.val() || "");
-    onValue(ref(db, "promo"), snap => document.getElementById("promo").value = snap.val() || "");
-    onValue(ref(db, "testimoni/1"), snap => document.getElementById("testi1").value = snap.val() || "");
-    onValue(ref(db, "testimoni/2"), snap => document.getElementById("testi2").value = snap.val() || "");
+    window.simpanTesti = () => {
+      const t1 = document.getElementById("testi1").value;
+      const t2 = document.getElementById("testi2").value;
+      set(ref(db, "testimoni"), {
+        1: t1,
+        2: t2
+      }).then(() => toast("Testimoni tersimpan ✅"))
+        .catch(() => toast("Gagal simpan testimoni ❌"));
+    };
+
+    // Load data dari Firebase
+    async function loadData() {
+      try {
+        const snapHarga = await get(ref(db, "harga"));
+        const snapPromo = await get(ref(db, "promo"));
+        const snapTesti = await get(ref(db, "testimoni"));
+
+        const harga = snapHarga.val() || {};
+        document.getElementById("harga1").value = harga.paket1 || "";
+        document.getElementById("harga2").value = harga.paket2 || "";
+
+        document.getElementById("promo").value = snapPromo.val() || "";
+
+        const testi = snapTesti.val() || {};
+        document.getElementById("testi1").value = testi[1] || "";
+        document.getElementById("testi2").value = testi[2] || "";
+      } catch (e) {
+        toast("Gagal load data ❌");
+      }
+    }
+
+    loadData();
   </script>
 </body>
 </html>
