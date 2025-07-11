@@ -126,12 +126,11 @@ function handleError(error) {
 };
 
 // Toast Notifikasi
-function showToast(pesan, warna = "#333") {
+function showToast(message, type = "success") {
   const toast = document.getElementById("toast");
-  toast.innerText = pesan;
-  toast.style.background = warna;
+  toast.innerText = message;
+  toast.style.backgroundColor = type === "success" ? "green" : "red";
   toast.style.display = "block";
-
   setTimeout(() => {
     toast.style.display = "none";
   }, 3000);
