@@ -81,6 +81,36 @@
         .then(() => showToast("Promo berhasil disimpan"))
         .catch(() => showToast("Gagal simpan promo", false));
     }
-  </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
+    authDomain: "paneladmin-83c8a.firebaseapp.com",
+    databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
+    projectId: "paneladmin-83c8a",
+    storageBucket: "paneladmin-83c8a.appspot.com",
+    messagingSenderId: "343729471216",
+    appId: "1:343729471216:web:14c357375fa83083c44c35",
+    measurementId: "G-E2G04E4KB5"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  window.updateMaintenance = function () {
+    const input = document.getElementById("maintenanceInput").value.trim().toLowerCase();
+
+    if (input === "true" || input === "false") {
+      const value = input === "true";
+      set(ref(db, 'maintenance'), value)
+        .then(() => alert("Status maintenance berhasil diubah ke " + input))
+        .catch((error) => alert("Gagal mengubah: " + error));
+    } else {
+      alert("Isi hanya dengan: true atau false (kecil semua)");
+    }
+  };
+</script>
 </body>
 </html>
