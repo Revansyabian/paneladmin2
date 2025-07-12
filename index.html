@@ -45,11 +45,14 @@
   <input id="maintenanceInput" placeholder="Ketik true atau false" />
   <button onclick="updateMaintenance()">Simpan Status Maintenance</button>
 
+  <h2>🎯 Status Promo Aktif</h2>
+  <button id="togglePromo">Muat...</button>
+
   <div id="toast"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
@@ -110,6 +113,25 @@
         showToast("Isi hanya boleh: true atau false", false);
       }
     }
+
+    // === PROMO ON/OFF ===
+    const promoRef = ref(db, "promoAktif");
+    const toggleBtn = document.getElementById("togglePromo");
+
+    // Update label tombol sesuai status Firebase
+    onValue(promoRef, (snapshot) => {
+      const aktif = snapshot.val();
+      toggleBtn.textContent = aktif ? "Matikan Promo 🔴" : "Aktifkan Promo 🟢";
+    });
+
+    // Fungsi toggle promo
+    toggleBtn.onclick = async () => {
+      const snapshot = await get(promoRef);
+      const current = snapshot.val();
+      await set(promoRef, !current)
+        .then(() => showToast(`Promo berhasil ${!current ? "diaktifkan" : "dimatikan"}`))
+        .catch(err => showToast("Gagal update promo: " + err.message, false));
+    };
   </script>
 </body>
 </html>
