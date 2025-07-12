@@ -29,4 +29,10 @@ onValue(promoRef, (snapshot) => {
 }, (error) => {
   showToast("❌ Gagal memuat promo atas");
   console.error("Error promo atas:", error);
+const statusHeader = document.getElementById("statusHeader");
+...
+statusText.textContent = aktif ? "🔧 Maintenance: AKTIF" : "✅ Maintenance: NONAKTIF";
+if (!isAdmin) {
+  statusHeader.textContent = aktif ? "🔧 Maintenance: AKTIF" : "✅ Maintenance: NONAKTIF";
+}
 });
