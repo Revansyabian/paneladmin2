@@ -5,10 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel Admin</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+    h1 { color: #0077cc; }
+    h2 { margin-top: 30px; }
     input, textarea, button {
       display: block; width: 100%; margin-top: 10px; padding: 10px;
+      border: 1px solid #ccc; border-radius: 5px;
     }
+    button {
+      background: #0077cc; color: white; border: none; cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover { background: #005fa3; }
     .success { background: #4caf50; color: white; }
     .error { background: #f44336; color: white; }
     #toast {
@@ -21,38 +29,43 @@
 <body>
   <h1>Panel Admin Firebase</h1>
 
-  <h2>Daftar Harga</h2>
-  <input id="hargaInput" placeholder="Contoh: 86 DM - 15.000" />
+  <h2>💸 Daftar Harga</h2>
+  <input id="hargaInput" placeholder="Contoh: 70JT UB - 5000" />
   <button onclick="simpanHarga()">Simpan Harga</button>
 
-  <h2>Testimoni</h2>
+  <h2>🌟 Testimoni</h2>
   <textarea id="testiInput" placeholder="Masukkan testimoni baru..."></textarea>
   <button onclick="simpanTesti()">Simpan Testimoni</button>
 
-  <h2>Promo Spesial</h2>
+  <h2>🔥 Promo Spesial</h2>
   <input id="promoInput" placeholder="Contoh: Promo 20% minggu ini!" />
   <button onclick="simpanPromo()">Simpan Promo</button>
+
+  <h2>🔧 Status Maintenance</h2>
+  <input id="maintenanceInput" placeholder="Ketik true atau false" />
+  <button onclick="updateMaintenance()">Simpan Status Maintenance</button>
 
   <div id="toast"></div>
 
   <script type="module">
-    // Firebase Config kamu
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCLSVgHzEt4a8C7F9KzT-R6rZomPKWWVJU",
+      apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
       authDomain: "paneladmin-83c8a.firebaseapp.com",
       databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
       projectId: "paneladmin-83c8a",
       storageBucket: "paneladmin-83c8a.appspot.com",
-      messagingSenderId: "382280720512",
-      appId: "1:382280720512:web:b4298b7eab3ab1541d88cd"
+      messagingSenderId: "343729471216",
+      appId: "1:343729471216:web:14c357375fa83083c44c35",
+      measurementId: "G-E2G04E4KB5"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // Notifikasi
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
@@ -61,56 +74,42 @@
       setTimeout(() => { toast.style.display = "none"; }, 3000);
     }
 
-    function simpanHarga() {
+    // Fungsi simpan harga
+    window.simpanHarga = function () {
       const val = document.getElementById("hargaInput").value;
       set(ref(db, "harga/1"), val)
         .then(() => showToast("Harga berhasil disimpan"))
         .catch(() => showToast("Gagal simpan harga", false));
     }
 
-    function simpanTesti() {
+    // Fungsi simpan testimoni
+    window.simpanTesti = function () {
       const val = document.getElementById("testiInput").value;
       set(ref(db, "testimoni/1"), val)
         .then(() => showToast("Testimoni berhasil disimpan"))
         .catch(() => showToast("Gagal simpan testimoni", false));
     }
 
-    function simpanPromo() {
-      const val = document.getElementById("promo"), input = document.getElementById("promoInput").value;
-      set(ref(db, "promo"), input)
+    // Fungsi simpan promo
+    window.simpanPromo = function () {
+      const val = document.getElementById("promoInput").value;
+      set(ref(db, "promo"), val)
         .then(() => showToast("Promo berhasil disimpan"))
         .catch(() => showToast("Gagal simpan promo", false));
     }
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
-    authDomain: "paneladmin-83c8a.firebaseapp.com",
-    databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
-    projectId: "paneladmin-83c8a",
-    storageBucket: "paneladmin-83c8a.appspot.com",
-    messagingSenderId: "343729471216",
-    appId: "1:343729471216:web:14c357375fa83083c44c35",
-    measurementId: "G-E2G04E4KB5"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  window.updateMaintenance = function () {
-    const input = document.getElementById("maintenanceInput").value.trim().toLowerCase();
-
-    if (input === "true" || input === "false") {
-      const value = input === "true";
-      set(ref(db, 'maintenance'), value)
-        .then(() => alert("Status maintenance berhasil diubah ke " + input))
-        .catch((error) => alert("Gagal mengubah: " + error));
-    } else {
-      alert("Isi hanya dengan: true atau false (kecil semua)");
+    // Fungsi update maintenance
+    window.updateMaintenance = function () {
+      const input = document.getElementById("maintenanceInput").value.trim().toLowerCase();
+      if (input === "true" || input === "false") {
+        const status = input === "true";
+        set(ref(db, "maintenance"), status)
+          .then(() => showToast("Status maintenance diubah ke " + input.toUpperCase()))
+          .catch(err => showToast("Gagal update: " + err.message, false));
+      } else {
+        showToast("Isi hanya boleh: true atau false", false);
+      }
     }
-  };
-</script>
+  </script>
 </body>
 </html>
