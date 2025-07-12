@@ -50,3 +50,22 @@ window.simpanTestimoni = () => {
     .then(() => showToast("Testimoni berhasil disimpan!"))
     .catch(() => showToast("Gagal simpan testimoni!", false));
 };
+
+// 🔄 Real-time promo banner dari atas
+  const promoTopEl = document.getElementById("promo-top");
+
+  db.collection("promo_banner").onSnapshot((querySnapshot) => {
+    if (querySnapshot.empty) {
+      promoTopEl.classList.remove("show");
+      promoTopEl.innerText = "";
+    } else {
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        promoTopEl.innerText = data.teks || "🔥 Promo Menarik Menantimu!";
+        promoTopEl.classList.add("show");
+      });
+    }
+  }, (error) => {
+    showToast("❌ Gagal memuat promo atas");
+    console.error("Error promo atas:", error);
+  });
