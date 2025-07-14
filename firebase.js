@@ -36,22 +36,3 @@ if (!isAdmin) {
   statusHeader.textContent = aktif ? "🔧 Maintenance: AKTIF" : "✅ Maintenance: NONAKTIF";
 }
 });
-
-// === MAINTENANCE ON/OFF ===
-const maintRef = ref(db, "maintenance");
-const maintBtn = document.getElementById("toggleMaintenance");
-
-// Update label tombol sesuai status Firebase
-onValue(maintRef, (snapshot) => {
-  const aktif = snapshot.val();
-  maintBtn.textContent = aktif ? "Matikan Maintenance 🔴" : "Aktifkan Maintenance 🟢";
-});
-
-// Fungsi toggle maintenance
-maintBtn.onclick = async () => {
-  const snapshot = await get(maintRef);
-  const current = snapshot.val();
-  await set(maintRef, !current)
-    .then(() => showToast(`Maintenance berhasil ${!current ? "diaktifkan" : "dimatikan"}`))
-    .catch(err => showToast("Gagal update maintenance: " + err.message, false));
-};
