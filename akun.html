@@ -55,9 +55,11 @@
     .akun img {
       max-width: 100%;
       border-radius: 8px;
+      margin-bottom: 10px;
     }
     .akun h3 {
       margin-bottom: 5px;
+      color: #0f172a;
     }
     .btn-wa {
       display: inline-block;
@@ -73,6 +75,13 @@
     .btn-wa:hover {
       background-color: #1ebe5d;
     }
+    .hapus-btn {
+      margin-top: 10px;
+      background: #f87171;
+    }
+    .hapus-btn:hover {
+      background: #ef4444;
+    }
   </style>
 </head>
 <body>
@@ -80,7 +89,7 @@
 
   <div class="form-container">
     <input type="text" id="nama" placeholder="Nama Akun">
-    <input type="text" id="harga" placeholder="Harga (contoh: 20.000)">
+    <input type="text" id="harga" placeholder="Harga (contoh: 20000)">
     <input type="text" id="spek" placeholder="Spesifikasi Akun">
     <textarea id="deskripsi" placeholder="Deskripsi/Testimoni" rows="3"></textarea>
     <input type="text" id="gambar" placeholder="URL Gambar Bukti Akun">
@@ -130,7 +139,7 @@
         if (data) {
           Object.entries(data).forEach(([key, akun]) => {
             const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}* yang dijual`);
-            const nomorWA = "6289520418604"; // GANTI dengan nomor WA kamu
+            const nomorWA = "6289520418604"; // GANTI DENGAN NOMOR WHATSAPP KAMU
             const linkWA = `https://wa.me/${nomorWA}?text=${pesanWA}`;
 
             container.innerHTML += `
@@ -140,9 +149,8 @@
                 <p><strong>Harga:</strong> Rp${akun.harga}</p>
                 <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
                 <p>${akun.deskripsi}</p>
-                <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a>
-                <br><br>
-                <button onclick="hapusAkun('${key}')">Hapus</button>
+                <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a><br>
+                <button class="hapus-btn" onclick="hapusAkun('${key}')">Hapus</button>
               </div>
             `;
           });
