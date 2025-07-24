@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Jual Akun BUSSID</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f1f5f9;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #0ea5e9;
+    }
+    .form-container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #0ea5e9;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0284c7;
+    }
+    .preview {
+      margin-top: 40px;
+    }
+    .akun {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      margin: 20px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .akun img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    .akun h3 {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel - Jual Akun BUSSID</h1>
+
+  <div class="form-container">
+    <input type="text" id="nama" placeholder="Nama Akun">
+    <input type="text" id="harga" placeholder="Harga (contoh: 20.000)">
+    <input type="text" id="spek" placeholder="Spesifikasi Akun">
+    <textarea id="deskripsi" placeholder="Deskripsi/Testimoni" rows="3"></textarea>
+    <input type="text" id="gambar" placeholder="URL Gambar Bukti Akun">
+    <button onclick="tambahAkun()">Tambah Akun</button>
+  </div>
+
+  <div class="preview" id="daftarAkun"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
+      authDomain: "paneladmin-83c8a.firebaseapp.com",
+      databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
+      projectId: "paneladmin-83c8a",
+      storageBucket: "paneladmin-83c8a.appspot.com",
+      messagingSenderId: "343729471216",
+      appId: "1:343729471216:web:14c357375fa83083c44c35"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function tambahAkun() {
+      const nama = document.getElementById('nama').value;
+      const harga = document.getElementById('harga').value;
+      const spek = document.getElementById('spek').value;
+      const deskripsi = document.getElementById('deskripsi').value;
+      const gambar = document.getElementById('gambar').value;
+
+      if (!nama || !harga || !spek || !gambar) {
+        alert("Semua field wajib diisi!");
+        return;
+      }
+
+      const akunBaru = { nama, harga, spek, deskripsi, gambar };
+      const newKey = db.ref().child("jualAkun").push().key;
+      db.ref("jualAkun/" + newKey).set(akunBaru, () => {
+        alert("Akun berhasil ditambahkan!");
+        location.reload();
+      });
+    }
+
+    function muatAkun() {
+      const container = document.getElementById("daftarAkun");
+      container.innerHTML = "<h2 style='text-align:center;'>Preview Akun</h2>";
+      db.ref("jualAkun").once("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          Object.entries(data).forEach(([key, akun]) => {
+            container.innerHTML += `
+              <div class="akun" id="akun-${key}">
+                <h3>${akun.nama}</h3>
+                <img src="${akun.gambar}" alt="Bukti Akun">
+                <p><strong>Harga:</strong> Rp${akun.harga}</p>
+                <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
+                <p>${akun.deskripsi}</p>
+                <button onclick="hapusAkun('${key}')">Hapus</button>
+              </div>
+            `;
+          });
+        }
+      });
+    }
+
+    function hapusAkun(kunci) {
+      if (confirm("Yakin ingin menghapus akun ini?")) {
+        db.ref("jualAkun/" + kunci).remove(() => {
+          document.getElementById("akun-" + kunci).remove();
+        });
+      }
+    }
+
+    muatAkun();
+  </script>
+</body>
+</html>
