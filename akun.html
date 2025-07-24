@@ -132,32 +132,31 @@
     }
 
     function muatAkun() {
-      const container = document.getElementById("daftarAkun");
-      container.innerHTML = "<h2 style='text-align:center;'>Preview Akun</h2>";
-      db.ref("jualAkun").once("value", (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          Object.entries(data).forEach(([key, akun]) => {
-            const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}* yang dijual`);
-            const nomorWA = "6289520418604"; // GANTI DENGAN NOMOR WHATSAPP KAMU
-            const linkWA = `https://wa.me/${nomorWA}?text=${pesanWA}`;
+  const container = document.getElementById("daftarAkun");
+  container.innerHTML = "<h2 style='text-align:center;'>Preview Akun</h2>";
+  db.ref("jualAkun").once("value", (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      Object.entries(data).forEach(([key, akun]) => {
+        const nomorWA = "6289520418604"; // Ganti dengan nomormu
+        const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}* yang dijual`);
+        const linkWA = `https://wa.me/${nomorWA}?text=${pesanWA}`;
 
-            container.innerHTML += `
-              <div class="akun" id="akun-${key}">
-                <h3>${akun.nama}</h3>
-                <img src="${akun.gambar}" alt="Bukti Akun">
-                <p><strong>Harga:</strong> Rp${akun.harga}</p>
-                <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
-                <p>${akun.deskripsi}</p>
-                <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a><br>
-                <button class="hapus-btn" onclick="hapusAkun('${key}')">Hapus</button>
-              </div>
-            `;
-          });
-        }
+        container.innerHTML += `
+          <div class="akun" id="akun-${key}">
+            <h3>${akun.nama}</h3>
+            <img src="${akun.gambar}" alt="Bukti Akun">
+            <p><strong>Harga:</strong> Rp${akun.harga}</p>
+            <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
+            <p>${akun.deskripsi}</p>
+            <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a><br>
+            <button class="hapus-btn" onclick="hapusAkun('${key}')">Hapus</button>
+          </div>
+        `;
       });
     }
-
+  });
+}
     function hapusAkun(kunci) {
       if (confirm("Yakin ingin menghapus akun ini?")) {
         db.ref("jualAkun/" + kunci).remove(() => {
