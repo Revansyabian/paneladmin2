@@ -59,6 +59,20 @@
     .akun h3 {
       margin-bottom: 5px;
     }
+    .btn-wa {
+      display: inline-block;
+      background-color: #25D366;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .btn-wa:hover {
+      background-color: #1ebe5d;
+    }
   </style>
 </head>
 <body>
@@ -115,6 +129,10 @@
         const data = snapshot.val();
         if (data) {
           Object.entries(data).forEach(([key, akun]) => {
+            const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}* yang dijual`);
+            const nomorWA = "6289520418604"; // GANTI dengan nomor WA kamu
+            const linkWA = `https://wa.me/${nomorWA}?text=${pesanWA}`;
+
             container.innerHTML += `
               <div class="akun" id="akun-${key}">
                 <h3>${akun.nama}</h3>
@@ -122,6 +140,8 @@
                 <p><strong>Harga:</strong> Rp${akun.harga}</p>
                 <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
                 <p>${akun.deskripsi}</p>
+                <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a>
+                <br><br>
                 <button onclick="hapusAkun('${key}')">Hapus</button>
               </div>
             `;
