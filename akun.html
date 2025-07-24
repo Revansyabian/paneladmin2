@@ -138,9 +138,9 @@
     const data = snapshot.val();
     if (data) {
       Object.entries(data).forEach(([key, akun]) => {
-        const nomorWA = "6289520418604"; // Ganti dengan nomormu
-        const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}* yang dijual`);
-        const linkWA = `https://wa.me/6289520418604?text=Halo saya mau beli akun`;
+        const nomorWA = "6289520418604"; // Nomor WA kamu
+        const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}* yang kamu jual. Masih tersedia?`);
+        const linkWA = `https://wa.me/${nomorWA}?text=${pesanWA}`;
 
         container.innerHTML += `
           <div class="akun" id="akun-${key}">
@@ -149,7 +149,7 @@
             <p><strong>Harga:</strong> Rp${akun.harga}</p>
             <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
             <p>${akun.deskripsi}</p>
-            <a href="https://wa.me/6289520418604?text=Halo saya mau beli akun" target="_blank" class="btn-wa">Beli via WhatsApp</a><br>
+            <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a><br>
             <button class="hapus-btn" onclick="hapusAkun('${key}')">Hapus</button>
           </div>
         `;
