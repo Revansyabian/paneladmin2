@@ -132,6 +132,64 @@
         .then(() => showToast(`Promo berhasil ${!current ? "diaktifkan" : "dimatikan"}`))
         .catch(err => showToast("Gagal update promo: " + err.message, false));
     };
-  </script>
+<script>
+  const db = firebase.database();
+
+  function muatAkun() {
+    const container = document.getElementById("daftarAkun");
+    container.innerHTML = "";
+    db.ref("jualAkun").once("value", (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        Object.entries(data).forEach(([key, akun]) => {
+          container.innerHTML += `
+            <div id="akun-${key}">
+              <h4>${akun.judul}</h4>
+              <p><b>Harga:</b> ${akun.harga}</p>
+              <p>${akun.deskripsi}</p>
+              <img src="${akun.gambar}" style="width:100px"><br>
+              <button onclick="hapusAkun('${key}')">Hapus</button>
+            </div>
+            <hr>
+          `;
+        });
+      }
+    });
+  }
+
+  function tambahAkun() {
+    const judul = document.getElementById("judulBaru").value;
+    const harga = document.getElementById("hargaBaru").value;
+    const deskripsi = document.getElementById("deskripsiBaru").value;
+    const gambar = document.getElementById("gambarBaru").value;
+
+    if (!judul || !harga || !deskripsi || !gambar) {
+      alert("Semua kolom harus diisi!");
+      return;
+    }
+
+    const id = "akun" + Date.now();
+    db.ref("jualAkun/" + id).set({ judul, harga, deskripsi, gambar })
+      .then(() => {
+        alert("Akun berhasil ditambahkan!");
+        document.getElementById("judulBaru").value = "";
+        document.getElementById("hargaBaru").value = "";
+        document.getElementById("deskripsiBaru").value = "";
+        document.getElementById("gambarBaru").value = "";
+        muatAkun();
+      });
+  }
+
+  function hapusAkun(key) {
+    if (confirm("Yakin ingin menghapus akun ini?")) {
+      db.ref("jualAkun/" + key).remove().then(() => {
+        document.getElementById("akun-" + key).remove();
+      });
+    }
+  }
+
+  // Panggil pertama kali
+  muatAkun();
+</script>
 </body>
 </html>
