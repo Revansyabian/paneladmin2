@@ -81,6 +81,13 @@
     }
     .hapus-btn:hover {
       background: #ef4444;
+   }
+.foto-akun {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
     }
   </style>
 </head>
@@ -145,7 +152,7 @@
         container.innerHTML += `
           <div class="akun" id="akun-${key}">
             <h3>${akun.nama}</h3>
-            <img src="${akun.gambar}" alt="Bukti Akun">
+            <img src="${akun.gambar}" alt="Foto Akun" class="foto-akun" />
             <p><strong>Harga:</strong> Rp${akun.harga}</p>
             <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
             <p>${akun.deskripsi}</p>
