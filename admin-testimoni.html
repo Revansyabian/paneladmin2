@@ -43,14 +43,29 @@
     button:hover {
       background-color: #0a58ca;
     }
-    .preview {
+    .preview, .daftar-testimoni {
       margin-top: 30px;
       text-align: center;
     }
-    .preview img {
+    .testimoni-item {
+      display: inline-block;
+      margin: 15px;
+      padding: 15px;
+      border: 2px solid #000;
+      border-radius: 10px;
+      background-color: deepskyblue;
+      max-width: 300px;
+    }
+    .testimoni-item img {
       max-width: 100%;
       border-radius: 10px;
       margin-bottom: 10px;
+    }
+    .hapus-btn {
+      background-color: crimson;
+      padding: 8px;
+      margin-top: 10px;
+      width: 100%;
     }
   </style>
 </head>
@@ -62,7 +77,12 @@
     <input type="text" id="pembayaran" placeholder="Metode Pembayaran (Contoh: QRIS)" />
     <input type="text" id="gambar" placeholder="URL Gambar Testimoni" />
     <button onclick="tambahTestimoni()">Tambah Testimoni</button>
-  </div>  <div class="preview" id="preview"></div>  <script>
+  </div>
+
+  <div class="preview" id="preview"></div>
+  <div class="daftar-testimoni" id="daftarTestimoni"><h3>Semua Testimoni:</h3></div>
+
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
       authDomain: "paneladmin-83c8a.firebaseapp.com",
@@ -87,13 +107,7 @@
         return;
       }
 
-      const data = {
-        nama,
-        nominal,
-        pembayaran,
-        gambar
-      };
-
+      const data = { nama, nominal, pembayaran, gambar };
       const key = db.ref().child("testimoni").push().key;
       db.ref("testimoni/" + key).set(data, () => {
         alert("Testimoni berhasil ditambahkan!");
@@ -102,6 +116,7 @@
         document.getElementById("nominal").value = "";
         document.getElementById("pembayaran").value = "";
         document.getElementById("gambar").value = "";
+        muatTestimoni();
       });
     }
 
@@ -109,7 +124,7 @@
       const div = document.getElementById('preview');
       div.innerHTML = `
         <h3>Preview Testimoni:</h3>
-        <div style="border: 2px solid #000; padding: 15px; border-radius: 10px; background-color: deepskyblue; display: inline-block; max-width: 300px">
+        <div class="testimoni-item">
           <img src="${data.gambar}" alt="Preview">
           <strong>${data.nama}</strong>
           <p>𝙉𝙊𝙈𝙄𝙉𝘼𝙇: ${data.nominal}</p>
@@ -117,5 +132,40 @@
         </div>
       `;
     }
-  </script></body>
+
+    function muatTestimoni() {
+      const container = document.getElementById("daftarTestimoni");
+      container.innerHTML = "<h3>Semua Testimoni:</h3>";
+
+      db.ref("testimoni").once("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          Object.entries(data).forEach(([key, item]) => {
+            const html = `
+              <div class="testimoni-item">
+                <img src="${item.gambar}" alt="Gambar">
+                <strong>${item.nama}</strong>
+                <p>𝙉𝙊𝙈𝙄𝙉𝘼𝙇: ${item.nominal}</p>
+                <p>𝙋𝙀𝙈𝘽𝘼𝙔𝘼𝙍𝘼𝙉: ${item.pembayaran}</p>
+                <button class="hapus-btn" onclick="hapusTestimoni('${key}')">Hapus</button>
+              </div>
+            `;
+            container.innerHTML += html;
+          });
+        }
+      });
+    }
+
+    function hapusTestimoni(id) {
+      if (confirm("Yakin ingin menghapus testimoni ini?")) {
+        db.ref("testimoni/" + id).remove(() => {
+          alert("Testimoni berhasil dihapus!");
+          muatTestimoni();
+        });
+      }
+    }
+
+    muatTestimoni(); // Load awal
+  </script>
+</body>
 </html>
