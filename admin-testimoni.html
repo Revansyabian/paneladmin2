@@ -1,127 +1,68 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Testimoni</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel Admin Testimoni</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: #f1f5f9;
-      margin: 0;
+      background-color: #f4f8fb;
       padding: 20px;
     }
-
-    h1 {
+    h2 {
       text-align: center;
-      color: #0ea5e9;
+      color: #0d6efd;
     }
-
-    .admin-form {
+    .form-container {
+      max-width: 600px;
+      margin: auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
-      max-width: 500px;
-      margin: 30px auto;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-
     input, textarea {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border-radius: 6px;
+      padding: 12px;
+      margin: 10px 0;
       border: 1px solid #ccc;
-      font-family: 'Poppins', sans-serif;
+      border-radius: 8px;
     }
-
     button {
-      background-color: #0ea5e9;
+      background-color: #0d6efd;
       color: white;
-      padding: 10px 16px;
+      padding: 12px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0284c7;
-    }
-
-    .testimoni {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      max-width: 500px;
-      margin: 20px auto;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .testimoni img {
-      width: 250px;
-      border-radius: 12px;
-      border: 2px solid #000;
-      margin-bottom: 12px;
-    }
-
-    .bubble {
-      border: 1px solid #000;
-      background: #e0f2fe;
-      padding: 12px;
-      border-radius: 12px;
-      color: #000;
-      font-weight: 500;
-      margin-bottom: 10px;
-    }
-
-    .nama {
+      width: 100%;
       font-weight: bold;
-      color: #0ea5e9;
-      margin-bottom: 8px;
     }
-
-    .tombol-container {
-      text-align: center;
+    button:hover {
+      background-color: #0a58ca;
+    }
+    .preview {
       margin-top: 30px;
+      text-align: center;
     }
-
-    .btn-kembali {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-    }
-
-    .btn-kembali:hover {
-      background-color: #0056b3;
+    .preview img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-
-  <h1>Panel Admin Testimoni</h1>
-
-  <div class="admin-form">
-    <h2>Tambah Testimoni</h2>
-    <input id="nama" placeholder="Nama Pengirim">
-    <textarea id="pesan" placeholder="Pesan Testimoni"></textarea>
-    <input id="gambar" placeholder="URL Gambar Bukti">
-    <button onclick="tambahTestimoni()">Tambah</button>
-  </div>
-
-  <div id="daftarTestimoni"></div>
-
-  <div class="tombol-container">
-    <a href="welcome.html" class="btn-kembali">← Kembali ke Beranda</a>
-  </div>
-
-  <script>
+  <h2>Panel Admin Testimoni</h2>
+  <div class="form-container">
+    <input type="text" id="nama" placeholder="@Username Testimoni" />
+    <input type="text" id="nominal" placeholder="Nominal (Contoh: Rp50.000)" />
+    <input type="text" id="pembayaran" placeholder="Metode Pembayaran (Contoh: QRIS)" />
+    <input type="text" id="gambar" placeholder="URL Gambar Testimoni" />
+    <button onclick="tambahTestimoni()">Tambah Testimoni</button>
+  </div>  <div class="preview" id="preview"></div>  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
       authDomain: "paneladmin-83c8a.firebaseapp.com",
@@ -135,60 +76,46 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function muatTestimoni() {
-      const container = document.getElementById("daftarTestimoni");
-      container.innerHTML = "";
-      db.ref("testimoni").once("value", (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          Object.entries(data).forEach(([key, t]) => {
-            container.innerHTML += `
-              <div class="testimoni" id="testi-${key}">
-                <img src="${t.gambar}" alt="Bukti Testimoni">
-                <div class="bubble">${t.pesan}</div>
-                <div class="nama">- ${t.nama}</div>
-                <button onclick="hapusTestimoni('${key}')">Hapus</button>
-              </div>
-            `;
-          });
-        } else {
-          container.innerHTML = "<p style='text-align:center;'>Belum ada testimoni.</p>";
-        }
-      });
-    }
-
     function tambahTestimoni() {
-      const nama = document.getElementById("nama").value;
-      const pesan = document.getElementById("pesan").value;
-      const gambar = document.getElementById("gambar").value;
+      const nama = document.getElementById('nama').value;
+      const nominal = document.getElementById('nominal').value;
+      const pembayaran = document.getElementById('pembayaran').value;
+      const gambar = document.getElementById('gambar').value;
 
-      if (!nama || !pesan || !gambar) {
-        alert("Lengkapi semua kolom!");
+      if (!nama || !nominal || !pembayaran || !gambar) {
+        alert("Harap isi semua data.");
         return;
       }
 
-      const dataBaru = { nama, pesan, gambar };
+      const data = {
+        nama,
+        nominal,
+        pembayaran,
+        gambar
+      };
+
       const key = db.ref().child("testimoni").push().key;
-      db.ref("testimoni/" + key).set(dataBaru, () => {
-        alert("Testimoni ditambahkan!");
+      db.ref("testimoni/" + key).set(data, () => {
+        alert("Testimoni berhasil ditambahkan!");
+        tampilkanPreview(data);
         document.getElementById("nama").value = "";
-        document.getElementById("pesan").value = "";
+        document.getElementById("nominal").value = "";
+        document.getElementById("pembayaran").value = "";
         document.getElementById("gambar").value = "";
-        muatTestimoni();
       });
     }
 
-    function hapusTestimoni(key) {
-      if (confirm("Hapus testimoni ini?")) {
-        db.ref("testimoni/" + key).remove(() => {
-          document.getElementById("testi-" + key).remove();
-        });
-      }
+    function tampilkanPreview(data) {
+      const div = document.getElementById('preview');
+      div.innerHTML = `
+        <h3>Preview Testimoni:</h3>
+        <div style="border: 2px solid #000; padding: 15px; border-radius: 10px; background-color: deepskyblue; display: inline-block; max-width: 300px">
+          <img src="${data.gambar}" alt="Preview">
+          <strong>${data.nama}</strong>
+          <p>𝙉𝙊𝙈𝙄𝙉𝘼𝙇: ${data.nominal}</p>
+          <p>𝙋𝙀𝙈𝘽𝘼𝙔𝘼𝙍𝘼𝙉: ${data.pembayaran}</p>
+        </div>
+      `;
     }
-
-    // Load saat halaman dibuka
-    muatTestimoni();
-  </script>
-
-</body>
+  </script></body>
 </html>
