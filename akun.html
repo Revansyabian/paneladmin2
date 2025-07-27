@@ -24,7 +24,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 10px;
       margin-bottom: 12px;
@@ -41,6 +41,21 @@
     }
     button:hover {
       background-color: #0284c7;
+    }
+    .hapus-btn {
+      margin-top: 10px;
+      background: #f87171;
+    }
+    .hapus-btn:hover {
+      background: #ef4444;
+    }
+    .ubah-status-btn {
+      margin-top: 10px;
+      background: #facc15;
+      color: #1f2937;
+    }
+    .ubah-status-btn:hover {
+      background: #eab308;
     }
     .preview {
       margin-top: 40px;
@@ -75,19 +90,22 @@
     .btn-wa:hover {
       background-color: #1ebe5d;
     }
-    .hapus-btn {
-      margin-top: 10px;
-      background: #f87171;
+    .status {
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 10px;
+      background: #f3f4f6;
+      color: #1f2937;
     }
-    .hapus-btn:hover {
-      background: #ef4444;
-   }
-.foto-akun {
-  max-width: 50%;
-  max-height: 150px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 10px;
+    .sold {
+      background: #fca5a5;
+      color: #991b1b;
+    }
+    .available {
+      background: #bbf7d0;
+      color: #166534;
     }
   </style>
 </head>
@@ -100,6 +118,10 @@
     <input type="text" id="spek" placeholder="Spesifikasi Akun">
     <textarea id="deskripsi" placeholder="Deskripsi/Testimoni" rows="3"></textarea>
     <input type="text" id="gambar" placeholder="URL Gambar Bukti Akun">
+    <select id="status">
+      <option value="tersedia">Tersedia</option>
+      <option value="terjual">Terjual</option>
+    </select>
     <button onclick="tambahAkun()">Tambah Akun</button>
   </div>
 
@@ -124,13 +146,14 @@
       const spek = document.getElementById('spek').value;
       const deskripsi = document.getElementById('deskripsi').value;
       const gambar = document.getElementById('gambar').value;
+      const status = document.getElementById('status').value;
 
-      if (!nama || !harga || !spek || !gambar) {
+      if (!nama || !harga || !spek || !gambar || !status) {
         alert("Semua field wajib diisi!");
         return;
       }
 
-      const akunBaru = { nama, harga, spek, deskripsi, gambar };
+      const akunBaru = { nama, harga, spek, deskripsi, gambar, status };
       const newKey = db.ref().child("jualAkun").push().key;
       db.ref("jualAkun/" + newKey).set(akunBaru, () => {
         alert("Akun berhasil ditambahkan!");
@@ -138,38 +161,52 @@
       });
     }
 
-    function muatAkun() {
-  const container = document.getElementById("daftarAkun");
-  container.innerHTML = "<h2 style='text-align:center;'>Preview Akun</h2>";
-  db.ref("jualAkun").once("value", (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      Object.entries(data).forEach(([key, akun]) => {
-        const nomorWA = "6289520418604"; // Nomor WA kamu
-        const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}* yang kamu jual. Masih tersedia?`);
-        const linkWA = `https://wa.me/${nomorWA}?text=${pesanWA}`;
-
-        container.innerHTML += `
-          <div class="akun" id="akun-${key}">
-            <h3>${akun.nama}</h3>
-            <img src="${akun.gambar}" alt="Foto Akun" class="foto-akun" />
-            <p><strong>Harga:</strong> Rp${akun.harga}</p>
-            <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
-            <p>${akun.deskripsi}</p>
-            <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a><br>
-            <button class="hapus-btn" onclick="hapusAkun('${key}')">Hapus</button>
-          </div>
-        `;
+    function ubahStatus(kunci, statusBaru) {
+      db.ref("jualAkun/" + kunci + "/status").set(statusBaru, () => {
+        muatAkun(); // refresh data
       });
     }
-  });
-}
+
     function hapusAkun(kunci) {
       if (confirm("Yakin ingin menghapus akun ini?")) {
         db.ref("jualAkun/" + kunci).remove(() => {
           document.getElementById("akun-" + kunci).remove();
         });
       }
+    }
+
+    function muatAkun() {
+      const container = document.getElementById("daftarAkun");
+      container.innerHTML = "<h2 style='text-align:center;'>Preview Akun</h2>";
+      db.ref("jualAkun").once("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          Object.entries(data).forEach(([key, akun]) => {
+            const nomorWA = "6289520418604";
+            const pesanWA = encodeURIComponent(`Halo, saya tertarik beli akun BUSSID *${akun.nama}*. Masih tersedia?`);
+            const linkWA = `https://wa.me/${nomorWA}?text=${pesanWA}`;
+            const statusKelas = akun.status === "terjual" ? "sold" : "available";
+            const statusLabel = akun.status === "terjual" ? "TERJUAL" : "TERSEDIA";
+            const statusTombol = akun.status === "terjual"
+              ? `<button class="ubah-status-btn" onclick="ubahStatus('${key}', 'tersedia')">Tandai Tersedia</button>`
+              : `<button class="ubah-status-btn" onclick="ubahStatus('${key}', 'terjual')">Tandai Terjual</button>`;
+
+            container.innerHTML += `
+              <div class="akun" id="akun-${key}">
+                <span class="status ${statusKelas}">${statusLabel}</span>
+                <h3>${akun.nama}</h3>
+                <img src="${akun.gambar}" alt="Foto Akun" class="foto-akun" />
+                <p><strong>Harga:</strong> Rp${akun.harga}</p>
+                <p><strong>Spesifikasi:</strong> ${akun.spek}</p>
+                <p>${akun.deskripsi}</p>
+                <a href="${linkWA}" target="_blank" class="btn-wa">Beli via WhatsApp</a><br>
+                ${statusTombol}
+                <button class="hapus-btn" onclick="hapusAkun('${key}')">Hapus</button>
+              </div>
+            `;
+          });
+        }
+      });
     }
 
     muatAkun();
