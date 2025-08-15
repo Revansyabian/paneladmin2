@@ -5,28 +5,111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel Admin</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-    h1 { color: #0077cc; }
-    h2 { margin-top: 30px; }
-    input, textarea, button {
-      display: block; width: 100%; margin-top: 10px; padding: 10px;
-      border: 1px solid #ccc; border-radius: 5px;
+    body { 
+      font-family: 'Segoe UI', sans-serif; 
+      padding: 20px; 
+      background: white; 
+      max-width: 800px; 
+      margin: 0 auto;
+    }
+    h1 { 
+      color: deepskyblue; 
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h2 { 
+      margin-top: 30px; 
+      color: #333;
+      border-bottom: 2px solid deepskyblue;
+      padding-bottom: 5px;
+    }
+    input, textarea {
+      display: block; 
+      width: 100%; 
+      margin-top: 10px; 
+      padding: 12px;
+      border: 2px solid #e0e0e0; 
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+    input:focus, textarea:focus {
+      border-color: deepskyblue;
+      outline: none;
     }
     button {
-      background: #0077cc; color: white; border: none; cursor: pointer;
-      margin-top: 15px;
+      display: block; 
+      width: 100%; 
+      margin-top: 15px; 
+      padding: 12px;
+      border: none; 
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
     }
-    button:hover { background: #005fa3; }
-    .success { background: #4caf50; color: white; }
-    .error { background: #f44336; color: white; }
+    #togglePromo {
+      background: deepskyblue;
+      color: white;
+    }
+    #togglePromo:hover {
+      background: #00b7ff;
+    }
+    button:nth-of-type(1) { /* Simpan Harga */
+      background: #4CAF50; /* Hijau */
+      color: white;
+    }
+    button:nth-of-type(1):hover {
+      background: #45a049;
+    }
+    button:nth-of-type(2) { /* Simpan Testimoni */
+      background: deepskyblue;
+      color: white;
+    }
+    button:nth-of-type(2):hover {
+      background: #00b7ff;
+    }
+    button:nth-of-type(3) { /* Simpan Promo */
+      background: #f44336; /* Merah */
+      color: white;
+    }
+    button:nth-of-type(3):hover {
+      background: #d32f2f;
+    }
+    button:nth-of-type(4) { /* Maintenance */
+      background: #ff9800; /* Oranye */
+      color: white;
+    }
+    button:nth-of-type(4):hover {
+      background: #e68a00;
+    }
+    .success { 
+      background: #4CAF50; 
+      color: white; 
+    }
+    .error { 
+      background: #f44336; 
+      color: white; 
+    }
     #toast {
-      position: fixed; bottom: 20px; right: 20px;
-      padding: 10px 20px; border-radius: 5px;
+      position: fixed; 
+      top: 20px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      padding: 15px 30px; 
+      border-radius: 8px;
       display: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      font-weight: bold;
+      text-align: center;
     }
   </style>
 </head>
 <body>
+  <div id="toast"></div>
+
   <h1>Panel Admin Firebase</h1>
 
   <h2>💸 Daftar Harga</h2>
@@ -42,13 +125,11 @@
   <button onclick="simpanPromo()">Simpan Promo</button>
 
   <h2>🔧 Status Maintenance</h2>
-<input id="maintenanceInput" placeholder="Ketik true atau false" />
-<button onclick="updateMaintenance()">Simpan Status Maintenance</button>
+  <input id="maintenanceInput" placeholder="Ketik true atau false" />
+  <button onclick="updateMaintenance()">Simpan Status Maintenance</button>
 
   <h2>🎯 Status Promo Aktif</h2>
   <button id="togglePromo">Muat...</button>
-
-  <div id="toast"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -68,7 +149,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Notifikasi
+    // Notifikasi (sudah dipindah ke atas)
     function showToast(msg, success = true) {
       const toast = document.getElementById("toast");
       toast.textContent = msg;
@@ -132,7 +213,6 @@
         .then(() => showToast(`Promo berhasil ${!current ? "diaktifkan" : "dimatikan"}`))
         .catch(err => showToast("Gagal update promo: " + err.message, false));
     };
-
-</script>
+  </script>
 </body>
 </html>
