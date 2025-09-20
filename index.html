@@ -1,218 +1,263 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel Admin</title>
-  <style>
-    body { 
-      font-family: 'Segoe UI', sans-serif; 
-      padding: 20px; 
-      background: white; 
-      max-width: 800px; 
-      margin: 0 auto;
-    }
-    h1 { 
-      color: deepskyblue; 
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    h2 { 
-      margin-top: 30px; 
-      color: #333;
-      border-bottom: 2px solid deepskyblue;
-      padding-bottom: 5px;
-    }
-    input, textarea {
-      display: block; 
-      width: 100%; 
-      margin-top: 10px; 
-      padding: 12px;
-      border: 2px solid #e0e0e0; 
-      border-radius: 8px;
-      font-size: 16px;
-      transition: border 0.3s;
-    }
-    input:focus, textarea:focus {
-      border-color: deepskyblue;
-      outline: none;
-    }
-    button {
-      display: block; 
-      width: 100%; 
-      margin-top: 15px; 
-      padding: 12px;
-      border: none; 
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    #togglePromo {
-      background: deepskyblue;
-      color: white;
-    }
-    #togglePromo:hover {
-      background: #00b7ff;
-    }
-    button:nth-of-type(1) { /* Simpan Harga */
-      background: #4CAF50; /* Hijau */
-      color: white;
-    }
-    button:nth-of-type(1):hover {
-      background: #45a049;
-    }
-    button:nth-of-type(2) { /* Simpan Testimoni */
-      background: deepskyblue;
-      color: white;
-    }
-    button:nth-of-type(2):hover {
-      background: #00b7ff;
-    }
-    button:nth-of-type(3) { /* Simpan Promo */
-      background: #f44336; /* Merah */
-      color: white;
-    }
-    button:nth-of-type(3):hover {
-      background: #d32f2f;
-    }
-    button:nth-of-type(4) { /* Maintenance */
-      background: #ff9800; /* Oranye */
-      color: white;
-    }
-    button:nth-of-type(4):hover {
-      background: #e68a00;
-    }
-    .success { 
-      background: #4CAF50; 
-      color: white; 
-    }
-    .error { 
-      background: #f44336; 
-      color: white; 
-    }
-    #toast {
-      position: fixed; 
-      top: 20px; 
-      left: 50%; 
-      transform: translateX(-50%);
-      padding: 15px 30px; 
-      border-radius: 8px;
-      display: none;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 1000;
-      font-weight: bold;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background-color: #357ae8;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .admin-panel {
+            text-align: center;
+        }
+        
+        .admin-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        
+        .admin-button:hover {
+            background-color: #357ae8;
+        }
+        
+        .button-1 {
+            background-color: #4285f4;
+        }
+        
+        .button-2 {
+            background-color: #34a853;
+        }
+        
+        .button-3 {
+            background-color: #fbbc05;
+            color: #333;
+        }
+        
+        .logout-button {
+            background-color: #d32f2f;
+            margin-top: 20px;
+        }
+        
+        .logout-button:hover {
+            background-color: #b71c1c;
+        }
+        
+        .user-info {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .admin-settings {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .admin-settings h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-  <div id="toast"></div>
+    <!-- Login Form -->
+    <div class="container" id="login-container">
+        <h2>Login Admin</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="error-message" id="login-error">
+            Username atau password salah
+        </div>
+    </div>
 
-  <h1>Panel Admin Firebase</h1>
+    <!-- Admin Panel -->
+    <div class="container admin-panel" id="admin-panel" style="display: none;">
+        <h2>Panel Admin</h2>
+        <div class="user-info" id="user-info">
+            Selamat datang, Admin!
+        </div>
+        
+        <a href="#" class="admin-button button-1">Panel testimoni</a>
+        <a href="#" class="admin-button button-2">Panel akun</a>
+        <a href="#" class="admin-button button-3">Panel promo& Analitik</a>
+        
+        
+        <button class="admin-button logout-button" id="logout-button">Logout</button>
+    </div>
 
-  <h2>💸 Daftar Harga</h2>
-  <input id="hargaInput" placeholder="Contoh: 70JT UB - 5000" />
-  <button onclick="simpanHarga()">Simpan Harga</button>
+    <script>
+        // Data akun admin (bisa diubah melalui form)
+        let adminAccounts = [
+            { username: "admin", password: "admin123", accessCode: "1111" }
+        ];
 
-  <h2>🌟 Testimoni</h2>
-  <textarea id="testiInput" placeholder="Masukkan testimoni baru..."></textarea>
-  <button onclick="simpanTesti()">Simpan Testimoni</button>
+        // Elemen DOM
+        const loginContainer = document.getElementById('login-container');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutButton = document.getElementById('logout-button');
+        const userInfo = document.getElementById('user-info');
+        const updateAccountBtn = document.getElementById('update-account');
 
-  <h2>🔥 Promo Spesial</h2>
-  <input id="promoInput" placeholder="Contoh: Promo 20% minggu ini!" />
-  <button onclick="simpanPromo()">Simpan Promo</button>
+        // Event listener untuk form login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Cek kredensial
+            const validAccount = adminAccounts.find(acc => 
+                acc.username === username && acc.password === password
+            );
+            
+            if (validAccount) {
+                // Login berhasil
+                loginError.style.display = 'none';
+                showAdminPanel(username);
+            } else {
+                // Login gagal
+                loginError.style.display = 'block';
+            }
+        });
 
-  <h2>🔧 Status Maintenance</h2>
-  <input id="maintenanceInput" placeholder="Ketik true atau false" />
-  <button onclick="updateMaintenance()">Simpan Status Maintenance</button>
+        // Event listener untuk update akun
+        updateAccountBtn.addEventListener('click', () => {
+            const newUsername = document.getElementById('new-username').value;
+            const newPassword = document.getElementById('new-password').value;
+            const accessCode = document.getElementById('access-code').value;
+            
+            // Cek kode akses
+            if (accessCode !== adminAccounts[0].accessCode) {
+                alert('Kode akses salah!');
+                return;
+            }
+            
+            // Update akun
+            if (newUsername) adminAccounts[0].username = newUsername;
+            if (newPassword) adminAccounts[0].password = newPassword;
+            
+            alert('Akun admin berhasil diperbarui!');
+            
+            // Reset form
+            document.getElementById('new-username').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('access-code').value = '';
+        });
 
-  <h2>🎯 Status Promo Aktif</h2>
-  <button id="togglePromo">Muat...</button>
+        // Event listener untuk logout
+        logoutButton.addEventListener('click', () => {
+            adminPanel.style.display = 'none';
+            loginContainer.style.display = 'block';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        });
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        // Fungsi untuk menampilkan panel admin
+        function showAdminPanel(username) {
+            loginContainer.style.display = 'none';
+            adminPanel.style.display = 'block';
+            userInfo.textContent = `Selamat datang, ${username}!`;
+        }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
-      authDomain: "paneladmin-83c8a.firebaseapp.com",
-      databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
-      projectId: "paneladmin-83c8a",
-      storageBucket: "paneladmin-83c8a.appspot.com",
-      messagingSenderId: "343729471216",
-      appId: "1:343729471216:web:14c357375fa83083c44c35",
-      measurementId: "G-E2G04E4KB5"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // Notifikasi (sudah dipindah ke atas)
-    function showToast(msg, success = true) {
-      const toast = document.getElementById("toast");
-      toast.textContent = msg;
-      toast.className = success ? "success" : "error";
-      toast.style.display = "block";
-      setTimeout(() => { toast.style.display = "none"; }, 3000);
-    }
-
-    // Fungsi simpan harga
-    window.simpanHarga = function () {
-      const val = document.getElementById("hargaInput").value;
-      set(ref(db, "harga/1"), val)
-        .then(() => showToast("Harga berhasil disimpan"))
-        .catch(() => showToast("Gagal simpan harga", false));
-    }
-
-    // Fungsi simpan testimoni
-    window.simpanTesti = function () {
-      const val = document.getElementById("testiInput").value;
-      set(ref(db, "testimoni/1"), val)
-        .then(() => showToast("Testimoni berhasil disimpan"))
-        .catch(() => showToast("Gagal simpan testimoni", false));
-    }
-
-    // Fungsi simpan promo
-    window.simpanPromo = function () {
-      const val = document.getElementById("promoInput").value;
-      set(ref(db, "promo"), val)
-        .then(() => showToast("Promo berhasil disimpan"))
-        .catch(() => showToast("Gagal simpan promo", false));
-    }
-
-    // Fungsi update maintenance
-    window.updateMaintenance = function () {
-      const input = document.getElementById("maintenanceInput").value.trim().toLowerCase();
-      if (input === "true" || input === "false") {
-        const status = input === "true";
-        set(ref(db, "maintenance"), status)
-          .then(() => showToast("Status maintenance diubah ke " + input.toUpperCase()))
-          .catch(err => showToast("Gagal update: " + err.message, false));
-      } else {
-        showToast("Isi hanya boleh: true atau false", false);
-      }
-    }
-
-    // === PROMO ON/OFF ===
-    const promoRef = ref(db, "promoAktif");
-    const toggleBtn = document.getElementById("togglePromo");
-
-    // Update label tombol sesuai status Firebase
-    onValue(promoRef, (snapshot) => {
-      const aktif = snapshot.val();
-      toggleBtn.textContent = aktif ? "Matikan Promo 🔴" : "Aktifkan Promo 🟢";
-    });
-
-    // Fungsi toggle promo
-    toggleBtn.onclick = async () => {
-      const snapshot = await get(promoRef);
-      const current = snapshot.val();
-      await set(promoRef, !current)
-        .then(() => showToast(`Promo berhasil ${!current ? "diaktifkan" : "dimatikan"}`))
-        .catch(err => showToast("Gagal update promo: " + err.message, false));
-    };
-  </script>
+        // Cek jika sudah login (dari sessionStorage)
+        const loggedInUser = sessionStorage.getItem('adminLoggedIn');
+        if (loggedInUser) {
+            showAdminPanel(loggedInUser);
+        }
+    </script>
 </body>
 </html>
