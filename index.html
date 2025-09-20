@@ -13,7 +13,7 @@
         }
         
         body {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,240 +23,302 @@
         
         .container {
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            transition: all 0.3s;
+            max-width: 450px;
+            padding: 40px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
         
         h2 {
-            text-align: center;
-            margin-bottom: 20px;
             color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            text-align: left;
         }
         
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #555;
+            font-weight: 500;
         }
         
-        input[type="text"],
         input[type="password"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 4px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="password"]:focus {
+            border-color: deepskyblue;
+            outline: none;
         }
         
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #4285f4;
+            padding: 16px;
+            background-color: deepskyblue;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 17px;
+            font-weight: 600;
+            transition: background-color 0.3s;
         }
         
         button:hover {
-            background-color: #357ae8;
+            background-color: #00b7eb;
         }
         
         .error-message {
-            color: #d32f2f;
+            color: #ff3b30;
             text-align: center;
             margin-top: 15px;
             display: none;
+            font-weight: 500;
         }
         
-        .admin-panel {
+        .code-info {
             text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        /* Admin Panel Styles */
+        .admin-header {
+            margin-bottom: 30px;
+        }
+        
+        .user-info {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 25px;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .admin-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
         }
         
         .admin-button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background-color: #4285f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 20px;
+            background-color: deepskyblue;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 191, 255, 0.25);
             text-decoration: none;
         }
         
         .admin-button:hover {
-            background-color: #357ae8;
+            background-color: #00b7eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 191, 255, 0.35);
         }
         
-        .button-1 {
-            background-color: #4285f4;
-        }
-        
-        .button-2 {
-            background-color: #34a853;
-        }
-        
-        .button-3 {
-            background-color: #fbbc05;
-            color: #333;
+        .admin-button i {
+            margin-right: 10px;
+            font-size: 20px;
         }
         
         .logout-button {
-            background-color: #d32f2f;
-            margin-top: 20px;
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: white;
+            color: #ff3b30;
+            border: 2px solid #ff3b30;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
         .logout-button:hover {
-            background-color: #b71c1c;
+            background-color: #ff3b30;
+            color: white;
         }
         
-        .user-info {
-            margin-bottom: 20px;
-            color: #666;
-            font-size: 14px;
+        /* Animasi */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .admin-settings {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        .admin-button {
+            animation: fadeIn 0.5s ease-out;
         }
         
-        .admin-settings h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #333;
+        .admin-button:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        .admin-button:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        
+        .admin-button:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+        
+        .admin-button:nth-child(5) {
+            animation-delay: 0.4s;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- Login Form -->
     <div class="container" id="login-container">
         <h2>Login Admin</h2>
+        <p class="subtitle">Masukkan kode akses untuk masuk ke panel admin</p>
+        
         <form id="login-form">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" required>
+                <label for="access-code">Kode Akses</label>
+                <input type="password" id="access-code" placeholder="••••" required>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">Login</button>
+            <button type="submit">Masuk</button>
         </form>
         <div class="error-message" id="login-error">
-            Username atau password salah
+            Kode akses salah
+        </div>
         </div>
     </div>
 
     <!-- Admin Panel -->
-    <div class="container admin-panel" id="admin-panel" style="display: none;">
-        <h2>Panel Admin</h2>
-        <div class="user-info" id="user-info">
-            Selamat datang, Admin!
+    <div class="container" id="admin-panel" style="display: none;">
+        <div class="admin-header">
+            <h2>Panel Admin</h2>
+            <p class="subtitle">Pilih panel yang ingin Anda kelola</p>
         </div>
         
-        <a href="#" class="admin-button button-1">Panel testimoni</a>
-        <a href="#" class="admin-button button-2">Panel akun</a>
-        <a href="#" class="admin-button button-3">Panel promo& Analitik</a>
+        <div class="user-info">
+            <i class="fas fa-user-shield"></i> Status: <span>Administrator</span>
+        </div>
         
+        <div class="admin-buttons">
+            <a href="panel-maintenance.html" class="admin-button">
+                <i class="fas fa-tools"></i> Panel Maintenance
+            </a>
+            
+            <a href="admin-testimoni.html" class="admin-button">
+                <i class="fas fa-star"></i> Panel Testimoni
+            </a>
+            
+            <a href="akun.html" class="admin-button">
+                <i class="fas fa-user-cog"></i> Panel Akun
+            </a>
+            
+            <a href="promo.html" class="admin-button">
+                <i class="fas fa-tag"></i> Panel Promo
+            </a>
+            
+            <a href="panel-admin.html" class="admin-button">
+                <i class="fas fa-users-cog"></i> Panel Admin
+            </a>
+        </div>
         
-        <button class="admin-button logout-button" id="logout-button">Logout</button>
     </div>
 
     <script>
-        // Data akun admin (bisa diubah melalui form)
-        let adminAccounts = [
-            { username: "admin", password: "admin123", accessCode: "1111" }
-        ];
+        // ==============================
+        // KODE AKSES (BISA DIUBAH MANUAL)
+        // ==============================
+        // Default: 1111
+        // Untuk mengubah, ganti nilai variabel accessCode di bawah
+        let accessCode = "1";
+        // ==============================
 
         // Elemen DOM
         const loginContainer = document.getElementById('login-container');
         const adminPanel = document.getElementById('admin-panel');
         const loginForm = document.getElementById('login-form');
         const loginError = document.getElementById('login-error');
-        const logoutButton = document.getElementById('logout-button');
-        const userInfo = document.getElementById('user-info');
-        const updateAccountBtn = document.getElementById('update-account');
+
+        // Pastikan halaman login ditampilkan pertama kali
+        document.addEventListener('DOMContentLoaded', function() {
+            // Selalu tampilkan form login pertama kali
+            loginContainer.style.display = 'block';
+            adminPanel.style.display = 'none';
+            
+            // Reset form
+            document.getElementById('access-code').value = '';
+        });
 
         // Event listener untuk form login
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const enteredCode = document.getElementById('access-code').value;
             
-            // Cek kredensial
-            const validAccount = adminAccounts.find(acc => 
-                acc.username === username && acc.password === password
-            );
-            
-            if (validAccount) {
+            // Cek kode akses
+            if (enteredCode === accessCode) {
                 // Login berhasil
                 loginError.style.display = 'none';
-                showAdminPanel(username);
+                showAdminPanel();
             } else {
                 // Login gagal
                 loginError.style.display = 'block';
             }
         });
 
-        // Event listener untuk update akun
-        updateAccountBtn.addEventListener('click', () => {
-            const newUsername = document.getElementById('new-username').value;
-            const newPassword = document.getElementById('new-password').value;
-            const accessCode = document.getElementById('access-code').value;
-            
-            // Cek kode akses
-            if (accessCode !== adminAccounts[0].accessCode) {
-                alert('Kode akses salah!');
-                return;
-            }
-            
-            // Update akun
-            if (newUsername) adminAccounts[0].username = newUsername;
-            if (newPassword) adminAccounts[0].password = newPassword;
-            
-            alert('Akun admin berhasil diperbarui!');
-            
-            // Reset form
-            document.getElementById('new-username').value = '';
-            document.getElementById('new-password').value = '';
-            document.getElementById('access-code').value = '';
-        });
-
-        // Event listener untuk logout
-        logoutButton.addEventListener('click', () => {
-            adminPanel.style.display = 'none';
-            loginContainer.style.display = 'block';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        });
-
         // Fungsi untuk menampilkan panel admin
-        function showAdminPanel(username) {
+        function showAdminPanel() {
             loginContainer.style.display = 'none';
             adminPanel.style.display = 'block';
-            userInfo.textContent = `Selamat datang, ${username}!`;
         }
-
-        // Cek jika sudah login (dari sessionStorage)
-        const loggedInUser = sessionStorage.getItem('adminLoggedIn');
-        if (loggedInUser) {
-            showAdminPanel(loggedInUser);
+        
+        // Fungsi logout
+        function logout() {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                // Kembali ke halaman login
+                adminPanel.style.display = 'none';
+                loginContainer.style.display = 'block';
+                
+                // Reset form
+                document.getElementById('access-code').value = '';
+            }
         }
     </script>
 </body>
