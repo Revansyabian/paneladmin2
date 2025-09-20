@@ -107,6 +107,28 @@
       background: #bbf7d0;
       color: #166534;
     }
+        .btn-wa, .btn-kembali {
+      display: inline-block;
+      padding: 12px 20px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn-wa {
+      background: deepskyblue;
+      color: white;
+    }
+
+    .btn-kembali {
+      background: #fff;
+      color: deepskyblue;
+      margin-top: 40px;
+      border: 1px solid deepskyblue;
+    }
   </style>
 </head>
 <body>
@@ -124,6 +146,8 @@
     </select>
     <button onclick="tambahAkun()">Tambah Akun</button>
   </div>
+
+  <a href="welcome.html" class="btn-kembali">← Kembali ke Beranda</a>
 
   <div class="preview" id="daftarAkun"></div>
 
