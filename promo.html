@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin Promo Gambar</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    header {
+      background: deepskyblue;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .admin-content {
+      padding: 20px;
+    }
+    
+    .section {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid deepskyblue;
+    }
+    
+    .section h2 {
+      color: #00688B;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #444;
+    }
+    
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+    
+    input[type="text"]:focus, input[type="url"]:focus {
+      border-color: deepskyblue;
+      outline: none;
+    }
+    
+    .instructions {
+      background: #e3f2fd;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    
+    .instructions ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+    
+    .instructions li {
+      margin-bottom: 5px;
+    }
+    
+    .link-button {
+      display: inline-block;
+      background: deepskyblue;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+      margin-top: 10px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    
+    .link-button:hover {
+      background: #00b7ff;
+    }
+    
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: deepskyblue;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+    
+    button:hover {
+      background: #00b7ff;
+    }
+    
+    .toggle-btn {
+      background: #4CAF50;
+    }
+    
+    .toggle-btn:hover {
+      background: #45a049;
+    }
+    
+    .toggle-btn.off {
+      background: #f44336;
+    }
+    
+    .toggle-btn.off:hover {
+      background: #d32f2f;
+    }
+    
+    .preview-container {
+      margin-top: 20px;
+      text-align: center;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      border: 2px dashed #ddd;
+    }
+    
+    .preview-image {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: none;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    
+    .status-on {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .status-off {
+      background: #f44336;
+      color: white;
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 30px;
+      border-radius: 8px;
+      display: none;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .toast.success {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .toast.error {
+      background: #f44336;
+      color: white;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        border-radius: 0;
+      }
+      
+      header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-image"></i> Panel Admin Promo Gambar</h1>
+    </header>
+    
+    <div class="admin-content">
+      <div class="section">
+        <h2><i class="fas fa-upload"></i> Upload Gambar Promo</h2>
+        
+        <div class="form-group">
+          <label for="promoImageUrl">URL Gambar Promo:</label>
+          <input type="url" id="promoImageUrl" placeholder="Tempel link gambar dari postimg.cc" />
+        </div>
+        
+        <div class="instructions">
+          <p><strong>Cara upload gambar:</strong></p>
+          <ol>
+            <li>Kunjungi <a href="https://postimg.cc/" target="_blank">postimg.cc</a></li>
+            <li>Klik "Choose images" dan pilih gambar</li>
+            <li>Tunggu hingga upload selesai</li>
+            <li>Salin link "Direct Link"</li>
+            <li>Tempel link di atas</li>
+          </ol>
+          <a href="https://postimg.cc/" target="_blank" class="link-button">Buka PostImage</a>
+        </div>
+        
+        <button onclick="previewImage()">
+          <i class="fas fa-eye"></i> Preview Gambar
+        </button>
+        
+        <div class="preview-container">
+          <p>Preview akan muncul di sini</p>
+          <img id="previewImage" class="preview-image" />
+        </div>
+        
+        <button onclick="updatePromoImage()">
+          <i class="fas fa-save"></i> Simpan Gambar Promo
+        </button>
+      </div>
+      
+      <div class="section">
+        <h2>
+          <i class="fas fa-power-off"></i> Status Promo
+          <span id="statusIndicator" class="status-indicator status-off">OFF</span>
+        </h2>
+        
+        <p>Nyalakan atau matikan promo gambar untuk pengunjung website.</p>
+        
+        <button id="togglePromoBtn" class="toggle-btn off" onclick="togglePromo()">
+          <i class="fas fa-toggle-off"></i> Nyalakan Promo
+        </button>
+      </div>
+      
+      <div class="section">
+        <h2><i class="fas fa-info-circle"></i> Informasi</h2>
+        <p>Perubahan yang dilakukan di panel ini akan langsung mempengaruhi tampilan promo gambar di website utama.</p>
+        <p>Pastikan URL gambar yang dimasukkan adalah link langsung ke gambar (bukan halaman website).</p>
+      </div>
+    </div>
+    
+    <footer>
+      <p>&copy; 2025 Top Up Bussid | Panel Admin</p>
+    </footer>
+  </div>
+  
+  <div id="toast" class="toast"></div>
+
+  <!-- Font Awesome for icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
+      authDomain: "paneladmin-83c8a.firebaseapp.com",
+      databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
+      projectId: "paneladmin-83c8a",
+      storageBucket: "paneladmin-83c8a.appspot.com",
+      messagingSenderId: "343729471216",
+      appId: "1:343729471216:web:14c357375fa83083c44c35",
+      measurementId: "G-E2G04E4KB5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Referensi untuk data promo gambar
+    const promoAktifRef = ref(db, "promoAktif");
+    const promoImageRef = ref(db, "promoImage");
+
+    // Notifikasi
+    function showToast(msg, success = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = success ? "toast success" : "toast error";
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    // Fungsi untuk preview gambar
+    window.previewImage = function () {
+      const imageUrl = document.getElementById("promoImageUrl").value;
+      const previewImage = document.getElementById("previewImage");
+      const previewContainer = document.querySelector(".preview-container");
+      
+      if (imageUrl) {
+        previewImage.src = imageUrl;
+        previewImage.style.display = "block";
+        previewContainer.querySelector("p").textContent = "Preview Gambar:";
+        
+        // Cek jika gambar gagal dimuat
+        previewImage.onerror = function() {
+          previewImage.style.display = "none";
+          previewContainer.querySelector("p").textContent = "Gagal memuat gambar. Pastikan link valid.";
+          showToast("Gagal memuat gambar. Pastikan link valid.", false);
+        };
+        
+        previewImage.onload = function() {
+          showToast("Gambar berhasil dimuat!", true);
+        };
+      } else {
+        previewImage.style.display = "none";
+        previewContainer.querySelector("p").textContent = "Masukkan link gambar terlebih dahulu";
+        showToast("Masukkan link gambar terlebih dahulu", false);
+      }
+    }
+
+    // Fungsi untuk update gambar promo
+    window.updatePromoImage = function () {
+      const imageUrl = document.getElementById("promoImageUrl").value.trim();
+      
+      if (imageUrl) {
+        set(promoImageRef, imageUrl)
+          .then(() => {
+            showToast("Gambar promo berhasil disimpan!");
+            // Otomatis aktifkan promo setelah mengupload gambar
+            set(promoAktifRef, true)
+              .then(() => {
+                updateToggleButton(true);
+                showToast("Promo otomatis diaktifkan!");
+              });
+          })
+          .catch(err => {
+            showToast("Gagal menyimpan gambar: " + err.message, false);
+          });
+      } else {
+        showToast("Masukkan URL gambar terlebih dahulu", false);
+      }
+    }
+
+    // Fungsi untuk toggle status promo
+    window.togglePromo = async function () {
+      const snapshot = await get(promoAktifRef);
+      const currentStatus = snapshot.val();
+      const newStatus = !currentStatus;
+      
+      set(promoAktifRef, newStatus)
+        .then(() => {
+          updateToggleButton(newStatus);
+          showToast(`Promo berhasil ${newStatus ? "diaktifkan" : "dimatikan"}`);
+        })
+        .catch(err => {
+          showToast("Gagal mengubah status promo: " + err.message, false);
+        });
+    }
+
+    // Update tampilan tombol toggle
+    function updateToggleButton(isActive) {
+      const toggleBtn = document.getElementById("togglePromoBtn");
+      const statusIndicator = document.getElementById("statusIndicator");
+      
+      if (isActive) {
+        toggleBtn.innerHTML = '<i class="fas fa-toggle-on"></i> Matikan Promo';
+        toggleBtn.classList.remove("off");
+        statusIndicator.textContent = "ON";
+        statusIndicator.className = "status-indicator status-on";
+      } else {
+        toggleBtn.innerHTML = '<i class="fas fa-toggle-off"></i> Nyalakan Promo';
+        toggleBtn.classList.add("off");
+        statusIndicator.textContent = "OFF";
+        statusIndicator.className = "status-indicator status-off";
+      }
+    }
+
+    // Muat data yang sudah ada saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', (event) => {
+      // Muat status promo
+      onValue(promoAktifRef, (snapshot) => {
+        const promoAktif = snapshot.val();
+        updateToggleButton(promoAktif);
+      });
+
+      // Muat gambar promo yang sudah ada
+      onValue(promoImageRef, (snapshot) => {
+        const promoImage = snapshot.val();
+        if (promoImage) {
+          document.getElementById("promoImageUrl").value = promoImage;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
