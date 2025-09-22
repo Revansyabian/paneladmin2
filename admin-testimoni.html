@@ -14,7 +14,7 @@
     }
     h2 {
       text-align: center;
-      color: #0d6efd; 
+      color: #0d6efd;
     }
     .form-container {
       max-width: 600px;
@@ -23,8 +23,9 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: relative;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
@@ -56,6 +57,8 @@
       border-radius: 10px;
       background-color: deepskyblue;
       max-width: 300px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     .testimoni-item img {
       max-width: 100%;
@@ -68,15 +71,76 @@
       margin-top: 10px;
       width: 100%;
     }
+    .upload-container {
+      position: relative;
+      margin: 10px 0;
+    }
+    .upload-label {
+      display: block;
+      padding: 12px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f9f9f9;
+    }
+    .upload-label:hover {
+      background-color: #f0f0f0;
+    }
+    #file-input {
+      display: none;
+    }
+    .upload-status {
+      margin-top: 5px;
+      font-size: 14px;
+      color: #666;
+    }
+    .upload-preview {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <h2>Panel Admin Testimoni</h2>
   <div class="form-container">
     <input type="text" id="nama" placeholder="@Username Testimoni" />
-    <input type="text" id="nominal" placeholder="Nominal (Contoh: Rp50.000)" />
-    <input type="text" id="pembayaran" placeholder="Metode Pembayaran (Contoh: QRIS)" />
-    <input type="text" id="gambar" placeholder="URL Gambar Testimoni" />
+    
+    <!-- Dropdown untuk nominal -->
+    <select id="nominal">
+      <option value="" disabled selected>Pilih Nominal</option>
+      <option value="Rp1.000">Rp1.000</option>
+      <option value="Rp5.000">Rp5.000</option>
+      <option value="Rp10.000">Rp10.000</option>
+      <option value="Rp15.000">Rp15.000</option>
+      <option value="Rp20.000">Rp20.000</option>
+      <option value="Rp25.000">Rp25.000</option>
+      <option value="Rp30.000">Rp30.000</option>
+      <option value="Rp35.000">Rp35.000</option>
+      <option value="Rp40.000">Rp40.000</option>
+      <option value="Rp45.000">Rp45.000</option>
+      <option value="Rp50.000">Rp50.000</option>
+    </select>
+    
+    <!-- Dropdown untuk metode pembayaran -->
+    <select id="pembayaran">
+      <option value="" disabled selected>Pilih Metode Pembayaran</option>
+      <option value="DANA">DANA</option>
+      <option value="QRIS">QRIS</option>
+    </select>
+    
+    <!-- Mengganti input URL dengan upload file -->
+    <div class="upload-container">
+      <label for="file-input" class="upload-label">
+        Pilih Gambar Testimoni (Klik atau Drop di sini)
+      </label>
+      <input type="file" id="file-input" accept="image/*" />
+      <div class="upload-status" id="upload-status">Belum ada gambar dipilih</div>
+      <img id="upload-preview" class="upload-preview" />
+    </div>
+    
     <textarea id="pesan" placeholder="Pesan dari Buyer (contoh: Makasih akunnya bang!)"></textarea>
     <button onclick="tambahTestimoni()">Tambah Testimoni</button>
   </div>
@@ -98,28 +162,130 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Variabel global untuk menyimpan URL gambar yang diupload
+    let uploadedImageUrl = '';
+
+    // Event listener untuk input file
+    document.getElementById('file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        // Tampilkan preview gambar
+        const preview = document.getElementById('upload-preview');
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+        
+        // Update status
+        document.getElementById('upload-status').textContent = 'Mengupload gambar...';
+        
+        // Upload gambar ke ImgBB
+        uploadImageToImgBB(file);
+      }
+    });
+
+    // Fungsi untuk upload gambar ke ImgBB
+    function uploadImageToImgBB(file) {
+      const apiKey = '9d04842a4c2430722af9d98eb43c8294'; // Ganti dengan API key ImgBB Anda
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          uploadedImageUrl = data.data.url;
+          document.getElementById('upload-status').textContent = 'Gambar berhasil diupload!';
+        } else {
+          document.getElementById('upload-status').textContent = 'Error: ' + data.error.message;
+          console.error('ImgBB Error:', data.error);
+        }
+      })
+      .catch(error => {
+        document.getElementById('upload-status').textContent = 'Error uploading gambar';
+        console.error('Upload Error:', error);
+      });
+    }
+
+    // Drag and drop functionality
+    const dropArea = document.querySelector('.upload-container');
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+      dropArea.style.backgroundColor = '#f0f0f0';
+    }
+
+    function unhighlight() {
+      dropArea.style.backgroundColor = '#f9f9f9';
+    }
+
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      document.getElementById('file-input').files = files;
+      
+      // Trigger change event manually
+      const event = new Event('change');
+      document.getElementById('file-input').dispatchEvent(event);
+    }
+
     function tambahTestimoni() {
       const nama = document.getElementById('nama').value;
       const nominal = document.getElementById('nominal').value;
       const pembayaran = document.getElementById('pembayaran').value;
-      const gambar = document.getElementById('gambar').value;
       const pesan = document.getElementById('pesan').value;
 
-      if (!nama || !nominal || !pembayaran || !gambar || !pesan) {
-        alert("Harap isi semua data.");
+      if (!nama || !nominal || !pembayaran || !pesan) {
+        alert("Harap isi semua data teks.");
         return;
       }
 
-      const data = { nama, nominal, pembayaran, gambar, pesan };
+      if (!uploadedImageUrl) {
+        alert("Harap upload gambar terlebih dahulu.");
+        return;
+      }
+
+      const data = { 
+        nama, 
+        nominal, 
+        pembayaran, 
+        gambar: uploadedImageUrl, 
+        pesan 
+      };
+      
       const key = db.ref().child("testimoni").push().key;
       db.ref("testimoni/" + key).set(data, () => {
         alert("Testimoni berhasil ditambahkan!");
         tampilkanPreview(data);
+        
+        // Reset form
         document.getElementById("nama").value = "";
         document.getElementById("nominal").value = "";
         document.getElementById("pembayaran").value = "";
-        document.getElementById("gambar").value = "";
         document.getElementById("pesan").value = "";
+        document.getElementById("upload-status").textContent = "Belum ada gambar dipilih";
+        document.getElementById("upload-preview").style.display = "none";
+        document.getElementById("file-input").value = "";
+        uploadedImageUrl = '';
+        
         muatTestimoni();
       });
     }
