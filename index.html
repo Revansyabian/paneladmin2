@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin</title>
+    <title>Panel Admin</title>
     <style>
         * {
             box-sizing: border-box;
@@ -47,74 +47,6 @@
             color: #666;
             margin-bottom: 30px;
             font-size: 16px;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-        
-        input[type="password"] {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 18px;
-            text-align: center;
-            letter-spacing: 4px;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="password"]:focus {
-            border-color: deepskyblue;
-            outline: none;
-        }
-        
-        button {
-            width: 100%;
-            padding: 16px;
-            background-color: deepskyblue;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 17px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #00b7eb;
-        }
-        
-        .error-message {
-            color: #ff3b30;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-            font-weight: 500;
-        }
-        
-        .code-info {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
-        
-        /* Admin Panel Styles */
-        .admin-header {
-            margin-bottom: 30px;
         }
         
         .user-info {
@@ -208,10 +140,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Login Form --
-
     <!-- Admin Panel -->
-    <div class="container" id="admin-panel" style="display: none;">
+    <div class="container" id="admin-panel">
         <div class="admin-header">
             <h2>Panel Admin</h2>
             <p class="subtitle">Pilih panel yang ingin Anda kelola</p>
@@ -243,65 +173,18 @@
             </a>
         </div>
         
+        <button class="logout-button" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
     </div>
 
     <script>
-        // ==============================
-        // KODE AKSES (BISA DIUBAH MANUAL)
-        // ==============================
-        // Default: 1111
-        // Untuk mengubah, ganti nilai variabel accessCode di bawah
-        let accessCode = "1";
-        // ==============================
-
-        // Elemen DOM
-        const loginContainer = document.getElementById('login-container');
-        const adminPanel = document.getElementById('admin-panel');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-
-        // Pastikan halaman login ditampilkan pertama kali
-        document.addEventListener('DOMContentLoaded', function() {
-            // Selalu tampilkan form login pertama kali
-            loginContainer.style.display = 'block';
-            adminPanel.style.display = 'none';
-            
-            // Reset form
-            document.getElementById('access-code').value = '';
-        });
-
-        // Event listener untuk form login
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const enteredCode = document.getElementById('access-code').value;
-            
-            // Cek kode akses
-            if (enteredCode === accessCode) {
-                // Login berhasil
-                loginError.style.display = 'none';
-                showAdminPanel();
-            } else {
-                // Login gagal
-                loginError.style.display = 'block';
-            }
-        });
-
-        // Fungsi untuk menampilkan panel admin
-        function showAdminPanel() {
-            loginContainer.style.display = 'none';
-            adminPanel.style.display = 'block';
-        }
-        
         // Fungsi logout
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
-                // Kembali ke halaman login
-                adminPanel.style.display = 'none';
-                loginContainer.style.display = 'block';
-                
-                // Reset form
-                document.getElementById('access-code').value = '';
+                alert('Anda telah logout dari panel admin.');
+                // Di sini Anda bisa menambahkan redirect ke halaman lain jika diperlukan
+                // window.location.href = 'index.html';
             }
         }
     </script>
