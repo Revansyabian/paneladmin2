@@ -1502,7 +1502,7 @@
 
     <!-- Konten website normal -->
     <div class="running-text-container" id="runningTextContainer" style="display: none;">
-        <div class="running-text" id="runningText"></div>
+        <div class="running-text" id="runningText">Selamat datang di Jasa Top Up BUSSID - Proses cepat dan aman!</div>
     </div>
 
     <!-- Promo Banner - FULL SCREEN -->
@@ -1511,8 +1511,8 @@
             <button class="promo-banner-close" id="promoBannerClose">
                 <i class="fas fa-times"></i>
             </button>
-            <h3 id="promoBannerTitle">Judul Promo</h3>
-            <p id="promoBannerText">Teks promo akan muncul di sini</p>
+            <h3 id="promoBannerTitle">Promo Spesial!</h3>
+            <p id="promoBannerText">Dapatkan diskon khusus untuk pembelian pertama Anda!</p>
             <img id="promoBannerImage" class="promo-banner-image" alt="Promo Banner">
             <div class="promo-banner-actions">
                 <button class="btn-promo btn-promo-primary" id="promoBannerAction">
@@ -1549,8 +1549,9 @@
             </button>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-loading">
-                <i class="fas fa-spinner fa-spin"></i> Memuat pesan...
+            <div class="chat-empty">
+                <i class="fas fa-comments"></i>
+                <p>Belum ada pesan. Mulai percakapan!</p>
             </div>
         </div>
         <div class="chat-input-container">
@@ -1610,7 +1611,7 @@
 
         <!-- User Info (akan muncul setelah login) -->
         <div class="user-info" id="userInfo">
-            <img id="userAvatar" class="user-avatar" alt="Avatar Pengguna">
+            <img id="userAvatar" class="user-avatar" src="https://via.placeholder.com/60/00BFFF/FFFFFF?text=User" alt="Avatar Pengguna">
             <div class="user-name" id="userName">Nama Pengguna</div>
             <div class="user-email" id="userEmail">email@example.com</div>
             <div class="user-login-time" id="userLoginTime">Login: -</div>
@@ -1619,8 +1620,8 @@
         <!-- Login Section (akan muncul sebelum login) -->
         <div class="login-section" id="loginSection">
             <button class="login-btn" id="loginBtn">
-                <i class="fab fa-google"></i>
-                Login dengan Google
+                <i class="fas fa-user"></i>
+                Login Demo
             </button>
         </div>
 
@@ -1660,7 +1661,7 @@
         <section>
             <h2><i class="fas fa-money-bill-wave"></i> Daftar Harga</h2>
             <ul class="harga" id="priceList">
-                <!-- Harga akan dimuat secara dinamis dari Firebase -->
+                <!-- Harga akan dimuat secara statis -->
             </ul>
         </section>
         
@@ -1683,7 +1684,7 @@
             <h2><i class="fas fa-images"></i> Produk Kami</h2>
             <p>Lihat berbagai macam produk kami:</p>
             <div class="produk-container" id="produkContainer">
-                <!-- Produk akan dimuat secara dinamis dari Firebase -->
+                <!-- Produk akan dimuat secara statis -->
             </div>
         </section>
         
@@ -1698,7 +1699,7 @@
         <section>
             <h2><i class="fas fa-question-circle"></i> FAQ Lengkap</h2>
             <div class="accordion" id="faqContainer">
-                <!-- FAQ akan dimuat secara dinamis dari Firebase -->
+                <!-- FAQ akan dimuat secara statis -->
             </div>
         </section>
 
@@ -1720,48 +1721,35 @@
         &copy; 2025 Top Up Bussid | Layanan Aman dan Terpercaya
     </footer>
 
-    <!-- SCRIPT UTAMA YANG DIPERBAIKI -->
-    <script type="module">
-        // ==================== FIREBASE AUTH & BASIC FUNCTIONALITY ====================
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-        // Konfigurasi Firebase utama
-        const firebaseConfig = {
-            apiKey: "AIzaSyAYleQn2yLOdMwPzT5n6FPTLhiMnaFhnu8",
-            authDomain: "revanstore-a92a7.firebaseapp.com",
-            databaseURL: "https://revanstore-a92a7-default-rtdb.firebaseio.com",
-            projectId: "revanstore-a92a7",
-            storageBucket: "revanstore-a92a7.firebasestorage.app",
-            messagingSenderId: "1054152032422",
-            appId: "1:1054152032422:web:83349880ce5cf4e4de3467",
-            measurementId: "G-FL822LMWEJ"
-        };
-
-        // Inisialisasi Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        
-        // Setup Google Auth Provider
-        const provider = new GoogleAuthProvider();
-        provider.addScope('profile');
-        provider.addScope('email');
-        auth.languageCode = 'id';
-
-        // ==================== BASIC DOM FUNCTIONALITY ====================
+    <!-- SCRIPT SEDERHANA TANPA FIREBASE -->
+    <script>
+        // ==================== SISTEM LOGIN SEDERHANA ====================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing basic functionality...');
+            console.log('Website loaded successfully!');
             
-            // Menu Toggle Functionality
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Initialize semua functionality
+            initMenu();
+            initLoginSystem();
+            initBasicFunctionality();
+            initContent();
+            initChatSystem();
+            
+            console.log('All systems initialized!');
+        }
+
+        // ==================== MENU FUNCTIONALITY ====================
+        function initMenu() {
             const menuToggle = document.getElementById('menuToggle');
             const navContainer = document.getElementById('navContainer');
             const overlay = document.getElementById('overlay');
             const closeMenu = document.getElementById('closeMenu');
             
             function toggleMenu() {
-                console.log('Toggle menu clicked');
+                console.log('Menu toggled');
                 navContainer.classList.toggle('active');
                 overlay.classList.toggle('active');
                 document.body.style.overflow = navContainer.classList.contains('active') ? 'hidden' : '';
@@ -1770,151 +1758,115 @@
             if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
             if (overlay) overlay.addEventListener('click', toggleMenu);
             if (closeMenu) closeMenu.addEventListener('click', toggleMenu);
-            
-            // Test jika event listener bekerja
-            console.log('Menu toggle elements initialized:', {
-                menuToggle: !!menuToggle,
-                navContainer: !!navContainer,
-                overlay: !!overlay,
-                closeMenu: !!closeMenu
-            });
-
-            // Initialize accordion
-            initAccordion();
-            
-            // Initialize other basic functionalities
-            initBasicFunctionality();
-        });
-
-        // ==================== AUTH FUNCTIONALITY ====================
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const loginSection = document.getElementById('loginSection');
-        const settingsSection = document.getElementById('settingsSection');
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const userEmail = document.getElementById('userEmail');
-        const userAvatar = document.getElementById('userAvatar');
-        const userLoginTime = document.getElementById('userLoginTime');
-        const darkModeToggle = document.getElementById('darkModeToggle');
-
-        // Login function dengan error handling yang lebih baik
-        if (loginBtn) {
-            loginBtn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                console.log('Login button clicked');
-                
-                try {
-                    // Tampilkan loading state
-                    const originalText = loginBtn.innerHTML;
-                    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuka Google Login...';
-                    loginBtn.disabled = true;
-                    
-                    console.log('Attempting Google login...');
-                    
-                    const result = await signInWithPopup(auth, provider);
-                    console.log('Login successful:', result.user);
-                    
-                    // Reset button state
-                    loginBtn.innerHTML = originalText;
-                    loginBtn.disabled = false;
-                    
-                } catch (error) {
-                    console.error('Login error:', error);
-                    
-                    // Reset button state
-                    loginBtn.innerHTML = '<i class="fab fa-google"></i> Login dengan Google';
-                    loginBtn.disabled = false;
-                    
-                    // Show user-friendly error message
-                    if (error.code === 'auth/popup-blocked') {
-                        alert('Popup login diblokir. Silakan izinkan popup untuk website ini.');
-                    } else if (error.code === 'auth/popup-closed-by-user') {
-                        console.log('User closed the login popup');
-                    } else {
-                        alert('Login gagal: ' + error.message);
-                    }
-                }
-            });
-        } else {
-            console.error('Login button not found!');
         }
 
-        // Logout function
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async function() {
-                try {
-                    if (confirm('Apakah Anda yakin ingin logout?')) {
-                        await signOut(auth);
-                        console.log('Logout successful');
-                    }
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    alert('Logout gagal: ' + error.message);
-                }
-            });
-        }
+        // ==================== LOGIN SYSTEM ====================
+        function initLoginSystem() {
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginSection = document.getElementById('loginSection');
+            const settingsSection = document.getElementById('settingsSection');
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+            const userLoginTime = document.getElementById('userLoginTime');
+            const darkModeToggle = document.getElementById('darkModeToggle');
 
-        // Auth state listener
-        onAuthStateChanged(auth, (user) => {
-            console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
-            
-            if (user) {
-                // User is signed in
-                if (loginSection) loginSection.style.display = 'none';
-                if (settingsSection) settingsSection.style.display = 'block';
-                if (userInfo) userInfo.style.display = 'block';
-                
-                // Update user info
-                if (userName) userName.textContent = user.displayName || 'Pengguna';
-                if (userEmail) userEmail.textContent = user.email || 'Email tidak tersedia';
-                if (userAvatar) {
-                    userAvatar.src = user.photoURL || 'https://via.placeholder.com/60/00BFFF/FFFFFF?text=User';
-                    userAvatar.onerror = function() {
-                        this.src = 'https://via.placeholder.com/60/00BFFF/FFFFFF?text=User';
-                    };
+            // Check if user is already logged in
+            function checkLoginStatus() {
+                const userData = localStorage.getItem('userData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    showUserInfo(user);
+                } else {
+                    showLoginForm();
                 }
-                
-                // Show login time
-                if (userLoginTime) {
-                    const loginTime = new Date().toLocaleString('id-ID');
-                    userLoginTime.textContent = `Login: ${loginTime}`;
-                }
-                
-            } else {
-                // User is signed out
+            }
+
+            // Show login form
+            function showLoginForm() {
                 if (loginSection) loginSection.style.display = 'block';
                 if (settingsSection) settingsSection.style.display = 'none';
                 if (userInfo) userInfo.style.display = 'none';
             }
-        });
 
-        // Dark mode toggle
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('change', function(e) {
-                if (e.target.checked) {
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    document.documentElement.removeAttribute('data-theme');
-                    localStorage.setItem('theme', 'light');
+            // Show user info after login
+            function showUserInfo(user) {
+                if (loginSection) loginSection.style.display = 'none';
+                if (settingsSection) settingsSection.style.display = 'block';
+                if (userInfo) userInfo.style.display = 'block';
+                
+                if (userName) userName.textContent = user.name;
+                if (userEmail) userEmail.textContent = user.email;
+                if (userLoginTime) {
+                    const loginTime = new Date().toLocaleString('id-ID');
+                    userLoginTime.textContent = `Login: ${loginTime}`;
                 }
-            });
-
-            // Check saved theme
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                darkModeToggle.checked = true;
-                document.documentElement.setAttribute('data-theme', 'dark');
             }
+
+            // Login function
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function() {
+                    console.log('Login button clicked');
+                    
+                    // Simulasi login berhasil
+                    const userData = {
+                        name: "Pengguna Demo",
+                        email: "user@demo.com",
+                        loginTime: new Date().toISOString()
+                    };
+                    
+                    // Simpan ke localStorage
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    
+                    // Tampilkan info user
+                    showUserInfo(userData);
+                    
+                    // Tutup menu
+                    toggleMenu();
+                    
+                    alert('Login berhasil! Selamat datang di Top Up BUSSID.');
+                });
+            }
+
+            // Logout function
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    if (confirm('Apakah Anda yakin ingin logout?')) {
+                        localStorage.removeItem('userData');
+                        showLoginForm();
+                        toggleMenu();
+                        alert('Logout berhasil!');
+                    }
+                });
+            }
+
+            // Dark mode toggle
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', function(e) {
+                    if (e.target.checked) {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        document.documentElement.removeAttribute('data-theme');
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+
+                // Check saved theme
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    darkModeToggle.checked = true;
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            }
+
+            // Check login status on page load
+            checkLoginStatus();
         }
 
-        // ==================== BASIC FUNCTIONALITIES ====================
+        // ==================== BASIC FUNCTIONALITY ====================
         function initBasicFunctionality() {
-            console.log('Initializing basic functionality...');
-            
             // Promo banner functionality
             const promoBanner = document.getElementById('promoBanner');
             const promoBannerClose = document.getElementById('promoBannerClose');
@@ -1982,6 +1934,192 @@
                 const message = "Assalamu'alaikum saya mau top up bussid";
                 whatsappLink.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
             }
+
+            // Promo banner action
+            const promoBannerAction = document.getElementById('promoBannerAction');
+            if (promoBannerAction) {
+                promoBannerAction.addEventListener('click', function() {
+                    const whatsappNumber = document.getElementById('whatsappNumber').textContent.split(" / ")[0];
+                    const message = "Halo, saya tertarik dengan promo yang sedang berlangsung";
+                    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+                });
+            }
+
+            // Tampilkan running text
+            const runningTextContainer = document.getElementById('runningTextContainer');
+            if (runningTextContainer) {
+                runningTextContainer.style.display = 'block';
+            }
+        }
+
+        // ==================== CONTENT MANAGEMENT ====================
+        function initContent() {
+            loadHarga();
+            loadProduk();
+            loadFAQ();
+        }
+
+        function loadHarga() {
+            const priceListContainer = document.getElementById("priceList");
+            if (!priceListContainer) return;
+
+            const hargaData = [
+                { name: "70JT UB", value: "Rp5.000", icon: "💵" },
+                { name: "200JT UB", value: "Rp10.000", icon: "💵" },
+                { name: "250JT UB", value: "Rp20.000", icon: "💵" },
+                { name: "300JT UB", value: "Rp25.000", icon: "💵" },
+                { name: "500JT UB", value: "Rp30.000", icon: "💵" },
+                { name: "700JT UB", value: "Rp35.000", icon: "💵" },
+                { name: "900JT UB", value: "Rp40.000", icon: "💵" },
+                { name: "1MIL UB", value: "Rp45.000", icon: "💵" },
+                { name: "2 MIL UB", value: "Rp50.000", icon: "💵" }
+            ];
+            
+            priceListContainer.innerHTML = "";
+            hargaData.forEach(item => {
+                const li = document.createElement("li");
+                li.innerHTML = `<span>${item.icon} ${item.name}</span> <strong>${item.value}</strong>`;
+                priceListContainer.appendChild(li);
+            });
+        }
+
+        function loadProduk() {
+            const produkContainer = document.getElementById("produkContainer");
+            if (!produkContainer) return;
+
+            const produkData = [
+                {
+                    name: "Paket Hemat",
+                    price: "Rp 10.000",
+                    image: "https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Paket+Hemat",
+                    description: "Paket hemat untuk pemula dengan bonus kecil",
+                    features: ["70JT UB", "Bonus 5JT", "Proses Cepat"],
+                    status: "tersedia",
+                    promo: "HOT"
+                },
+                {
+                    name: "Paket Standard",
+                    price: "Rp 25.000",
+                    image: "https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Paket+Standard",
+                    description: "Paket standar dengan value terbaik untuk pengguna reguler",
+                    features: ["300JT UB", "Bonus 20JT", "24/7 Support"],
+                    status: "tersedia"
+                },
+                {
+                    name: "Paket Premium",
+                    price: "Rp 50.000",
+                    image: "https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Paket+Premium",
+                    description: "Paket premium dengan bonus maksimal untuk pengalaman gaming terbaik",
+                    features: ["2 MIL UB", "Bonus 200JT", "Priority Service"],
+                    status: "tersedia",
+                    promo: "BEST"
+                }
+            ];
+
+            produkContainer.innerHTML = "";
+            produkData.forEach(produk => {
+                const produkCard = document.createElement("div");
+                produkCard.className = "produk-card";
+                
+                const whatsappNumber = document.getElementById("whatsappNumber").textContent.split(" / ")[0];
+                const message = `Halo, saya ingin membeli ${produk.name} seharga ${produk.price}`;
+                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+                
+                const isAvailable = produk.status === "tersedia";
+                const badgeHTML = produk.promo ? `<div class="produk-badge">${produk.promo}</div>` : '';
+                
+                let featuresHTML = '';
+                if (produk.features && Array.isArray(produk.features)) {
+                    featuresHTML = `<div class="produk-features">${produk.features.map(fitur => `<span class="produk-feature">${fitur}</span>`).join('')}</div>`;
+                }
+                
+                const imageSrc = produk.image || 'https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Gambar+Tidak+Tersedia';
+                
+                produkCard.innerHTML = `
+                    ${badgeHTML}
+                    <div class="produk-image-container">
+                        <img src="${imageSrc}" alt="${produk.name}" class="produk-image">
+                    </div>
+                    <div class="produk-info">
+                        <div class="produk-title">${produk.name}</div>
+                        <div class="produk-price">${produk.price}</div>
+                        ${featuresHTML}
+                        <div class="produk-description-container">
+                            <div class="produk-description collapsed">
+                                ${produk.description}
+                            </div>
+                            <button class="read-more-btn">
+                                <i class="fas fa-chevron-down"></i> Baca Selengkapnya
+                            </button>
+                        </div>
+                        <div class="produk-status ${isAvailable ? 'status-tersedia' : 'status-tidak-tersedia'}">
+                            ${isAvailable ? 'TERSEDIA' : 'TIDAK TERSEDIA'}
+                        </div>
+                        ${isAvailable ? 
+                            `<a href="${whatsappUrl}" class="btn btn-whatsapp" target="_blank" style="margin-top: 0.5rem;">
+                                <i class="fab fa-whatsapp"></i>
+                                Beli Sekarang
+                            </a>` : 
+                            `<button class="btn btn-disabled" style="margin-top: 0.5rem;" disabled>
+                                <i class="fas fa-times-circle"></i>
+                                Tidak Tersedia
+                            </button>`
+                        }
+                    </div>
+                `;
+                produkContainer.appendChild(produkCard);
+                
+                // Add event listener for product image
+                const produkImage = produkCard.querySelector('.produk-image');
+                if (produkImage) {
+                    produkImage.addEventListener('click', () => {
+                        openImageModal(imageSrc);
+                    });
+                }
+            });
+            
+            // Initialize read more buttons
+            initReadMoreButtons();
+        }
+
+        function loadFAQ() {
+            const faqContainer = document.getElementById("faqContainer");
+            if (!faqContainer) return;
+
+            const faqData = [
+                {
+                    question: "Berapa lama proses top up?",
+                    answer: "Proses top up biasanya memakan waktu 1-5 menit setelah pembayaran dikonfirmasi."
+                },
+                {
+                    question: "Metode pembayaran apa saja yang diterima?",
+                    answer: "Kami menerima pembayaran via DANA, OVO, GOPAY, dan Transfer Bank."
+                },
+                {
+                    question: "Apakah aman untuk memberikan ID game?",
+                    answer: "Ya, sangat aman. Kami hanya membutuhkan ID game untuk proses top up dan tidak akan menyalahgunakan data Anda."
+                },
+                {
+                    question: "Bagaimana jika terjadi masalah saat top up?",
+                    answer: "Tim support kami siap membantu 24/7 melalui WhatsApp. Pastikan Anda menghubungi nomor resmi admin."
+                }
+            ];
+
+            faqContainer.innerHTML = "";
+            faqData.forEach(faq => {
+                const accordionItem = document.createElement("div");
+                accordionItem.className = "accordion-item";
+                accordionItem.innerHTML = `
+                    <button class="accordion-button">${faq.question}</button>
+                    <div class="accordion-content">
+                        <p>${faq.answer}</p>
+                    </div>
+                `;
+                faqContainer.appendChild(accordionItem);
+            });
+            
+            // Initialize accordion
+            initAccordion();
         }
 
         function initAccordion() {
@@ -2019,289 +2157,107 @@
             });
         }
 
-        // ==================== FIREBASE CONTENT LOADING ====================
-        // Referensi untuk data konten website
-        const websiteContentRef = ref(db, "websiteContent");
-        const promoBannerRef = ref(db, "promoBanner");
-        const runningTextRef = ref(db, "runningText");
-        const produkRef = ref(db, "produk");
-        const hargaRef = ref(db, "harga");
-        const faqRef = ref(db, "faq");
+        // ==================== CHAT SYSTEM ====================
+        function initChatSystem() {
+            const chatFloatBtn = document.getElementById('chatFloatBtn');
+            const chatWindow = document.getElementById('chatWindow');
+            const chatClose = document.getElementById('chatClose');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInput = document.getElementById('chatInput');
+            const chatSendBtn = document.getElementById('chatSendBtn');
 
-        // Handle running text
-        const runningTextContainer = document.getElementById("runningTextContainer");
-        const runningTextElement = document.getElementById("runningText");
-
-        // Handle promo banner
-        const promoBanner = document.getElementById("promoBanner");
-        const promoBannerTitle = document.getElementById("promoBannerTitle");
-        const promoBannerText = document.getElementById("promoBannerText");
-        const promoBannerImage = document.getElementById("promoBannerImage");
-        const promoBannerAction = document.getElementById("promoBannerAction");
-
-        // Pantau perubahan pada data running text
-        onValue(runningTextRef, (snapshot) => {
-            const runningTextData = snapshot.val();
-            
-            if (runningTextData && runningTextData.enabled && runningTextData.content && runningTextElement && runningTextContainer) {
-                runningTextElement.textContent = runningTextData.content;
-                runningTextContainer.style.display = "block";
-                
-                if (runningTextData.speed) {
-                    const speedMap = { slow: '30s', normal: '25s', fast: '20s' };
-                    runningTextElement.style.animationDuration = speedMap[runningTextData.speed] || '25s';
+            // Toggle chat window
+            function toggleChatWindow() {
+                chatWindow.classList.toggle('active');
+                if (chatWindow.classList.contains('active')) {
+                    chatInput.focus();
                 }
-                
-                if (runningTextData.bgColor) {
-                    runningTextContainer.style.background = runningTextData.bgColor;
-                }
-                
-                if (runningTextData.color) {
-                    runningTextElement.style.color = runningTextData.color;
-                }
-            } else if (runningTextContainer) {
-                runningTextContainer.style.display = "none";
             }
-        });
 
-        // Pantau perubahan pada data promo banner
-        onValue(promoBannerRef, (snapshot) => {
-            const promoBannerData = snapshot.val();
-            
-            if (promoBannerData && promoBannerData.enabled && promoBanner) {
-                if (promoBannerTitle) promoBannerTitle.textContent = promoBannerData.title || "Judul Promo";
-                if (promoBannerText) promoBannerText.textContent = promoBannerData.text || "Teks promo akan muncul di sini";
+            if (chatFloatBtn) chatFloatBtn.addEventListener('click', toggleChatWindow);
+            if (chatClose) chatClose.addEventListener('click', toggleChatWindow);
+
+            // Send message function
+            function sendMessage() {
+                const messageText = chatInput.value.trim();
+                if (!messageText) return;
+
+                // Add user message
+                addMessage(messageText, 'user');
                 
-                if (promoBannerData.image && promoBannerImage) {
-                    promoBannerImage.src = promoBannerData.image;
-                    promoBannerImage.classList.add("active");
-                    promoBannerImage.onerror = function() {
-                        this.style.display = 'none';
-                    };
-                } else if (promoBannerImage) {
-                    promoBannerImage.classList.remove("active");
-                }
-
-                // Set WhatsApp action
-                if (promoBannerAction) {
-                    const whatsappNumber = document.getElementById("whatsappNumber").textContent.split(" / ")[0];
-                    const message = "Halo, saya tertarik dengan promo yang sedang berlangsung";
-                    promoBannerAction.onclick = () => {
-                        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
-                    };
-                }
-
-                // Tampilkan promo banner
+                // Clear input
+                chatInput.value = '';
+                
+                // Auto reply from admin
                 setTimeout(() => {
-                    promoBanner.classList.add("active");
-                    document.body.style.overflow = 'hidden';
+                    const replies = [
+                        "Halo! Ada yang bisa saya bantu?",
+                        "Terima kasih telah menghubungi kami. Untuk top up BUSSID, silakan hubungi admin via WhatsApp ya!",
+                        "Info lengkap tentang harga dan cara pemesanan bisa dilihat di website ini.",
+                        "Admin akan merespons pesan Anda segera via WhatsApp."
+                    ];
+                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                    addMessage(randomReply, 'admin');
                 }, 1000);
-            } else if (promoBanner) {
-                promoBanner.classList.remove("active");
+            }
+
+            function addMessage(text, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${sender === 'user' ? 'message-sent' : 'message-received'}`;
+                
+                const time = new Date().toLocaleTimeString('id-ID', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                let senderName = sender === 'user' ? 'Anda' : 'Admin BUSSID';
+                
+                messageElement.innerHTML = `
+                    ${sender === 'admin' ? `<div class="message-sender">${senderName}</div>` : ''}
+                    <div class="message-text">${text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+                
+                // Clear loading/empty state
+                if (chatMessages.querySelector('.chat-empty') || chatMessages.querySelector('.chat-loading')) {
+                    chatMessages.innerHTML = '';
+                }
+                
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Event listeners for sending messages
+            if (chatSendBtn) {
+                chatSendBtn.addEventListener('click', sendMessage);
+            }
+
+            if (chatInput) {
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+
+                // Auto-resize textarea
+                chatInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            }
+        }
+
+        // Helper function to toggle menu (used in login system)
+        function toggleMenu() {
+            const navContainer = document.getElementById('navContainer');
+            const overlay = document.getElementById('overlay');
+            if (navContainer && overlay) {
+                navContainer.classList.remove('active');
+                overlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
-        });
-
-        // Handle produk gambar
-        const produkContainer = document.getElementById("produkContainer");
-
-        onValue(produkRef, (snapshot) => {
-            const produkData = snapshot.val();
-            if (produkContainer) produkContainer.innerHTML = "";
-            
-            if (produkData && produkContainer) {
-                Object.keys(produkData).forEach(key => {
-                    const produk = produkData[key];
-                    const produkCard = document.createElement("div");
-                    produkCard.className = "produk-card";
-                    
-                    const whatsappNumber = document.getElementById("whatsappNumber").textContent.split(" / ")[0];
-                    
-                    let whatsappMessage = produk.whatsappText || "Halo, saya ingin membeli {nama_produk} seharga {harga_produk}";
-                    whatsappMessage = whatsappMessage
-                        .replace(/{nama_produk}/g, produk.name)
-                        .replace(/{harga_produk}/g, produk.price);
-                    
-                    const encodedMessage = encodeURIComponent(whatsappMessage);
-                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-                    
-                    const isAvailable = produk.status === "tersedia";
-                    const badgeHTML = produk.promo ? `<div class="produk-badge">${produk.promo}</div>` : '';
-                    
-                    let featuresHTML = '';
-                    if (produk.features && Array.isArray(produk.features)) {
-                        featuresHTML = `<div class="produk-features">${produk.features.map(fitur => `<span class="produk-feature">${fitur}</span>`).join('')}</div>`;
-                    }
-                    
-                    const imageSrc = produk.image || 'https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Gambar+Tidak+Tersedia';
-                    const imageHTML = `
-                        <div class="produk-image-container">
-                            <img src="${imageSrc}" alt="${produk.name}" class="produk-image" onerror="this.src='https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Gambar+Tidak+Tersedia'">
-                        </div>
-                    `;
-                    
-                    const description = produk.description || 'Deskripsi produk akan ditampilkan di sini';
-                    const descriptionHTML = `
-                        <div class="produk-description-container">
-                            <div class="produk-description collapsed">
-                                ${description}
-                            </div>
-                            <button class="read-more-btn">
-                                <i class="fas fa-chevron-down"></i> Baca Selengkapnya
-                            </button>
-                        </div>
-                    `;
-                    
-                    produkCard.innerHTML = `
-                        ${badgeHTML}
-                        ${imageHTML}
-                        <div class="produk-info">
-                            <div class="produk-title">${produk.name}</div>
-                            <div class="produk-price">${produk.price}</div>
-                            ${featuresHTML}
-                            ${descriptionHTML}
-                            <div class="produk-status ${isAvailable ? 'status-tersedia' : 'status-tidak-tersedia'}">
-                                ${isAvailable ? 'TERSEDIA' : 'TIDAK TERSEDIA'}
-                            </div>
-                            ${isAvailable ? 
-                                `<a href="${whatsappUrl}" class="btn btn-whatsapp" target="_blank" style="margin-top: 0.5rem;">
-                                    <i class="fab fa-whatsapp"></i>
-                                    ${produk.buttonText || "Beli Sekarang"}
-                                </a>` : 
-                                `<button class="btn btn-disabled" style="margin-top: 0.5rem;" disabled>
-                                    <i class="fas fa-times-circle"></i>
-                                    Tidak Tersedia
-                                </button>`
-                            }
-                        </div>
-                    `;
-                    produkContainer.appendChild(produkCard);
-                    
-                    // Tambahkan event listener untuk gambar produk
-                    const produkImage = produkCard.querySelector('.produk-image');
-                    if (produkImage) {
-                        produkImage.addEventListener('click', () => {
-                            openImageModal(imageSrc);
-                        });
-                    }
-                });
-                
-                setTimeout(initReadMoreButtons, 100);
-                
-                if (produkContainer.children.length === 0) {
-                    produkContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-light); padding: 2rem;">Tidak ada produk yang tersedia saat ini.</p>';
-                }
-            } else if (produkContainer) {
-                produkContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-light); padding: 2rem;">Tidak ada produk yang tersedia saat ini.</p>';
-            }
-        });
-
-        // Handle daftar harga
-        const priceListContainer = document.getElementById("priceList");
-
-        onValue(hargaRef, (snapshot) => {
-            const hargaData = snapshot.val();
-            if (priceListContainer) priceListContainer.innerHTML = "";
-            
-            if (hargaData && priceListContainer) {
-                Object.keys(hargaData).forEach(key => {
-                    const item = hargaData[key];
-                    if (item.status === "tersedia") {
-                        const li = document.createElement("li");
-                        li.innerHTML = `<span>${item.icon || "💵"} ${item.name}</span> <strong>${item.value}</strong>`;
-                        priceListContainer.appendChild(li);
-                    }
-                });
-            }
-            
-            if (priceListContainer && priceListContainer.children.length === 0) {
-                const defaultHarga = [
-                    { name: "70JT UB", value: "Rp5.000", icon: "💵" },
-                    { name: "200JT UB", value: "Rp10.000", icon: "💵" },
-                    { name: "250JT UB", value: "Rp20.000", icon: "💵" },
-                    { name: "300JT UB", value: "Rp25.000", icon: "💵" },
-                    { name: "500JT UB", value: "Rp30.000", icon: "💵" },
-                    { name: "700JT UB", value: "Rp35.000", icon: "💵" },
-                    { name: "900JT UB", value: "Rp40.000", icon: "💵" },
-                    { name: "1MIL UB", value: "Rp45.000", icon: "💵" },
-                    { name: "2 MIL UB", value: "Rp50.000", icon: "💵" }
-                ];
-                
-                defaultHarga.forEach(item => {
-                    const li = document.createElement("li");
-                    li.innerHTML = `<span>${item.icon} ${item.name}</span> <strong>${item.value}</strong>`;
-                    priceListContainer.appendChild(li);
-                });
-            }
-        });
-
-        // Handle FAQ
-        const faqContainer = document.getElementById("faqContainer");
-
-        onValue(faqRef, (snapshot) => {
-            const faqData = snapshot.val();
-            if (faqContainer) faqContainer.innerHTML = "";
-            
-            if (faqData && faqContainer) {
-                Object.keys(faqData).forEach(key => {
-                    const faq = faqData[key];
-                    if (faq.status === "tersedia") {
-                        const accordionItem = document.createElement("div");
-                        accordionItem.className = "accordion-item";
-                        accordionItem.innerHTML = `
-                            <button class="accordion-button">${faq.question}</button>
-                            <div class="accordion-content">
-                                <p>${faq.answer}</p>
-                            </div>
-                        `;
-                        faqContainer.appendChild(accordionItem);
-                    }
-                });
-                
-                setTimeout(initAccordion, 100);
-            }
-            
-            if (faqContainer && faqContainer.children.length === 0) {
-                faqContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-light);">FAQ akan segera tersedia.</p>';
-            }
-        });
-
-        // Muat konten website
-        onValue(websiteContentRef, (snapshot) => {
-            const content = snapshot.val();
-            if (content) {
-                if (content.siteTitle) {
-                    const mainTitle = document.getElementById("mainTitle");
-                    if (mainTitle) mainTitle.textContent = content.siteTitle;
-                }
-                if (content.siteDescription) {
-                    const mainSubtitle = document.getElementById("mainSubtitle");
-                    if (mainSubtitle) mainSubtitle.textContent = content.siteDescription;
-                }
-                if (content.introText) {
-                    const introText = document.getElementById("introText");
-                    if (introText) introText.innerHTML = content.introText;
-                }
-                if (content.whatsappNumber) {
-                    const whatsappNumber = content.whatsappNumber;
-                    const whatsappNumberEl = document.getElementById("whatsappNumber");
-                    const adminWhatsapp1 = document.getElementById("adminWhatsapp1");
-                    const adminWhatsapp2 = document.getElementById("adminWhatsapp2");
-                    
-                    if (whatsappNumberEl) whatsappNumberEl.textContent = whatsappNumber;
-                    if (adminWhatsapp1) adminWhatsapp1.textContent = whatsappNumber;
-                    if (adminWhatsapp2) adminWhatsapp2.textContent = whatsappNumber;
-                    
-                    const whatsappLink = document.getElementById("whatsappLink");
-                    if (whatsappLink) {
-                        const message = "Assalamu'alaikum saya mau top up bussid";
-                        whatsappLink.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-                    }
-                }
-            }
-        });
-
-        console.log('All JavaScript functionality initialized successfully');
+        }
     </script>
 </body>
 </html>
