@@ -8,9 +8,6 @@
     <meta name="keywords" content="Jasa top up bussid murah, top up bussid, top up bussid termurah, top up bussid cepat">
     <title>Jasa Top up BUSSID murah Aman dan Terpercaya</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-        
         :root {
           --primary: deepskyblue;
           --primary-light: rgba(0, 191, 255, 0.1);
@@ -1493,36 +1490,6 @@
     </style>
 </head>
 <body>
-    <!-- Maintenance Redirect Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
-            authDomain: "paneladmin-83c8a.firebaseapp.com",
-            databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
-            projectId: "paneladmin-83c8a",
-            storageBucket: "paneladmin-83c8a.appspot.com",
-            messagingSenderId: "343729471216",
-            appId: "1:343729471216:web:14c357375fa83083c44c35",
-            measurementId: "G-E2G04E4KB5"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const maintenanceRef = ref(db, "maintenance");
-
-        // Cek maintenance mode
-        onValue(maintenanceRef, (snapshot) => {
-            const maintenanceData = snapshot.val();
-            if (maintenanceData && maintenanceData.enabled) {
-                // Redirect ke halaman maintenance
-                window.location.href = "maintenance.html";
-            }
-        });
-    </script>
-
     <!-- Modal untuk gambar produk -->
     <div class="image-modal" id="imageModal">
         <div class="image-modal-content">
@@ -1753,14 +1720,14 @@
         &copy; 2025 Top Up Bussid | Layanan Aman dan Terpercaya
     </footer>
 
-    <!-- Firebase Auth Script - VERSI DIPERBAIKI -->
+    <!-- SCRIPT UTAMA YANG DIPERBAIKI -->
     <script type="module">
-        // Import Firebase modules
+        // ==================== FIREBASE AUTH & BASIC FUNCTIONALITY ====================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // Firebase configuration - GUNAKAN SATU KONFIGURASI SAJA
+        // Konfigurasi Firebase utama
         const firebaseConfig = {
             apiKey: "AIzaSyAYleQn2yLOdMwPzT5n6FPTLhiMnaFhnu8",
             authDomain: "revanstore-a92a7.firebaseapp.com",
@@ -1772,27 +1739,54 @@
             measurementId: "G-FL822LMWEJ"
         };
 
-        // Initialize Firebase
+        // Inisialisasi Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
         
-        // PERBAIKAN: Set language code ke Indonesia
-        auth.languageCode = 'id';
-        
+        // Setup Google Auth Provider
         const provider = new GoogleAuthProvider();
-        
-        // PERBAIKAN: Tambahkan scope yang diperlukan
-        provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
-        provider.addScope('https://www.googleapis.com/auth/userinfo.email');
-        
-        // PERBAIKAN: Set custom parameters
-        provider.setCustomParameters({
-            'login_hint': 'user@example.com',
-            'prompt': 'select_account'
+        provider.addScope('profile');
+        provider.addScope('email');
+        auth.languageCode = 'id';
+
+        // ==================== BASIC DOM FUNCTIONALITY ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing basic functionality...');
+            
+            // Menu Toggle Functionality
+            const menuToggle = document.getElementById('menuToggle');
+            const navContainer = document.getElementById('navContainer');
+            const overlay = document.getElementById('overlay');
+            const closeMenu = document.getElementById('closeMenu');
+            
+            function toggleMenu() {
+                console.log('Toggle menu clicked');
+                navContainer.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = navContainer.classList.contains('active') ? 'hidden' : '';
+            }
+            
+            if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+            if (overlay) overlay.addEventListener('click', toggleMenu);
+            if (closeMenu) closeMenu.addEventListener('click', toggleMenu);
+            
+            // Test jika event listener bekerja
+            console.log('Menu toggle elements initialized:', {
+                menuToggle: !!menuToggle,
+                navContainer: !!navContainer,
+                overlay: !!overlay,
+                closeMenu: !!closeMenu
+            });
+
+            // Initialize accordion
+            initAccordion();
+            
+            // Initialize other basic functionalities
+            initBasicFunctionality();
         });
 
-        // DOM Elements untuk auth
+        // ==================== AUTH FUNCTIONALITY ====================
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const loginSection = document.getElementById('loginSection');
@@ -1804,250 +1798,206 @@
         const userLoginTime = document.getElementById('userLoginTime');
         const darkModeToggle = document.getElementById('darkModeToggle');
 
-        // Login function - VERSI DIPERBAIKI
-        loginBtn.addEventListener('click', async () => {
-            try {
-                console.log('Memulai proses login...');
+        // Login function dengan error handling yang lebih baik
+        if (loginBtn) {
+            loginBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                // Tampilkan indikator loading
-                const originalText = loginBtn.innerHTML;
-                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuka Google Login...';
-                loginBtn.disabled = true;
+                console.log('Login button clicked');
                 
-                // PERBAIKAN: Gunakan timeout untuk memastikan UI update
-                setTimeout(async () => {
-                    try {
-                        const result = await signInWithPopup(auth, provider);
-                        console.log('Login berhasil:', result.user);
-                        
-                        // Reset button state
-                        loginBtn.innerHTML = originalText;
-                        loginBtn.disabled = false;
-                        
-                    } catch (error) {
-                        console.error('Error detail login:', error);
-                        
-                        // Reset button state
-                        loginBtn.innerHTML = '<i class="fab fa-google"></i> Login dengan Google';
-                        loginBtn.disabled = false;
-                        
-                        // Handle error yang spesifik
-                        handleLoginError(error);
+                try {
+                    // Tampilkan loading state
+                    const originalText = loginBtn.innerHTML;
+                    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuka Google Login...';
+                    loginBtn.disabled = true;
+                    
+                    console.log('Attempting Google login...');
+                    
+                    const result = await signInWithPopup(auth, provider);
+                    console.log('Login successful:', result.user);
+                    
+                    // Reset button state
+                    loginBtn.innerHTML = originalText;
+                    loginBtn.disabled = false;
+                    
+                } catch (error) {
+                    console.error('Login error:', error);
+                    
+                    // Reset button state
+                    loginBtn.innerHTML = '<i class="fab fa-google"></i> Login dengan Google';
+                    loginBtn.disabled = false;
+                    
+                    // Show user-friendly error message
+                    if (error.code === 'auth/popup-blocked') {
+                        alert('Popup login diblokir. Silakan izinkan popup untuk website ini.');
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        console.log('User closed the login popup');
+                    } else {
+                        alert('Login gagal: ' + error.message);
                     }
-                }, 100);
-                
-            } catch (error) {
-                console.error('Error pada event listener:', error);
-                loginBtn.innerHTML = '<i class="fab fa-google"></i> Login dengan Google';
-                loginBtn.disabled = false;
-            }
-        });
-
-        // Fungsi untuk menangani error login
-        function handleLoginError(error) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            
-            console.log('Error Code:', errorCode);
-            console.log('Error Message:', errorMessage);
-            
-            switch (errorCode) {
-                case 'auth/popup-blocked':
-                    alert('Popup login diblokir oleh browser. Silakan:\n1. Izinkan popup untuk website ini\n2. Atau gunakan browser lain\n3. Coba lagi setelah mengizinkan popup');
-                    break;
-                    
-                case 'auth/popup-closed-by-user':
-                    console.log('User menutup jendela login');
-                    // Tidak perlu menampilkan alert untuk case ini
-                    break;
-                    
-                case 'auth/unauthorized-domain':
-                    alert('Domain tidak diizinkan. Pastikan Anda mengakses dari domain yang benar.');
-                    break;
-                    
-                case 'auth/network-request-failed':
-                    alert('Gagal terhubung ke jaringan. Periksa koneksi internet Anda.');
-                    break;
-                    
-                default:
-                    alert('Login gagal: ' + errorMessage);
-                    break;
-            }
+                }
+            });
+        } else {
+            console.error('Login button not found!');
         }
 
         // Logout function
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                // Tampilkan konfirmasi
-                if (confirm('Apakah Anda yakin ingin logout?')) {
-                    await signOut(auth);
-                    console.log('Logout berhasil');
-                    
-                    // Tutup menu setelah logout
-                    toggleMenu();
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async function() {
+                try {
+                    if (confirm('Apakah Anda yakin ingin logout?')) {
+                        await signOut(auth);
+                        console.log('Logout successful');
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Logout gagal: ' + error.message);
                 }
-            } catch (error) {
-                console.error('Error logout:', error);
-                alert('Logout gagal: ' + error.message);
-            }
-        });
+            });
+        }
 
-        // Auth state listener - VERSI DIPERBAIKI
+        // Auth state listener
         onAuthStateChanged(auth, (user) => {
-            console.log('Status auth berubah:', user ? 'User logged in' : 'User logged out');
+            console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
             
             if (user) {
                 // User is signed in
-                loginSection.style.display = 'none';
-                settingsSection.style.display = 'block';
-                userInfo.style.display = 'block';
+                if (loginSection) loginSection.style.display = 'none';
+                if (settingsSection) settingsSection.style.display = 'block';
+                if (userInfo) userInfo.style.display = 'block';
                 
-                // Update user info dengan fallback
-                userName.textContent = user.displayName || 'Pengguna';
-                userEmail.textContent = user.email || 'Email tidak tersedia';
-                userAvatar.src = user.photoURL || 'https://via.placeholder.com/60/00BFFF/FFFFFF?text=User';
-                userAvatar.onerror = function() {
-                    this.src = 'https://via.placeholder.com/60/00BFFF/FFFFFF?text=User';
-                };
+                // Update user info
+                if (userName) userName.textContent = user.displayName || 'Pengguna';
+                if (userEmail) userEmail.textContent = user.email || 'Email tidak tersedia';
+                if (userAvatar) {
+                    userAvatar.src = user.photoURL || 'https://via.placeholder.com/60/00BFFF/FFFFFF?text=User';
+                    userAvatar.onerror = function() {
+                        this.src = 'https://via.placeholder.com/60/00BFFF/FFFFFF?text=User';
+                    };
+                }
                 
                 // Show login time
-                const loginTime = new Date().toLocaleString('id-ID');
-                userLoginTime.textContent = `Login: ${loginTime}`;
-                
-                console.log('User details:', {
-                    uid: user.uid,
-                    name: user.displayName,
-                    email: user.email,
-                    photoURL: user.photoURL
-                });
+                if (userLoginTime) {
+                    const loginTime = new Date().toLocaleString('id-ID');
+                    userLoginTime.textContent = `Login: ${loginTime}`;
+                }
                 
             } else {
                 // User is signed out
-                loginSection.style.display = 'block';
-                settingsSection.style.display = 'none';
-                userInfo.style.display = 'none';
-                
-                console.log('Tidak ada user yang login');
+                if (loginSection) loginSection.style.display = 'block';
+                if (settingsSection) settingsSection.style.display = 'none';
+                if (userInfo) userInfo.style.display = 'none';
             }
         });
 
         // Dark mode toggle
-        darkModeToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+
+            // Check saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                darkModeToggle.checked = true;
                 document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
             }
-        });
-
-        // Check saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            darkModeToggle.checked = true;
-            document.documentElement.setAttribute('data-theme', 'dark');
         }
-    </script>
 
-    <script>
-        // Menu toggle functionality
-        const menuToggle = document.getElementById('menuToggle');
-        const navContainer = document.getElementById('navContainer');
-        const overlay = document.getElementById('overlay');
-        const closeMenu = document.getElementById('closeMenu');
-        
-        function toggleMenu() {
-            navContainer.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = navContainer.classList.contains('active') ? 'hidden' : '';
-        }
-        
-        menuToggle.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
-        closeMenu.addEventListener('click', toggleMenu);
-        
-        // PERBAIKAN: Tambahkan event listener untuk tombol setting yang memerlukan login
-        document.addEventListener('click', function(e) {
-            // Jika yang diklik adalah toggle switch dark mode
-            if (e.target.closest('#darkModeToggle')) {
-                // Cek apakah user sudah login
-                const userInfo = document.getElementById('userInfo');
-                if (userInfo.style.display === 'none') {
-                    e.preventDefault();
-                    alert('Silakan login terlebih dahulu untuk mengubah pengaturan.');
-                    toggleMenu(); // Tutup menu
+        // ==================== BASIC FUNCTIONALITIES ====================
+        function initBasicFunctionality() {
+            console.log('Initializing basic functionality...');
+            
+            // Promo banner functionality
+            const promoBanner = document.getElementById('promoBanner');
+            const promoBannerClose = document.getElementById('promoBannerClose');
+            const promoBannerCloseBtn = document.getElementById('promoBannerCloseBtn');
+
+            function closePromoBanner() {
+                if (promoBanner) {
+                    promoBanner.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
             }
-        });
-        
-        // Accordion functionality
+
+            if (promoBannerClose) promoBannerClose.addEventListener('click', closePromoBanner);
+            if (promoBannerCloseBtn) promoBannerCloseBtn.addEventListener('click', closePromoBanner);
+
+            if (promoBanner) {
+                promoBanner.addEventListener('click', function(e) {
+                    if (e.target === promoBanner) {
+                        closePromoBanner();
+                    }
+                });
+            }
+
+            // Image modal functionality
+            const imageModal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const imageModalClose = document.getElementById('imageModalClose');
+
+            window.openImageModal = function(imageSrc) {
+                if (modalImage && imageModal) {
+                    modalImage.src = imageSrc;
+                    imageModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeImageModal() {
+                if (imageModal) {
+                    imageModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            if (imageModalClose) imageModalClose.addEventListener('click', closeImageModal);
+
+            if (imageModal) {
+                imageModal.addEventListener('click', function(e) {
+                    if (e.target === imageModal) {
+                        closeImageModal();
+                    }
+                });
+            }
+
+            // Close image modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && imageModal && imageModal.classList.contains('active')) {
+                    closeImageModal();
+                }
+            });
+
+            // WhatsApp link setup
+            const whatsappLink = document.getElementById('whatsappLink');
+            if (whatsappLink) {
+                const whatsappNumber = document.getElementById('whatsappNumber').textContent.split(" / ")[0];
+                const message = "Assalamu'alaikum saya mau top up bussid";
+                whatsappLink.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            }
+        }
+
         function initAccordion() {
             document.querySelectorAll('.accordion-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    button.classList.toggle('active');
-                    const content = button.nextElementSibling;
-                    content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + 'px';
+                button.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const content = this.nextElementSibling;
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    }
                 });
             });
         }
-        
-        // Initialize accordion on page load
-        document.addEventListener('DOMContentLoaded', initAccordion);
 
-        // Promo banner close functionality
-        const promoBanner = document.getElementById('promoBanner');
-        const promoBannerClose = document.getElementById('promoBannerClose');
-        const promoBannerCloseBtn = document.getElementById('promoBannerCloseBtn');
-
-        function closePromoBanner() {
-            promoBanner.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        promoBannerClose.addEventListener('click', closePromoBanner);
-        promoBannerCloseBtn.addEventListener('click', closePromoBanner);
-
-        // Close promo banner when clicking outside
-        promoBanner.addEventListener('click', (e) => {
-            if (e.target === promoBanner) {
-                closePromoBanner();
-            }
-        });
-
-        // Image modal functionality
-        const imageModal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        const imageModalClose = document.getElementById('imageModalClose');
-
-        function openImageModal(imageSrc) {
-            modalImage.src = imageSrc;
-            imageModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeImageModal() {
-            imageModal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        imageModalClose.addEventListener('click', closeImageModal);
-
-        // Close image modal when clicking outside
-        imageModal.addEventListener('click', (e) => {
-            if (e.target === imageModal) {
-                closeImageModal();
-            }
-        });
-
-        // Close image modal with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && imageModal.classList.contains('active')) {
-                closeImageModal();
-            }
-        });
-
-        // Read more functionality for product descriptions
         function initReadMoreButtons() {
             document.querySelectorAll('.read-more-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -2068,29 +2018,8 @@
                 });
             });
         }
-    </script>
 
-    <!-- Firebase script dengan perbaikan untuk produk dan promo banner -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-        // GUNAKAN KONFIGURASI YANG SAMA DENGAN AUTH
-        const firebaseConfig = {
-            apiKey: "AIzaSyAYleQn2yLOdMwPzT5n6FPTLhiMnaFhnu8",
-            authDomain: "revanstore-a92a7.firebaseapp.com",
-            databaseURL: "https://revanstore-a92a7-default-rtdb.firebaseio.com",
-            projectId: "revanstore-a92a7",
-            storageBucket: "revanstore-a92a7.firebasestorage.app",
-            messagingSenderId: "1054152032422",
-            appId: "1:1054152032422:web:83349880ce5cf4e4de3467",
-            measurementId: "G-FL822LMWEJ"
-        };
-
-        // Inisialisasi dengan nama yang berbeda untuk menghindari konflik
-        const contentApp = initializeApp(firebaseConfig, "ContentApp");
-        const db = getDatabase(contentApp);
-
+        // ==================== FIREBASE CONTENT LOADING ====================
         // Referensi untuk data konten website
         const websiteContentRef = ref(db, "websiteContent");
         const promoBannerRef = ref(db, "promoBanner");
@@ -2114,26 +2043,23 @@
         onValue(runningTextRef, (snapshot) => {
             const runningTextData = snapshot.val();
             
-            if (runningTextData && runningTextData.enabled && runningTextData.content) {
+            if (runningTextData && runningTextData.enabled && runningTextData.content && runningTextElement && runningTextContainer) {
                 runningTextElement.textContent = runningTextData.content;
                 runningTextContainer.style.display = "block";
                 
-                // Atur kecepatan running text
                 if (runningTextData.speed) {
                     const speedMap = { slow: '30s', normal: '25s', fast: '20s' };
                     runningTextElement.style.animationDuration = speedMap[runningTextData.speed] || '25s';
                 }
                 
-                // Atur warna background jika ada
                 if (runningTextData.bgColor) {
                     runningTextContainer.style.background = runningTextData.bgColor;
                 }
                 
-                // Atur warna teks jika ada
                 if (runningTextData.color) {
                     runningTextElement.style.color = runningTextData.color;
                 }
-            } else {
+            } else if (runningTextContainer) {
                 runningTextContainer.style.display = "none";
             }
         });
@@ -2142,35 +2068,35 @@
         onValue(promoBannerRef, (snapshot) => {
             const promoBannerData = snapshot.val();
             
-            if (promoBannerData && promoBannerData.enabled) {
-                // Update konten promo banner
-                promoBannerTitle.textContent = promoBannerData.title || "Judul Promo";
-                promoBannerText.textContent = promoBannerData.text || "Teks promo akan muncul di sini";
+            if (promoBannerData && promoBannerData.enabled && promoBanner) {
+                if (promoBannerTitle) promoBannerTitle.textContent = promoBannerData.title || "Judul Promo";
+                if (promoBannerText) promoBannerText.textContent = promoBannerData.text || "Teks promo akan muncul di sini";
                 
-                if (promoBannerData.image) {
+                if (promoBannerData.image && promoBannerImage) {
                     promoBannerImage.src = promoBannerData.image;
                     promoBannerImage.classList.add("active");
-                    // Handle error gambar
                     promoBannerImage.onerror = function() {
                         this.style.display = 'none';
                     };
-                } else {
+                } else if (promoBannerImage) {
                     promoBannerImage.classList.remove("active");
                 }
 
                 // Set WhatsApp action
-                const whatsappNumber = document.getElementById("whatsappNumber").textContent.split(" / ")[0];
-                const message = "Halo, saya tertarik dengan promo yang sedang berlangsung";
-                promoBannerAction.onclick = () => {
-                    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
-                };
+                if (promoBannerAction) {
+                    const whatsappNumber = document.getElementById("whatsappNumber").textContent.split(" / ")[0];
+                    const message = "Halo, saya tertarik dengan promo yang sedang berlangsung";
+                    promoBannerAction.onclick = () => {
+                        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+                    };
+                }
 
                 // Tampilkan promo banner
                 setTimeout(() => {
                     promoBanner.classList.add("active");
                     document.body.style.overflow = 'hidden';
                 }, 1000);
-            } else {
+            } else if (promoBanner) {
                 promoBanner.classList.remove("active");
                 document.body.style.overflow = '';
             }
@@ -2179,43 +2105,34 @@
         // Handle produk gambar
         const produkContainer = document.getElementById("produkContainer");
 
-        // Pantau perubahan pada data produk
         onValue(produkRef, (snapshot) => {
             const produkData = snapshot.val();
-            produkContainer.innerHTML = "";
+            if (produkContainer) produkContainer.innerHTML = "";
             
-            if (produkData) {
+            if (produkData && produkContainer) {
                 Object.keys(produkData).forEach(key => {
                     const produk = produkData[key];
                     const produkCard = document.createElement("div");
                     produkCard.className = "produk-card";
                     
-                    // Tentukan nomor WhatsApp yang akan digunakan
-                    const whatsappNumber = produk.whatsappNumber || document.getElementById("whatsappNumber").textContent.split(" / ")[0];
+                    const whatsappNumber = document.getElementById("whatsappNumber").textContent.split(" / ")[0];
                     
-                    // Buat pesan WhatsApp
                     let whatsappMessage = produk.whatsappText || "Halo, saya ingin membeli {nama_produk} seharga {harga_produk}";
                     whatsappMessage = whatsappMessage
                         .replace(/{nama_produk}/g, produk.name)
                         .replace(/{harga_produk}/g, produk.price);
                     
-                    // Encode pesan untuk URL
                     const encodedMessage = encodeURIComponent(whatsappMessage);
                     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
                     
-                    // Tentukan apakah produk tersedia
                     const isAvailable = produk.status === "tersedia";
-                    
-                    // Buat badge jika ada promo
                     const badgeHTML = produk.promo ? `<div class="produk-badge">${produk.promo}</div>` : '';
                     
-                    // Buat fitur produk
                     let featuresHTML = '';
                     if (produk.features && Array.isArray(produk.features)) {
                         featuresHTML = `<div class="produk-features">${produk.features.map(fitur => `<span class="produk-feature">${fitur}</span>`).join('')}</div>`;
                     }
                     
-                    // Handle gambar produk dengan fallback dan modal
                     const imageSrc = produk.image || 'https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Gambar+Tidak+Tersedia';
                     const imageHTML = `
                         <div class="produk-image-container">
@@ -2223,7 +2140,6 @@
                         </div>
                     `;
                     
-                    // Handle deskripsi dengan expand/collapse
                     const description = produk.description || 'Deskripsi produk akan ditampilkan di sini';
                     const descriptionHTML = `
                         <div class="produk-description-container">
@@ -2263,19 +2179,19 @@
                     
                     // Tambahkan event listener untuk gambar produk
                     const produkImage = produkCard.querySelector('.produk-image');
-                    produkImage.addEventListener('click', () => {
-                        openImageModal(imageSrc);
-                    });
+                    if (produkImage) {
+                        produkImage.addEventListener('click', () => {
+                            openImageModal(imageSrc);
+                        });
+                    }
                 });
                 
-                // Initialize read more buttons
                 setTimeout(initReadMoreButtons, 100);
                 
-                // Jika tidak ada produk, tampilkan pesan
                 if (produkContainer.children.length === 0) {
                     produkContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-light); padding: 2rem;">Tidak ada produk yang tersedia saat ini.</p>';
                 }
-            } else {
+            } else if (produkContainer) {
                 produkContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-light); padding: 2rem;">Tidak ada produk yang tersedia saat ini.</p>';
             }
         });
@@ -2285,9 +2201,9 @@
 
         onValue(hargaRef, (snapshot) => {
             const hargaData = snapshot.val();
-            priceListContainer.innerHTML = "";
+            if (priceListContainer) priceListContainer.innerHTML = "";
             
-            if (hargaData) {
+            if (hargaData && priceListContainer) {
                 Object.keys(hargaData).forEach(key => {
                     const item = hargaData[key];
                     if (item.status === "tersedia") {
@@ -2298,8 +2214,7 @@
                 });
             }
             
-            // Jika tidak ada data harga, tampilkan default
-            if (priceListContainer.children.length === 0) {
+            if (priceListContainer && priceListContainer.children.length === 0) {
                 const defaultHarga = [
                     { name: "70JT UB", value: "Rp5.000", icon: "💵" },
                     { name: "200JT UB", value: "Rp10.000", icon: "💵" },
@@ -2325,9 +2240,9 @@
 
         onValue(faqRef, (snapshot) => {
             const faqData = snapshot.val();
-            faqContainer.innerHTML = "";
+            if (faqContainer) faqContainer.innerHTML = "";
             
-            if (faqData) {
+            if (faqData && faqContainer) {
                 Object.keys(faqData).forEach(key => {
                     const faq = faqData[key];
                     if (faq.status === "tersedia") {
@@ -2343,339 +2258,50 @@
                     }
                 });
                 
-                // Re-initialize accordion after adding new items
                 setTimeout(initAccordion, 100);
             }
             
-            // Jika tidak ada data FAQ, biarkan kosong
-            if (faqContainer.children.length === 0) {
+            if (faqContainer && faqContainer.children.length === 0) {
                 faqContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-light);">FAQ akan segera tersedia.</p>';
             }
         });
 
-        // Muat konten website saat halaman dimuat
+        // Muat konten website
         onValue(websiteContentRef, (snapshot) => {
             const content = snapshot.val();
             if (content) {
-                // Update konten website jika ada data
                 if (content.siteTitle) {
-                    document.getElementById("mainTitle").textContent = content.siteTitle;
+                    const mainTitle = document.getElementById("mainTitle");
+                    if (mainTitle) mainTitle.textContent = content.siteTitle;
                 }
                 if (content.siteDescription) {
-                    document.getElementById("mainSubtitle").textContent = content.siteDescription;
+                    const mainSubtitle = document.getElementById("mainSubtitle");
+                    if (mainSubtitle) mainSubtitle.textContent = content.siteDescription;
                 }
                 if (content.introText) {
-                    document.getElementById("introText").innerHTML = content.introText;
+                    const introText = document.getElementById("introText");
+                    if (introText) introText.innerHTML = content.introText;
                 }
                 if (content.whatsappNumber) {
                     const whatsappNumber = content.whatsappNumber;
-                    document.getElementById("whatsappNumber").textContent = whatsappNumber;
-                    document.getElementById("adminWhatsapp1").textContent = whatsappNumber;
-                    document.getElementById("adminWhatsapp2").textContent = whatsappNumber;
+                    const whatsappNumberEl = document.getElementById("whatsappNumber");
+                    const adminWhatsapp1 = document.getElementById("adminWhatsapp1");
+                    const adminWhatsapp2 = document.getElementById("adminWhatsapp2");
                     
-                    // Update WhatsApp link
+                    if (whatsappNumberEl) whatsappNumberEl.textContent = whatsappNumber;
+                    if (adminWhatsapp1) adminWhatsapp1.textContent = whatsappNumber;
+                    if (adminWhatsapp2) adminWhatsapp2.textContent = whatsappNumber;
+                    
                     const whatsappLink = document.getElementById("whatsappLink");
-                    const message = "Assalamu'alaikum saya mau top up bussid";
-                    whatsappLink.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-                }
-            }
-        });
-    </script>
-
-    <!-- SISTEM CHAT YANG DIPERBAIKI - GUNAKAN KONFIGURASI DATABASE PESAN YANG BERBEDA -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-        // KONFIGURASI FIREBASE UNTUK DATABASE PESAN (TIDAK DIUBAH)
-        const firebaseChatConfig = {
-            apiKey: "AIzaSyBD1M4W6-oradzvWOCmTxZYbe-i2mE0ci0",
-            authDomain: "database-510f1.firebaseapp.com",
-            databaseURL: "https://database-510f1-default-rtdb.firebaseio.com",
-            projectId: "database-510f1",
-            storageBucket: "database-510f1.firebasestorage.app",
-            messagingSenderId: "799300799002",
-            appId: "1:799300799002:web:0e2e2482c824f621681fa3",
-            measurementId: "G-MSM26XKYM7"
-        };
-
-        // Inisialisasi Firebase untuk chat dengan nama yang unik
-        const chatApp = initializeApp(firebaseChatConfig, "ChatDatabase");
-        const chatDb = getDatabase(chatApp);
-        
-        // Gunakan auth dari aplikasi utama (sama dengan login)
-        const authApp = initializeApp({
-            apiKey: "AIzaSyAYleQn2yLOdMwPzT5n6FPTLhiMnaFhnu8",
-            authDomain: "revanstore-a92a7.firebaseapp.com",
-            projectId: "revanstore-a92a7",
-            storageBucket: "revanstore-a92a7.firebasestorage.app",
-            messagingSenderId: "1054152032422",
-            appId: "1:1054152032422:web:83349880ce5cf4e4de3467",
-            measurementId: "G-FL822LMWEJ"
-        }, "AuthForChat");
-        const auth = getAuth(authApp);
-
-        // DOM Elements untuk chat
-        const chatFloatBtn = document.getElementById('chatFloatBtn');
-        const chatWindow = document.getElementById('chatWindow');
-        const chatClose = document.getElementById('chatClose');
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const chatSendBtn = document.getElementById('chatSendBtn');
-        const chatStatusText = document.getElementById('chatStatusText');
-        const chatAdminName = document.getElementById('chatAdminName');
-        const chatAdminAvatar = document.getElementById('chatAdminAvatar');
-
-        // State chat
-        let currentUser = null;
-        let currentChatId = null;
-        let adminInfo = null;
-        let isChatInitialized = false;
-
-        // Fungsi untuk toggle chat window
-        function toggleChatWindow() {
-            chatWindow.classList.toggle('active');
-            if (chatWindow.classList.contains('active')) {
-                loadChatMessages();
-                chatInput.focus();
-            }
-        }
-
-        // Event listeners untuk chat
-        chatFloatBtn.addEventListener('click', toggleChatWindow);
-        chatClose.addEventListener('click', toggleChatWindow);
-
-        // Fungsi untuk memuat informasi admin dari Firebase
-        function loadAdminInfo() {
-            const adminRef = ref(chatDb, 'adminInfo');
-            
-            onValue(adminRef, (snapshot) => {
-                adminInfo = snapshot.val();
-                
-                if (adminInfo) {
-                    chatAdminName.textContent = adminInfo.name || 'Admin BUSSID';
-                    chatStatusText.textContent = adminInfo.status || 'Online';
-                    
-                    if (adminInfo.avatar) {
-                        chatAdminAvatar.src = adminInfo.avatar;
-                        chatAdminAvatar.onerror = function() {
-                            this.src = 'https://via.placeholder.com/50/00BFFF/FFFFFF?text=A';
-                        };
-                    } else {
-                        chatAdminAvatar.src = 'https://via.placeholder.com/50/00BFFF/FFFFFF?text=A';
+                    if (whatsappLink) {
+                        const message = "Assalamu'alaikum saya mau top up bussid";
+                        whatsappLink.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
                     }
                 }
-            });
-        }
-
-        // Fungsi untuk mendapatkan atau membuat chat ID
-        async function getOrCreateChatId(user) {
-            const userChatsRef = ref(chatDb, `userChats/${user.uid}`);
-            
-            try {
-                const snapshot = await get(userChatsRef);
-                if (snapshot.exists()) {
-                    return snapshot.val().chatId;
-                } else {
-                    const newChatId = push(ref(chatDb, 'chats')).key;
-                    await set(userChatsRef, {
-                        chatId: newChatId,
-                        userName: user.displayName || 'Unknown User',
-                        userEmail: user.email,
-                        userPhoto: user.photoURL || '',
-                        createdAt: Date.now()
-                    });
-                    
-                    await set(ref(chatDb, `chats/${newChatId}`), {
-                        userId: user.uid,
-                        userName: user.displayName || 'Unknown User',
-                        userEmail: user.email,
-                        userPhoto: user.photoURL || '',
-                        createdAt: Date.now(),
-                        lastMessage: '',
-                        lastMessageTime: Date.now(),
-                        unreadCount: 0,
-                        status: 'active'
-                    });
-                    
-                    return newChatId;
-                }
-            } catch (error) {
-                console.error('Error creating chat ID:', error);
-                return null;
-            }
-        }
-
-        // Fungsi untuk mengirim pesan teks
-        async function sendMessage() {
-            const messageText = chatInput.value.trim();
-            if (!messageText || !currentChatId || !currentUser) return;
-            
-            chatSendBtn.disabled = true;
-            
-            try {
-                const messageRef = push(ref(chatDb, `messages/${currentChatId}`));
-                await set(messageRef, {
-                    text: messageText,
-                    senderId: currentUser.uid,
-                    senderName: currentUser.displayName || 'Unknown User',
-                    timestamp: Date.now(),
-                    type: 'text'
-                });
-                
-                await update(ref(chatDb, `chats/${currentChatId}`), {
-                    lastMessage: messageText,
-                    lastMessageTime: Date.now(),
-                    unreadCount: 1
-                });
-                
-                chatInput.value = '';
-                chatInput.style.height = 'auto';
-                
-            } catch (error) {
-                console.error('Error sending message:', error);
-                alert('Gagal mengirim pesan. Silakan coba lagi.');
-            } finally {
-                chatSendBtn.disabled = false;
-            }
-        }
-
-        // Event listeners untuk mengirim pesan
-        chatSendBtn.addEventListener('click', sendMessage);
-        
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
             }
         });
 
-        // Auto-resize textarea
-        chatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-
-        // Fungsi untuk memuat pesan
-        function loadChatMessages() {
-            if (!currentChatId) return;
-            
-            chatMessages.innerHTML = '<div class="chat-loading"><i class="fas fa-spinner fa-spin"></i> Memuat pesan...</div>';
-            
-            const messagesRef = ref(chatDb, `messages/${currentChatId}`);
-            
-            onValue(messagesRef, (snapshot) => {
-                const messagesData = snapshot.val();
-                chatMessages.innerHTML = '';
-                
-                if (!messagesData) {
-                    chatMessages.innerHTML = `
-                        <div class="chat-empty">
-                            <i class="fas fa-comments"></i>
-                            <p>Belum ada pesan. Mulai percakapan!</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                const messages = Object.entries(messagesData)
-                    .map(([id, message]) => ({ id, ...message }))
-                    .sort((a, b) => a.timestamp - b.timestamp);
-                
-                messages.forEach(message => {
-                    const messageElement = document.createElement('div');
-                    messageElement.className = `message ${message.senderId === currentUser.uid ? 'message-sent' : 'message-received'}`;
-                    
-                    const time = new Date(message.timestamp).toLocaleTimeString('id-ID', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    });
-                    
-                    let messageContent = '';
-                    
-                    if (message.type === 'image') {
-                        messageContent = `
-                            ${message.senderId !== currentUser.uid ? `<div class="message-sender">${message.senderName}</div>` : ''}
-                            <div class="message-text">📷 [Gambar]</div>
-                            <div class="message-time">${time}</div>
-                        `;
-                    } else {
-                        messageContent = `
-                            ${message.senderId !== currentUser.uid ? `<div class="message-sender">${message.senderName}</div>` : ''}
-                            <div class="message-text">${message.text}</div>
-                            <div class="message-time">${time}</div>
-                        `;
-                    }
-                    
-                    messageElement.innerHTML = messageContent;
-                    chatMessages.appendChild(messageElement);
-                });
-                
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            });
-        }
-
-        // Fungsi untuk inisialisasi chat system
-        async function initializeChatSystem(user) {
-            if (isChatInitialized) return;
-            
-            console.log('Menginisialisasi sistem chat untuk user:', user.uid);
-            
-            currentUser = user;
-            currentChatId = await getOrCreateChatId(user);
-            
-            if (currentChatId) {
-                loadChatMessages();
-                chatSendBtn.disabled = false;
-                chatInput.placeholder = "Ketik pesan Anda...";
-                isChatInitialized = true;
-                
-                const chatRef = ref(chatDb, `chats/${currentChatId}`);
-                onValue(chatRef, (snapshot) => {
-                    const chatData = snapshot.val();
-                    if (chatData && chatData.unreadCount > 0) {
-                        chatFloatBtn.classList.add('has-unread');
-                    } else {
-                        chatFloatBtn.classList.remove('has-unread');
-                    }
-                });
-            } else {
-                console.error('Gagal membuat chat ID');
-                chatMessages.innerHTML = `
-                    <div class="chat-empty">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Gagal menginisialisasi chat. Silakan refresh halaman.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Pantau status autentikasi user untuk chat
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // User is signed in - initialize chat system
-                await initializeChatSystem(user);
-            } else {
-                // User is signed out
-                currentUser = null;
-                currentChatId = null;
-                isChatInitialized = false;
-                chatMessages.innerHTML = `
-                    <div class="chat-empty">
-                        <i class="fas fa-user-slash"></i>
-                        <p>Silakan login untuk mengirim pesan</p>
-                    </div>
-                `;
-                chatSendBtn.disabled = true;
-                chatInput.placeholder = "Silakan login untuk mengirim pesan...";
-            }
-        });
-
-        // Muat informasi admin
-        loadAdminInfo();
-
-        console.log('Sistem chat telah diinisialisasi dengan database pesan yang berbeda');
+        console.log('All JavaScript functionality initialized successfully');
     </script>
 </body>
 </html>
