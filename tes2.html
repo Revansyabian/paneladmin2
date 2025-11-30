@@ -1,0 +1,3008 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta name="google-site-verification" content="xCKUyVpkeRGwKlodgRjLCcFuoJ55SAl4FZBRPK07qjY0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Jasa Top Up BUSSID termurah dan terpercaya. Proses cepat dan aman. Cek harga dan cara pesan di sini.">
+    <meta name="keywords" content="Jasa top up bussid murah, top up bussid, top up bussid termurah, top up bussid cepat">
+    <title>Jasa Top up BUSSID murah Aman dan Terpercaya</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+    
+:root {
+  --primary: deepskyblue;
+  --primary-light: rgba(0, 191, 255, 0.1);
+  --secondary: deepskyblue;
+  --accent: #FF6B6B;
+  --dark: #0A2E38;
+  --light: #f8fafc;
+  --success: #00C896;
+  --text: #334155;
+  --text-light: #64748b;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --backdrop: blur(16px);
+}
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+  --primary: #4dc3ff;
+  --primary-light: rgba(77, 195, 255, 0.1);
+  --secondary: #4dc3ff;
+  --dark: #f8fafc;
+  --light: #0A2E38;
+  --text: #f1f5f9;
+  --text-light: #cbd5e1;
+  --card-bg: rgba(15, 23, 42, 0.9);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* ==================== */
+/* RUNNING TEXT */
+/* ==================== */
+.running-text-container {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #ff6b6b);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+  padding: 8px 0;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.running-text {
+  white-space: nowrap;
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 25s linear infinite;
+  font-weight: 600;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ==================== */
+/* HEADER */
+/* ==================== */
+header {
+  background: linear-gradient(135deg, var(--primary) 0%, #4dc3ff 100%);
+  backdrop-filter: var(--backdrop);
+  -webkit-backdrop-filter: var(--backdrop);
+  color: white;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 900;
+}
+
+.header-content {
+  flex: 1;
+}
+
+header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+  transform: rotate(30deg);
+  z-index: -1;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  position: relative;
+  letter-spacing: -0.5px;
+}
+
+header p {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* ==================== */
+/* NAVIGATION */
+/* ==================== */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1600;
+}
+
+.menu-toggle span {
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.nav-container {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 80%;
+  max-width: 300px;
+  height: 100vh;
+  background: var(--card-bg);
+  backdrop-filter: var(--backdrop);
+  -webkit-backdrop-filter: var(--backdrop);
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  padding: 4rem 1rem 1rem;
+  z-index: 1800;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+}
+
+.nav-container.active {
+  right: 0;
+}
+
+.nav-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
+  text-align: center;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 0.5rem;
+}
+
+.nav-btn {
+  background: rgba(0, 191, 255, 0.08);
+  color: var(--primary);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0, 191, 255, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-btn:hover {
+  background: rgba(0, 191, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 191, 255, 0.1);
+}
+
+.close-menu {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text);
+  cursor: pointer;
+  z-index: 1810;
+}
+
+/* ==================== */
+/* USER INFO & SETTINGS */
+/* ==================== */
+.user-info {
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 0.5rem;
+  border: 2px solid var(--primary);
+  object-fit: cover;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.user-email {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-bottom: 0.25rem;
+}
+
+.user-login-time {
+  font-size: 0.7rem;
+  color: var(--text-light);
+}
+
+.login-section {
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+  margin-bottom: 1rem;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, var(--primary), #00688B);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+}
+
+.settings-section {
+  padding: 1rem;
+  display: none;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0, 191, 255, 0.1);
+}
+
+.setting-label {
+  font-weight: 600;
+  color: var(--dark);
+  font-size: 0.9rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.nav-footer {
+  margin-top: auto;
+  padding: 1rem 0.5rem 0;
+  border-top: 1px solid rgba(0, 191, 255, 0.2);
+  text-align: center;
+}
+
+.nav-footer p {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.nav-footer strong {
+  color: var(--primary);
+}
+
+/* ==================== */
+/* OVERLAY */
+/* ==================== */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 1700;
+  display: none;
+}
+
+.overlay.active {
+  display: block;
+}
+
+/* ==================== */
+/* MAIN CONTENT */
+/* ==================== */
+main {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ==================== */
+/* STYLING LAINNYA */
+/* ==================== */
+.maintenance-page {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 9999;
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.maintenance-content {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  padding: 3rem;
+  border-radius: 2rem;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.maintenance-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.maintenance-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.maintenance-message {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.promo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 3000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.promo-banner.active {
+  display: flex;
+}
+
+.promo-banner-content {
+  background: white;
+  border-radius: 2rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.promo-banner-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-light);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.promo-banner-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--dark);
+}
+
+.promo-banner h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.promo-banner p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.promo-banner-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 1rem;
+  margin-bottom: 1.5rem;
+  display: none;
+}
+
+.promo-banner-image.active {
+  display: block;
+}
+
+.promo-banner-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-promo {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-promo-primary {
+  background: linear-gradient(135deg, var(--primary), #00688B);
+  color: white;
+}
+
+.btn-promo-secondary {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text);
+}
+
+section {
+  background: var(--card-bg);
+  backdrop-filter: var(--backdrop);
+  -webkit-backdrop-filter: var(--backdrop);
+  margin-bottom: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: var(--primary);
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+p {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+ul, ol {
+  padding-left: 1.25rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--primary), #00688B);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.2);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 191, 255, 0.3);
+  background: linear-gradient(135deg, #00688B, var(--primary));
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:hover {
+  background: linear-gradient(135deg, #128C7E, #25D366);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+
+.btn-disabled {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+}
+
+.harga {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.harga li {
+  margin: 0;
+  padding: 0.75rem;
+  background: rgba(0, 191, 255, 0.05);
+  border-radius: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0, 191, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.harga li:hover {
+  background: rgba(0, 191, 255, 0.1);
+}
+
+.harga li span {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.harga li strong {
+  color: #00688B;
+  font-weight: 700;
+}
+
+.produk-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.produk-card {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 191, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.produk-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.produk-image-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-bottom: 1px solid #eee;
+}
+
+.produk-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.produk-card:hover .produk-image {
+  transform: scale(1.05);
+}
+
+.produk-info {
+  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.produk-title {
+  font-weight: 700;
+  color: var(--dark);
+  font-size: 1.1rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.produk-price {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.produk-description-container {
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.produk-description {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.produk-description.collapsed {
+  max-height: 4.5em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.produk-description.expanded {
+  max-height: none;
+  display: block;
+}
+
+.read-more-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  margin-top: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+.read-more-btn:hover {
+  color: #00688B;
+}
+
+.read-more-btn i {
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+}
+
+.read-more-btn.expanded i {
+  transform: rotate(180deg);
+}
+
+.produk-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.produk-feature {
+  background: rgba(0, 191, 255, 0.1);
+  color: var(--primary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.produk-status {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: auto;
+  text-align: center;
+}
+
+.status-tersedia {
+  background: rgba(0, 200, 150, 0.15);
+  color: #00C896;
+  border: 1px solid rgba(0, 200, 150, 0.3);
+}
+
+.status-tidak-tersedia {
+  background: rgba(255, 107, 107, 0.15);
+  color: #FF6B6B;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.produk-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 4000;
+  padding: 2rem;
+}
+
+.image-modal.active {
+  display: flex;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-modal-img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.image-modal-close {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.image-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+footer {
+  background: linear-gradient(135deg, rgba(0, 191, 255, 0.9) 0%, rgba(0, 104, 139, 0.9) 100%);
+  backdrop-filter: var(--backdrop);
+  -webkit-backdrop-filter: var(--backdrop);
+  color: white;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.8rem;
+  margin-top: 2rem;
+  border-radius: 1rem 1rem 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.accordion {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.accordion-item {
+  border-bottom: 1px solid rgba(0,191,255,0.1);
+}
+
+.accordion-button {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  background: rgba(0,191,255,0.05);
+  border: none;
+  font-weight: 600;
+  color: var(--dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.accordion-button:hover {
+  background: rgba(0,191,255,0.1);
+}
+
+.accordion-button::after {
+  content: '+';
+  margin-left: auto;
+  font-size: 1.2rem;
+}
+
+.accordion-button.active::after {
+  content: '-';
+}
+
+.accordion-content {
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: white;
+}
+
+.accordion-content p, 
+.accordion-content ol, 
+.accordion-content ul {
+  padding: 0 16px 16px;
+  margin: 0;
+}
+
+.warning-box {
+  background: rgba(255,107,107,0.1);
+  border-left: 4px solid #FF6B6B;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+}
+
+.warning-box ul {
+  padding-left: 20px;
+}
+
+.warning-box li {
+  color: var(--text);
+}
+
+/* ==================== */
+/* PERBAIKAN: INPUT TEXT YANG ADA BORDER BIRU BERLEBIH */
+/* ==================== */
+
+/* Chat Input yang Diperbaiki */
+.chat-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  background: var(--card-bg);
+  color: var(--text);
+  resize: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  max-height: 120px;
+  transition: all 0.3s ease;
+  outline: none !important;
+}
+
+.chat-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.1);
+}
+
+/* Search Input yang Diperbaiki */
+.search-input {
+  width: 100%;
+  padding: 12px 15px 12px 40px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  outline: none !important;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.1);
+}
+
+/* Form Control yang Diperbaiki */
+.form-control {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  outline: none !important;
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.1);
+}
+
+/* Textarea yang Diperbaiki */
+textarea {
+  outline: none !important;
+}
+
+textarea:focus {
+  outline: 1px solid var(--primary) !important;
+  outline-offset: -1px;
+}
+
+/* Input yang Diperbaiki */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"] {
+  outline: none !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus {
+  outline: 1px solid var(--primary) !important;
+  outline-offset: -1px;
+}
+
+/* ==================== */
+/* SISTEM CHAT YANG DIPERBAIKI - CSS */
+/* ==================== */
+
+/* Tombol Chat Mengambang */
+.chat-float-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.chat-float-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+}
+
+.chat-float-btn.has-unread::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 12px;
+    height: 12px;
+    background: #FF6B6B;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* Chat Window - DIPERBESAR */
+.chat-window {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 450px; /* Diperbesar dari 350px */
+    height: 600px; /* Diperbesar dari 500px */
+    background: var(--card-bg);
+    backdrop-filter: var(--backdrop);
+    -webkit-backdrop-filter: var(--backdrop);
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    z-index: 1001;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.chat-window.active {
+    display: flex;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, var(--primary), #00688B);
+    color: white;
+    padding: 1.2rem; /* Diperbesar */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Diperbesar */
+}
+
+.chat-avatar {
+    width: 50px; /* Diperbesar dari 40px */
+    height: 50px; /* Diperbesar dari 40px */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
+
+.chat-title {
+    font-weight: 600;
+    font-size: 1.1rem; /* Diperbesar */
+}
+
+.chat-status {
+    font-size: 0.8rem; /* Diperbesar */
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00C896;
+}
+
+.chat-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.3rem; /* Diperbesar */
+    cursor: pointer;
+    width: 35px; /* Diperbesar */
+    height: 35px; /* Diperbesar */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.chat-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1.2rem; /* Diperbesar */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Diperbesar */
+}
+
+.message {
+    max-width: 85%; /* Diperbesar dari 80% */
+    padding: 0.9rem 1.1rem; /* Diperbesar */
+    border-radius: 1rem;
+    position: relative;
+    word-wrap: break-word;
+    font-size: 0.95rem; /* Diperbesar */
+}
+
+.message-sent {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--primary), #00688B);
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.message-received {
+    align-self: flex-start;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text);
+    border-bottom-left-radius: 0.25rem;
+}
+
+.message-time {
+    font-size: 0.75rem; /* Diperbesar */
+    opacity: 0.7;
+    margin-top: 0.25rem;
+    text-align: right;
+}
+
+.message-sender {
+    font-size: 0.75rem; /* Diperbesar */
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    opacity: 0.8;
+}
+
+.chat-input-container {
+    padding: 1.2rem; /* Diperbesar */
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 0.75rem; /* Diperbesar */
+    align-items: flex-end;
+}
+
+.chat-send-btn {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    width: 45px; /* Diperbesar */
+    height: 45px; /* Diperbesar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem; /* Diperbesar */
+}
+
+.chat-send-btn:hover {
+    transform: scale(1.05);
+}
+
+.chat-send-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Loading indicator */
+.chat-loading {
+    text-align: center;
+    padding: 1.2rem; /* Diperbesar */
+    color: var(--text-light);
+    font-size: 0.95rem; /* Diperbesar */
+}
+
+.chat-loading i {
+    margin-right: 0.5rem;
+}
+
+/* Empty state */
+.chat-empty {
+    text-align: center;
+    padding: 2.5rem; /* Diperbesar */
+    color: var(--text-light);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-empty i {
+    font-size: 3.5rem; /* Diperbesar */
+    margin-bottom: 1.2rem; /* Diperbesar */
+    opacity: 0.5;
+}
+
+/* Responsive chat */
+@media (max-width: 640px) {
+    .chat-window {
+        width: calc(100% - 40px);
+        height: 75vh; /* Diperbesar dari 70vh */
+        bottom: 80px;
+        right: 20px;
+        left: 20px;
+    }
+    
+    .chat-float-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 55px; /* Diperbesar */
+        height: 55px; /* Diperbesar */
+        font-size: 1.3rem; /* Diperbesar */
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}
+
+/* ==================== */
+/* MODAL LOGIN & DAFTAR */
+/* ==================== */
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.auth-modal.active {
+    display: flex;
+}
+
+.auth-modal-content {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: popIn 0.3s ease;
+}
+
+.auth-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-light);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.auth-modal-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--dark);
+}
+
+.auth-modal-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--dark);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 0.9rem;
+}
+
+.form-input {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.1);
+}
+
+.auth-submit-btn {
+    background: linear-gradient(135deg, var(--primary), #00688B);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.auth-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+}
+
+.auth-submit-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.auth-switch-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.auth-switch-btn:hover {
+    color: #00688B;
+}
+
+.auth-error {
+    background: rgba(255, 107, 107, 0.1);
+    color: #FF6B6B;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.auth-error.active {
+    display: block;
+}
+
+/* ==================== */
+/* USER PROFILE ICON */
+/* ==================== */
+.user-profile-icon {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    margin-left: 1rem;
+}
+
+.user-profile-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ==================== */
+/* RESPONSIVE */
+/* ==================== */
+@media (max-width: 640px) {
+    .running-text {
+        font-size: 0.8rem;
+        padding: 6px 0;
+    }
+    
+    .running-text-container {
+        padding: 6px 0;
+    }
+    
+    header {
+        padding: 1rem;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .menu-toggle {
+        display: flex;
+    }
+    
+    .harga {
+        grid-template-columns: 1fr;
+    }
+    
+    .produk-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .nav-container {
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+    
+    section {
+        padding: 1.25rem;
+    }
+    
+    .promo-banner {
+        padding: 1rem;
+    }
+    
+    .promo-banner-content {
+        padding: 1.5rem;
+    }
+    
+    .promo-banner h3 {
+        font-size: 1.2rem;
+    }
+    
+    .produk-info {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    .maintenance-content {
+        padding: 2rem 1.5rem;
+    }
+
+    .maintenance-title {
+        font-size: 2rem;
+    }
+
+    .maintenance-message {
+        font-size: 1rem;
+    }
+    
+    .image-modal-close {
+        top: -30px;
+        right: -30px;
+        width: 30px;
+        height: 30px;
+        font-size: 1.2rem;
+    }
+    
+    .produk-description.collapsed {
+        -webkit-line-clamp: 2;
+        max-height: 3em;
+    }
+    
+    .auth-modal-content {
+        padding: 1.5rem;
+    }
+    
+    .user-profile-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1.3rem;
+    }
+}
+
+/* Micro-interactions */
+.btn:active, .nav-btn:active {
+    transform: scale(0.98);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 191, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 191, 255, 0.5);
+}
+    </style>
+</head>
+<body>
+    <!-- Maintenance Redirect Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBd2z5p0G93InmRC_RFEhV2WfcAqYE9V_k",
+            authDomain: "paneladmin-83c8a.firebaseapp.com",
+            databaseURL: "https://paneladmin-83c8a-default-rtdb.firebaseio.com",
+            projectId: "paneladmin-83c8a",
+            storageBucket: "paneladmin-83c8a.appspot.com",
+            messagingSenderId: "343729471216",
+            appId: "1:343729471216:web:14c357375fa83083c44c35",
+            measurementId: "G-E2G04E4KB5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const maintenanceRef = ref(db, "maintenance");
+
+        // Cek maintenance mode
+        onValue(maintenanceRef, (snapshot) => {
+            const maintenanceData = snapshot.val();
+            if (maintenanceData && maintenanceData.enabled) {
+                // Redirect ke halaman maintenance
+                window.location.href = "maintenance.html";
+            }
+        });
+    </script>
+
+    <!-- Modal untuk gambar produk -->
+    <div class="image-modal" id="imageModal">
+        <div class="image-modal-content">
+            <button class="image-modal-close" id="imageModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modalImage" class="image-modal-img" alt="Gambar Produk">
+        </div>
+    </div>
+
+    <!-- Modal Login & Daftar -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-content">
+            <button class="auth-modal-close" id="authModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="auth-modal-title" id="authModalTitle">Login</h2>
+            <div class="auth-error" id="authError"></div>
+            <form class="auth-form" id="authForm">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label class="form-label" for="authName">Nama Lengkap</label>
+                    <input type="text" class="form-input" id="authName" placeholder="Masukkan nama lengkap">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="authEmail">Email</label>
+                    <input type="email" class="form-input" id="authEmail" placeholder="Masukkan email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="authPassword">Password</label>
+                    <input type="password" class="form-input" id="authPassword" placeholder="Masukkan password">
+                </div>
+                <button type="submit" class="auth-submit-btn" id="authSubmitBtn">
+                    <span id="authSubmitText">Login</span>
+                    <i class="fas fa-spinner fa-spin" id="authSpinner" style="display: none;"></i>
+                </button>
+            </form>
+            <div class="auth-switch">
+                <span id="authSwitchText">Belum punya akun?</span>
+                <button class="auth-switch-btn" id="authSwitchBtn">Daftar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Konten website normal -->
+    <div class="running-text-container" id="runningTextContainer" style="display: none;">
+        <div class="running-text" id="runningText"></div>
+    </div>
+
+    <!-- Promo Banner - FULL SCREEN -->
+    <div class="promo-banner" id="promoBanner">
+        <div class="promo-banner-content">
+            <button class="promo-banner-close" id="promoBannerClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 id="promoBannerTitle">Judul Promo</h3>
+            <p id="promoBannerText">Teks promo akan muncul di sini</p>
+            <img id="promoBannerImage" class="promo-banner-image" alt="Promo Banner">
+            <div class="promo-banner-actions">
+                <button class="btn-promo btn-promo-primary" id="promoBannerAction">
+                    <i class="fab fa-whatsapp"></i>
+                    Pesan Sekarang
+                </button>
+                <button class="btn-promo btn-promo-secondary" id="promoBannerCloseBtn">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tombol Chat Mengambang -->
+    <button class="chat-float-btn" id="chatFloatBtn">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <!-- Window Chat - DIPERBESAR -->
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <img id="chatAdminAvatar" class="chat-avatar" src="https://via.placeholder.com/50/00BFFF/FFFFFF?text=A" alt="Admin Avatar">
+                <div>
+                    <div class="chat-title" id="chatAdminName">Admin BUSSID</div>
+                    <div class="chat-status" id="chatStatus">
+                        <span class="status-indicator"></span>
+                        <span id="chatStatusText">Online</span>
+                    </div>
+                </div>
+            </div>
+            <button class="chat-close" id="chatClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-loading">
+                <i class="fas fa-spinner fa-spin"></i> Memuat pesan...
+            </div>
+        </div>
+        <div class="chat-input-container">
+            <textarea class="chat-input" id="chatInput" placeholder="Ketik pesan Anda..." rows="1"></textarea>
+            <button class="chat-send-btn" id="chatSendBtn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <h1 id="mainTitle">Jasa Top Up BUSSID</h1>
+            <p id="mainSubtitle">Jasa Top Up Cepat, Murah, Aman!</p>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <button class="user-profile-icon" id="userProfileIcon">
+                <i class="fas fa-user"></i>
+            </button>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="nav-container" id="navContainer">
+        <button class="close-menu" id="closeMenu">&times;</button>
+        
+        <div class="nav-title">Menu</div>
+        
+        <a href="testimoni.html" class="nav-btn">
+            <i class="fas fa-comments"></i>
+            Testimoni
+        </a>
+
+        <a href="sosmed.html" class="nav-btn">
+            <i class="fas fa-hashtag"></i>
+            Sosmed Admin
+        </a>
+        <a href="akun.html" class="nav-btn">
+            <i class="fas fa-user"></i>
+            Akun Bussid
+        </a>
+
+        <div class="nav-divider"></div>
+
+        <a href="https://t.me/topupbussidrevanstore" class="nav-btn">
+            <i class="fas fa-paper-plane"></i>
+            Grub top up
+        </a>
+        
+        <a href="tentang-kami.html" class="nav-btn">
+            <i class="fas fa-users"></i>
+            Tentang Kami
+        </a>
+
+        <div class="nav-title" style="margin-top: 1rem;">Pengaturan</div>
+
+        <!-- User Info (akan muncul setelah login) -->
+        <div class="user-info" id="userInfo">
+            <img id="userAvatar" class="user-avatar" alt="Avatar Pengguna">
+            <div class="user-name" id="userName">Nama Pengguna</div>
+            <div class="user-email" id="userEmail">email@example.com</div>
+            <div class="user-login-time" id="userLoginTime">Login: -</div>
+        </div>
+
+        <!-- Login Section (akan muncul sebelum login) -->
+        <div class="login-section" id="loginSection">
+            <button class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Login / Daftar
+            </button>
+        </div>
+
+        <!-- Settings Section (akan muncul setelah login) -->
+        <div class="settings-section" id="settingsSection">
+            <div class="setting-item">
+                <span class="setting-label">Mode Gelap</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+
+        <div class="nav-footer">
+            <p><strong>Top Up Bussid</strong><br>
+            Layanan Aman dan Terpercaya<br>
+            &copy; 2025</p>
+        </div>
+    </div>
+
+    <main>
+        <section>
+            <h2><i class="fas fa-bus"></i> Mau Duit Bussid Banyak, Tanpa Harus Cape cape narik?</h2>
+            <p id="introText">Top Up BUSSID solusinya dengan kalian top up bussid duit kalian bisa bertambah dengan instan, dan kalian juga ga perlu narik secara manual. <strong>Ayo Top up Ub Sekarang</strong>.</p>
+        </section>
+        
+        <section>
+            <h2><i class="fas fa-bus"></i> Apa Itu Top Up BUSSID?</h2>
+            <p>Top Up BUSSID adalah layanan pembelian uang, untuk membeli berbagai macam item di game tersebut tanpa harus ngumpulin duit secara manual di <strong>Bus Simulator Indonesia</strong>.</p>
+        </section>
+        
+        <section>
+            <h2><i class="fas fa-money-bill-wave"></i> Daftar Harga</h2>
+            <ul class="harga" id="priceList">
+                <!-- Harga akan dimuat secara dinamis dari Firebase -->
+            </ul>
+        </section>
+        
+        <section>
+            <h2><i class="fas fa-shopping-cart"></i> Cara Pemesanan</h2>
+            <ol>
+                <li>Hubungi admin via WhatsApp: <strong id="whatsappNumber">6289520418604 / 6289630191806</strong>.</li>
+                <li>Pilih nominal top up sesuai daftar harga.</li>
+                <li>Lakukan pembayaran via DANA / OVO / GOPAY / Transfer Bank.</li>
+                <li>Proses dalam 1–5 menit setelah pembayaran!</li>
+            </ol>
+            <a href="#" id="whatsappLink" class="btn">
+                <i class="fab fa-whatsapp"></i>
+                Pesan Sekarang
+            </a>
+        </section>
+        
+        <!-- Section Produk Gambar -->
+        <section id="produkGambarSection">
+            <h2><i class="fas fa-images"></i> Produk Kami</h2>
+            <p>Lihat berbagai macam produk kami:</p>
+            <div class="produk-container" id="produkContainer">
+                <!-- Produk akan dimuat secara dinamis dari Firebase -->
+            </div>
+        </section>
+        
+        <section>
+            <h2><i class="fas fa-star"></i> Testimoni Pembeli</h2>
+            <a href="https://whatsapp.com/channel/0029ValJCIE8KMqmgpnVTQ3o" class="btn" target="_blank">
+                <i class="fas fa-users"></i>
+                Lihat Testimoni Pembeli
+            </a>
+        </section>
+        
+        <section>
+            <h2><i class="fas fa-question-circle"></i> FAQ Lengkap</h2>
+            <div class="accordion" id="faqContainer">
+                <!-- FAQ akan dimuat secara dinamis dari Firebase -->
+            </div>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-exclamation-triangle"></i> Perhatian!</h2>
+            <div class="warning-box">
+                <p><strong>HINDARI CLONE/PENIPUAN:</strong></p>
+                <ul>
+                    <li>Hanya gunakan nomor WhatsApp resmi admin: <span id="adminWhatsapp1">6289630191806</span> atau <span id="adminWhatsapp2">6289520418604</span></li>
+                    <li>Jangan berikan data akun ke siapapun kecuali admin! </li>
+                    <li>Transaksi hanya melalui WhatsApp admin</li>
+                    <li>Kami tidak bertanggung jawab jika transaksi dilakukan di luar store kami</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 Top Up Bussid | Layanan Aman dan Terpercaya
+    </footer>
+
+    <!-- Firebase Auth Script - SISTEM LOGIN EMAIL/PASSWORD -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYleQn2yLOdMwPzT5n6FPTLhiMnaFhnu8",
+            authDomain: "revanstore-a92a7.firebaseapp.com",
+            databaseURL: "https://revanstore-a92a7-default-rtdb.firebaseio.com",
+            projectId: "revanstore-a92a7",
+            storageBucket: "revanstore-a92a7.firebasestorage.app",
+            messagingSenderId: "1054152032422",
+            appId: "1:1054152032422:web:83349880ce5cf4e4de3467",
+            measurementId: "G-FL822LMWEJ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig, "MainApp");
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // DOM Elements untuk auth
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginSection = document.getElementById('loginSection');
+        const settingsSection = document.getElementById('settingsSection');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+        const userAvatar = document.getElementById('userAvatar');
+        const userLoginTime = document.getElementById('userLoginTime');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const userProfileIcon = document.getElementById('userProfileIcon');
+
+        // Modal Elements
+        const authModal = document.getElementById('authModal');
+        const authModalClose = document.getElementById('authModalClose');
+        const authModalTitle = document.getElementById('authModalTitle');
+        const authForm = document.getElementById('authForm');
+        const authName = document.getElementById('authName');
+        const authEmail = document.getElementById('authEmail');
+        const authPassword = document.getElementById('authPassword');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const authSubmitText = document.getElementById('authSubmitText');
+        const authSpinner = document.getElementById('authSpinner');
+        const authSwitchBtn = document.getElementById('authSwitchBtn');
+        const authSwitchText = document.getElementById('authSwitchText');
+        const authError = document.getElementById('authError');
+        const nameGroup = document.getElementById('nameGroup');
+
+        // State untuk auth modal
+        let isLoginMode = true;
+
+        // Fungsi untuk menampilkan modal auth
+        function showAuthModal() {
+            authModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            resetAuthForm();
+        }
+
+        // Fungsi untuk menutup modal auth
+        function closeAuthModal() {
+            authModal.classList.remove('active');
+            document.body.style.overflow = '';
+            resetAuthForm();
+        }
+
+        // Fungsi untuk reset form auth
+        function resetAuthForm() {
+            authForm.reset();
+            authError.classList.remove('active');
+            authError.textContent = '';
+            authSubmitBtn.disabled = false;
+            authSpinner.style.display = 'none';
+            authSubmitText.style.display = 'inline';
+        }
+
+        // Fungsi untuk toggle antara login dan daftar
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            
+            if (isLoginMode) {
+                authModalTitle.textContent = 'Login';
+                authSubmitText.textContent = 'Login';
+                authSwitchText.textContent = 'Belum punya akun?';
+                authSwitchBtn.textContent = 'Daftar';
+                nameGroup.style.display = 'none';
+            } else {
+                authModalTitle.textContent = 'Daftar';
+                authSubmitText.textContent = 'Daftar';
+                authSwitchText.textContent = 'Sudah punya akun?';
+                authSwitchBtn.textContent = 'Login';
+                nameGroup.style.display = 'flex';
+            }
+            
+            resetAuthForm();
+        }
+
+        // Fungsi untuk menampilkan error
+        function showAuthError(message) {
+            authError.textContent = message;
+            authError.classList.add('active');
+        }
+
+        // Fungsi untuk login
+        async function login(email, password) {
+            try {
+                authSubmitBtn.disabled = true;
+                authSpinner.style.display = 'inline-block';
+                authSubmitText.style.display = 'none';
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log('Login berhasil:', userCredential.user);
+                
+                closeAuthModal();
+                
+            } catch (error) {
+                console.error('Error login:', error);
+                authSubmitBtn.disabled = false;
+                authSpinner.style.display = 'none';
+                authSubmitText.style.display = 'inline';
+                
+                if (error.code === 'auth/invalid-email') {
+                    showAuthError('Email tidak valid');
+                } else if (error.code === 'auth/user-disabled') {
+                    showAuthError('Akun ini telah dinonaktifkan');
+                } else if (error.code === 'auth/user-not-found') {
+                    showAuthError('Akun tidak ditemukan');
+                } else if (error.code === 'auth/wrong-password') {
+                    showAuthError('Password salah');
+                } else {
+                    showAuthError('Login gagal: ' + error.message);
+                }
+            }
+        }
+
+        // Fungsi untuk daftar
+        async function register(name, email, password) {
+            try {
+                authSubmitBtn.disabled = true;
+                authSpinner.style.display = 'inline-block';
+                authSubmitText.style.display = 'none';
+                
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Update profile dengan nama
+                await updateProfile(user, {
+                    displayName: name
+                });
+                
+                // Simpan data user tambahan ke database
+                await set(ref(db, 'users/' + user.uid), {
+                    name: name,
+                    email: email,
+                    createdAt: Date.now(),
+                    lastLogin: Date.now()
+                });
+                
+                console.log('Registrasi berhasil:', user);
+                
+                closeAuthModal();
+                
+            } catch (error) {
+                console.error('Error registrasi:', error);
+                authSubmitBtn.disabled = false;
+                authSpinner.style.display = 'none';
+                authSubmitText.style.display = 'inline';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    showAuthError('Email sudah digunakan');
+                } else if (error.code === 'auth/invalid-email') {
+                    showAuthError('Email tidak valid');
+                } else if (error.code === 'auth/weak-password') {
+                    showAuthError('Password terlalu lemah (minimal 6 karakter)');
+                } else {
+                    showAuthError('Registrasi gagal: ' + error.message);
+                }
+            }
+        }
+
+        // Event listeners untuk auth modal
+        loginBtn.addEventListener('click', showAuthModal);
+        userProfileIcon.addEventListener('click', showAuthModal);
+        authModalClose.addEventListener('click', closeAuthModal);
+        authSwitchBtn.addEventListener('click', toggleAuthMode);
+
+        // Event listener untuk form submit
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = authEmail.value.trim();
+            const password = authPassword.value.trim();
+            const name = authName.value.trim();
+            
+            // Validasi input
+            if (!email || !password) {
+                showAuthError('Email dan password harus diisi');
+                return;
+            }
+            
+            if (!isLoginMode && !name) {
+                showAuthError('Nama harus diisi');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAuthError('Password minimal 6 karakter');
+                return;
+            }
+            
+            if (isLoginMode) {
+                await login(email, password);
+            } else {
+                await register(name, email, password);
+            }
+        });
+
+        // Logout function
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log('Logout berhasil');
+            } catch (error) {
+                console.error('Error logout:', error);
+                alert('Logout gagal: ' + error.message);
+            }
+        });
+
+        // Auth state listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in
+                loginSection.style.display = 'none';
+                settingsSection.style.display = 'block';
+                userInfo.style.display = 'block';
+                
+                // Update user info
+                userName.textContent = user.displayName || 'User';
+                userEmail.textContent = user.email;
+                userAvatar.src = 'https://via.placeholder.com/60/00BFFF/FFFFFF?text=' + (user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U');
+                
+                // Update login time
+                const loginTime = new Date().toLocaleString('id-ID');
+                userLoginTime.textContent = `Login: ${loginTime}`;
+                
+                // Update user profile icon
+                userProfileIcon.innerHTML = '<i class="fas fa-user-check"></i>';
+                
+                console.log('User logged in:', user);
+                
+                // PERBAIKAN: Inisialisasi chat setelah login berhasil
+                initializeChatSystem(user);
+                
+            } else {
+                // User is signed out
+                loginSection.style.display = 'block';
+                settingsSection.style.display = 'none';
+                userInfo.style.display = 'none';
+                
+                // Reset user profile icon
+                userProfileIcon.innerHTML = '<i class="fas fa-user"></i>';
+                
+                console.log('User logged out');
+            }
+        });
+
+        // Dark mode toggle
+        darkModeToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Check saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            darkModeToggle.checked = true;
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        // PERBAIKAN: Fungsi untuk inisialisasi sistem chat
+        function initializeChatSystem(user) {
+            console.log('Menginisialisasi sistem chat untuk user:', user.uid);
+            // Sistem chat akan diinisialisasi di script terpisah
+        }
+    </script>
+
+    <script>
+        // Menu toggle functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const navContainer = document.getElementById('navContainer');
+        const overlay = document.getElementById('overlay');
+        const closeMenu = document.getElementById('closeMenu');
+        
+        function toggleMenu() {
+            navContainer.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = navContainer.classList.contains('active') ? 'hidden' : '';
+        }
+        
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        
+        // PERBAIKAN: Tambahkan event listener untuk tombol setting yang memerlukan login
+        document.addEventListener('click', function(e) {
+            // Jika yang diklik adalah toggle switch dark mode
+            if (e.target.closest('#darkModeToggle')) {
+                // Cek apakah user sudah login
+                const userInfo = document.getElementById('userInfo');
+                if (userInfo.style.display === 'none') {
+                    e.preventDefault();
+                    alert('Silakan login terlebih dahulu untuk mengubah pengaturan.');
+                    toggleMenu(); // Tutup menu
+                }
+            }
+        });
+        
+        // Accordion functionality
+        function initAccordion() {
+            document.querySelectorAll('.accordion-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    button.classList.toggle('active');
+                    const content = button.nextElementSibling;
+                    content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + 'px';
+                });
+            });
+        }
+        
+        // Initialize accordion on page load
+        document.addEventListener('DOMContentLoaded', initAccordion);
+
+        // Promo banner close functionality
+        const promoBanner = document.getElementById('promoBanner');
+        const promoBannerClose = document.getElementById('promoBannerClose');
+        const promoBannerCloseBtn = document.getElementById('promoBannerCloseBtn');
+
+        function closePromoBanner() {
+            promoBanner.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        promoBannerClose.addEventListener('click', closePromoBanner);
+        promoBannerCloseBtn.addEventListener('click', closePromoBanner);
+
+        // Close promo banner when clicking outside
+        promoBanner.addEventListener('click', (e) => {
+            if (e.target === promoBanner) {
+                closePromoBanner();
+            }
+        });
+
+        // Image modal functionality
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const imageModalClose = document.getElementById('imageModalClose');
+
+        function openImageModal(imageSrc) {
+            modalImage.src = imageSrc;
+            imageModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            imageModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        imageModalClose.addEventListener('click', closeImageModal);
+
+        // Close image modal when clicking outside
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) {
+                closeImageModal();
+            }
+        });
+
+        // Close image modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+                closeImageModal();
+            }
+        });
+
+        // Read more functionality for product descriptions
+        function initReadMoreButtons() {
+            document.querySelectorAll('.read-more-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const description = this.previousElementSibling;
+                    const isExpanded = description.classList.contains('expanded');
+                    
+                    if (isExpanded) {
+                        description.classList.remove('expanded');
+                        description.classList.add('collapsed');
+                        this.classList.remove('expanded');
+                        this.innerHTML = '<i class="fas fa-chevron-down"></i> Baca Selengkapnya';
+                    } else {
+                        description.classList.remove('collapsed');
+                        description.classList.add('expanded');
+                        this.classList.add('expanded');
+                        this.innerHTML = '<i class="fas fa-chevron-up"></i> Baca Lebih Sedikit';
+                    }
+                });
+            });
+        }
+    </script>
+
+    <!-- Firebase script dengan perbaikan untuk produk dan promo banner -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // GUNAKAN KONFIGURASI YANG SAMA DENGAN AUTH
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYleQn2yLOdMwPzT5n6FPTLhiMnaFhnu8",
+            authDomain: "revanstore-a92a7.firebaseapp.com",
+            databaseURL: "https://revanstore-a92a7-default-rtdb.firebaseio.com",
+            projectId: "revanstore-a92a7",
+            storageBucket: "revanstore-a92a7.firebasestorage.app",
+            messagingSenderId: "1054152032422",
+            appId: "1:1054152032422:web:83349880ce5cf4e4de3467",
+            measurementId: "G-FL822LMWEJ"
+        };
+
+        // Inisialisasi dengan nama yang berbeda untuk menghindari konflik
+        const contentApp = initializeApp(firebaseConfig, "ContentApp");
+        const db = getDatabase(contentApp);
+
+        // Referensi untuk data konten website
+        const websiteContentRef = ref(db, "websiteContent");
+        const promoBannerRef = ref(db, "promoBanner");
+        const runningTextRef = ref(db, "runningText");
+        const produkRef = ref(db, "produk");
+        const hargaRef = ref(db, "harga");
+        const faqRef = ref(db, "faq");
+
+        // Handle running text
+        const runningTextContainer = document.getElementById("runningTextContainer");
+        const runningTextElement = document.getElementById("runningText");
+
+        // Handle promo banner
+        const promoBanner = document.getElementById("promoBanner");
+        const promoBannerTitle = document.getElementById("promoBannerTitle");
+        const promoBannerText = document.getElementById("promoBannerText");
+        const promoBannerImage = document.getElementById("promoBannerImage");
+        const promoBannerAction = document.getElementById("promoBannerAction");
+
+        // Pantau perubahan pada data running text
+        onValue(runningTextRef, (snapshot) => {
+            const runningTextData = snapshot.val();
+            
+            if (runningTextData && runningTextData.enabled && runningTextData.content) {
+                runningTextElement.textContent = runningTextData.content;
+                runningTextContainer.style.display = "block";
+                
+                // Atur kecepatan running text
+                if (runningTextData.speed) {
+                    const speedMap = { slow: '30s', normal: '25s', fast: '20s' };
+                    runningTextElement.style.animationDuration = speedMap[runningTextData.speed] || '25s';
+                }
+                
+                // Atur warna background jika ada
+                if (runningTextData.bgColor) {
+                    runningTextContainer.style.background = runningTextData.bgColor;
+                }
+                
+                // Atur warna teks jika ada
+                if (runningTextData.color) {
+                    runningTextElement.style.color = runningTextData.color;
+                }
+            } else {
+                runningTextContainer.style.display = "none";
+            }
+        });
+
+        // Pantau perubahan pada data promo banner
+        onValue(promoBannerRef, (snapshot) => {
+            const promoBannerData = snapshot.val();
+            
+            if (promoBannerData && promoBannerData.enabled) {
+                // Update konten promo banner
+                promoBannerTitle.textContent = promoBannerData.title || "Judul Promo";
+                promoBannerText.textContent = promoBannerData.text || "Teks promo akan muncul di sini";
+                
+                if (promoBannerData.image) {
+                    promoBannerImage.src = promoBannerData.image;
+                    promoBannerImage.classList.add("active");
+                    // Handle error gambar
+                    promoBannerImage.onerror = function() {
+                        this.style.display = 'none';
+                    };
+                } else {
+                    promoBannerImage.classList.remove("active");
+                }
+
+                // Set WhatsApp action
+                const whatsappNumber = document.getElementById("whatsappNumber").textContent.split(" / ")[0];
+                const message = "Halo, saya tertarik dengan promo yang sedang berlangsung";
+                promoBannerAction.onclick = () => {
+                    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+                };
+
+                // Tampilkan promo banner
+                setTimeout(() => {
+                    promoBanner.classList.add("active");
+                    document.body.style.overflow = 'hidden';
+                }, 1000);
+            } else {
+                promoBanner.classList.remove("active");
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Handle produk gambar
+        const produkContainer = document.getElementById("produkContainer");
+
+        // Pantau perubahan pada data produk
+        onValue(produkRef, (snapshot) => {
+            const produkData = snapshot.val();
+            produkContainer.innerHTML = "";
+            
+            if (produkData) {
+                Object.keys(produkData).forEach(key => {
+                    const produk = produkData[key];
+                    const produkCard = document.createElement("div");
+                    produkCard.className = "produk-card";
+                    
+                    // Tentukan nomor WhatsApp yang akan digunakan
+                    const whatsappNumber = produk.whatsappNumber || document.getElementById("whatsappNumber").textContent.split(" / ")[0];
+                    
+                    // Buat pesan WhatsApp
+                    let whatsappMessage = produk.whatsappText || "Halo, saya ingin membeli {nama_produk} seharga {harga_produk}";
+                    whatsappMessage = whatsappMessage
+                        .replace(/{nama_produk}/g, produk.name)
+                        .replace(/{harga_produk}/g, produk.price);
+                    
+                    // Encode pesan untuk URL
+                    const encodedMessage = encodeURIComponent(whatsappMessage);
+                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+                    
+                    // Tentukan apakah produk tersedia
+                    const isAvailable = produk.status === "tersedia";
+                    
+                    // Buat badge jika ada promo
+                    const badgeHTML = produk.promo ? `<div class="produk-badge">${produk.promo}</div>` : '';
+                    
+                    // Buat fitur produk
+                    let featuresHTML = '';
+                    if (produk.features && Array.isArray(produk.features)) {
+                        featuresHTML = `<div class="produk-features">${produk.features.map(fitur => `<span class="produk-feature">${fitur}</span>`).join('')}</div>`;
+                    }
+                    
+                    // Handle gambar produk dengan fallback dan modal
+                    const imageSrc = produk.image || 'https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Gambar+Tidak+Tersedia';
+                    const imageHTML = `
+                        <div class="produk-image-container">
+                            <img src="${imageSrc}" alt="${produk.name}" class="produk-image" onerror="this.src='https://via.placeholder.com/300x180/00BFFF/FFFFFF?text=Gambar+Tidak+Tersedia'">
+                        </div>
+                    `;
+                    
+                    // Handle deskripsi dengan expand/collapse
+                    const description = produk.description || 'Deskripsi produk akan ditampilkan di sini';
+                    const descriptionHTML = `
+                        <div class="produk-description-container">
+                            <div class="produk-description collapsed">
+                                ${description}
+                            </div>
+                            <button class="read-more-btn">
+                                <i class="fas fa-chevron-down"></i> Baca Selengkapnya
+                            </button>
+                        </div>
+                    `;
+                    
+                    produkCard.innerHTML = `
+                        ${badgeHTML}
+                        ${imageHTML}
+                        <div class="produk-info">
+                            <div class="produk-title">${produk.name}</div>
+                            <div class="produk-price">${produk.price}</div>
+                            ${featuresHTML}
+                            ${descriptionHTML}
+                            <div class="produk-status ${isAvailable ? 'status-tersedia' : 'status-tidak-tersedia'}">
+                                ${isAvailable ? 'TERSEDIA' : 'TIDAK TERSEDIA'}
+                            </div>
+                            ${isAvailable ? 
+                                `<a href="${whatsappUrl}" class="btn btn-whatsapp" target="_blank" style="margin-top: 0.5rem;">
+                                    <i class="fab fa-whatsapp"></i>
+                                    ${produk.buttonText || "Beli Sekarang"}
+                                </a>` : 
+                                `<button class="btn btn-disabled" style="margin-top: 0.5rem;" disabled>
+                                    <i class="fas fa-times-circle"></i>
+                                    Tidak Tersedia
+                                </button>`
+                            }
+                        </div>
+                    `;
+                    produkContainer.appendChild(produkCard);
+                    
+                    // Tambahkan event listener untuk gambar produk
+                    const produkImage = produkCard.querySelector('.produk-image');
+                    produkImage.addEventListener('click', () => {
+                        openImageModal(imageSrc);
+                    });
+                });
+                
+                // Initialize read more buttons
+                setTimeout(initReadMoreButtons, 100);
+                
+                // Jika tidak ada produk, tampilkan pesan
+                if (produkContainer.children.length === 0) {
+                    produkContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-light); padding: 2rem;">Tidak ada produk yang tersedia saat ini.</p>';
+                }
+            } else {
+                produkContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-light); padding: 2rem;">Tidak ada produk yang tersedia saat ini.</p>';
+            }
+        });
+
+        // Handle daftar harga
+        const priceListContainer = document.getElementById("priceList");
+
+        onValue(hargaRef, (snapshot) => {
+            const hargaData = snapshot.val();
+            priceListContainer.innerHTML = "";
+            
+            if (hargaData) {
+                Object.keys(hargaData).forEach(key => {
+                    const item = hargaData[key];
+                    if (item.status === "tersedia") {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<span>${item.icon || "💵"} ${item.name}</span> <strong>${item.value}</strong>`;
+                        priceListContainer.appendChild(li);
+                    }
+                });
+            }
+            
+            // Jika tidak ada data harga, tampilkan default
+            if (priceListContainer.children.length === 0) {
+                const defaultHarga = [
+                    { name: "70JT UB", value: "Rp5.000", icon: "💵" },
+                    { name: "200JT UB", value: "Rp10.000", icon: "💵" },
+                    { name: "250JT UB", value: "Rp20.000", icon: "💵" },
+                    { name: "300JT UB", value: "Rp25.000", icon: "💵" },
+                    { name: "500JT UB", value: "Rp30.000", icon: "💵" },
+                    { name: "700JT UB", value: "Rp35.000", icon: "💵" },
+                    { name: "900JT UB", value: "Rp40.000", icon: "💵" },
+                    { name: "1MIL UB", value: "Rp45.000", icon: "💵" },
+                    { name: "2 MIL UB", value: "Rp50.000", icon: "💵" }
+                ];
+                
+                defaultHarga.forEach(item => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `<span>${item.icon} ${item.name}</span> <strong>${item.value}</strong>`;
+                    priceListContainer.appendChild(li);
+                });
+            }
+        });
+
+        // Handle FAQ
+        const faqContainer = document.getElementById("faqContainer");
+
+        onValue(faqRef, (snapshot) => {
+            const faqData = snapshot.val();
+            faqContainer.innerHTML = "";
+            
+            if (faqData) {
+                Object.keys(faqData).forEach(key => {
+                    const faq = faqData[key];
+                    if (faq.status === "tersedia") {
+                        const accordionItem = document.createElement("div");
+                        accordionItem.className = "accordion-item";
+                        accordionItem.innerHTML = `
+                            <button class="accordion-button">${faq.question}</button>
+                            <div class="accordion-content">
+                                <p>${faq.answer}</p>
+                            </div>
+                        `;
+                        faqContainer.appendChild(accordionItem);
+                    }
+                });
+                
+                // Re-initialize accordion after adding new items
+                setTimeout(initAccordion, 100);
+            }
+            
+            // Jika tidak ada data FAQ, biarkan kosong
+            if (faqContainer.children.length === 0) {
+                faqContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-light);">FAQ akan segera tersedia.</p>';
+            }
+        });
+
+        // Muat konten website saat halaman dimuat
+        onValue(websiteContentRef, (snapshot) => {
+            const content = snapshot.val();
+            if (content) {
+                // Update konten website jika ada data
+                if (content.siteTitle) {
+                    document.getElementById("mainTitle").textContent = content.siteTitle;
+                }
+                if (content.siteDescription) {
+                    document.getElementById("mainSubtitle").textContent = content.siteDescription;
+                }
+                if (content.introText) {
+                    document.getElementById("introText").innerHTML = content.introText;
+                }
+                if (content.whatsappNumber) {
+                    const whatsappNumber = content.whatsappNumber;
+                    document.getElementById("whatsappNumber").textContent = whatsappNumber;
+                    document.getElementById("adminWhatsapp1").textContent = whatsappNumber;
+                    document.getElementById("adminWhatsapp2").textContent = whatsappNumber;
+                    
+                    // Update WhatsApp link
+                    const whatsappLink = document.getElementById("whatsappLink");
+                    const message = "Assalamu'alaikum saya mau top up bussid";
+                    whatsappLink.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+                }
+            }
+        });
+    </script>
+
+    <!-- SISTEM CHAT YANG DIPERBAIKI - GUNAKAN KONFIGURASI DATABASE PESAN YANG BERBEDA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // KONFIGURASI FIREBASE UNTUK DATABASE PESAN (TIDAK DIUBAH)
+        const firebaseChatConfig = {
+            apiKey: "AIzaSyBD1M4W6-oradzvWOCmTxZYbe-i2mE0ci0",
+            authDomain: "database-510f1.firebaseapp.com",
+            databaseURL: "https://database-510f1-default-rtdb.firebaseio.com",
+            projectId: "database-510f1",
+            storageBucket: "database-510f1.firebasestorage.app",
+            messagingSenderId: "799300799002",
+            appId: "1:799300799002:web:0e2e2482c824f621681fa3",
+            measurementId: "G-MSM26XKYM7"
+        };
+
+        // Inisialisasi Firebase untuk chat dengan nama yang unik
+        const chatApp = initializeApp(firebaseChatConfig, "ChatDatabase");
+        const chatDb = getDatabase(chatApp);
+        
+        // Gunakan auth dari aplikasi utama (sama dengan login)
+        const authApp = initializeApp({
+            apiKey: "AIzaSyAYleQn2yLOdMwPzT5n6FPTLhiMnaFhnu8",
+            authDomain: "revanstore-a92a7.firebaseapp.com",
+            projectId: "revanstore-a92a7",
+            storageBucket: "revanstore-a92a7.firebasestorage.app",
+            messagingSenderId: "1054152032422",
+            appId: "1:1054152032422:web:83349880ce5cf4e4de3467",
+            measurementId: "G-FL822LMWEJ"
+        }, "AuthForChat");
+        const auth = getAuth(authApp);
+
+        // DOM Elements untuk chat
+        const chatFloatBtn = document.getElementById('chatFloatBtn');
+        const chatWindow = document.getElementById('chatWindow');
+        const chatClose = document.getElementById('chatClose');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+        const chatStatusText = document.getElementById('chatStatusText');
+        const chatAdminName = document.getElementById('chatAdminName');
+        const chatAdminAvatar = document.getElementById('chatAdminAvatar');
+
+        // State chat
+        let currentUser = null;
+        let currentChatId = null;
+        let adminInfo = null;
+        let isChatInitialized = false;
+
+        // Fungsi untuk toggle chat window
+        function toggleChatWindow() {
+            chatWindow.classList.toggle('active');
+            if (chatWindow.classList.contains('active')) {
+                loadChatMessages();
+                chatInput.focus();
+            }
+        }
+
+        // Event listeners untuk chat
+        chatFloatBtn.addEventListener('click', toggleChatWindow);
+        chatClose.addEventListener('click', toggleChatWindow);
+
+        // Fungsi untuk memuat informasi admin dari Firebase
+        function loadAdminInfo() {
+            const adminRef = ref(chatDb, 'adminInfo');
+            
+            onValue(adminRef, (snapshot) => {
+                adminInfo = snapshot.val();
+                
+                if (adminInfo) {
+                    chatAdminName.textContent = adminInfo.name || 'Admin BUSSID';
+                    chatStatusText.textContent = adminInfo.status || 'Online';
+                    
+                    if (adminInfo.avatar) {
+                        chatAdminAvatar.src = adminInfo.avatar;
+                        chatAdminAvatar.onerror = function() {
+                            this.src = 'https://via.placeholder.com/50/00BFFF/FFFFFF?text=A';
+                        };
+                    } else {
+                        chatAdminAvatar.src = 'https://via.placeholder.com/50/00BFFF/FFFFFF?text=A';
+                    }
+                }
+            });
+        }
+
+        // Fungsi untuk mendapatkan atau membuat chat ID
+        async function getOrCreateChatId(user) {
+            const userChatsRef = ref(chatDb, `userChats/${user.uid}`);
+            
+            try {
+                const snapshot = await get(userChatsRef);
+                if (snapshot.exists()) {
+                    return snapshot.val().chatId;
+                } else {
+                    const newChatId = push(ref(chatDb, 'chats')).key;
+                    await set(userChatsRef, {
+                        chatId: newChatId,
+                        userName: user.displayName || 'Unknown User',
+                        userEmail: user.email,
+                        userPhoto: user.photoURL || '',
+                        createdAt: Date.now()
+                    });
+                    
+                    await set(ref(chatDb, `chats/${newChatId}`), {
+                        userId: user.uid,
+                        userName: user.displayName || 'Unknown User',
+                        userEmail: user.email,
+                        userPhoto: user.photoURL || '',
+                        createdAt: Date.now(),
+                        lastMessage: '',
+                        lastMessageTime: Date.now(),
+                        unreadCount: 0,
+                        status: 'active'
+                    });
+                    
+                    return newChatId;
+                }
+            } catch (error) {
+                console.error('Error creating chat ID:', error);
+                return null;
+            }
+        }
+
+        // Fungsi untuk mengirim pesan teks
+        async function sendMessage() {
+            const messageText = chatInput.value.trim();
+            if (!messageText || !currentChatId || !currentUser) return;
+            
+            chatSendBtn.disabled = true;
+            
+            try {
+                const messageRef = push(ref(chatDb, `messages/${currentChatId}`));
+                await set(messageRef, {
+                    text: messageText,
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName || 'Unknown User',
+                    timestamp: Date.now(),
+                    type: 'text'
+                });
+                
+                await update(ref(chatDb, `chats/${currentChatId}`), {
+                    lastMessage: messageText,
+                    lastMessageTime: Date.now(),
+                    unreadCount: 1
+                });
+                
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Gagal mengirim pesan. Silakan coba lagi.');
+            } finally {
+                chatSendBtn.disabled = false;
+            }
+        }
+
+        // Event listeners untuk mengirim pesan
+        chatSendBtn.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Fungsi untuk memuat pesan
+        function loadChatMessages() {
+            if (!currentChatId) return;
+            
+            chatMessages.innerHTML = '<div class="chat-loading"><i class="fas fa-spinner fa-spin"></i> Memuat pesan...</div>';
+            
+            const messagesRef = ref(chatDb, `messages/${currentChatId}`);
+            
+            onValue(messagesRef, (snapshot) => {
+                const messagesData = snapshot.val();
+                chatMessages.innerHTML = '';
+                
+                if (!messagesData) {
+                    chatMessages.innerHTML = `
+                        <div class="chat-empty">
+                            <i class="fas fa-comments"></i>
+                            <p>Belum ada pesan. Mulai percakapan!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const messages = Object.entries(messagesData)
+                    .map(([id, message]) => ({ id, ...message }))
+                    .sort((a, b) => a.timestamp - b.timestamp);
+                
+                messages.forEach(message => {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `message ${message.senderId === currentUser.uid ? 'message-sent' : 'message-received'}`;
+                    
+                    const time = new Date(message.timestamp).toLocaleTimeString('id-ID', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    let messageContent = '';
+                    
+                    if (message.type === 'image') {
+                        messageContent = `
+                            ${message.senderId !== currentUser.uid ? `<div class="message-sender">${message.senderName}</div>` : ''}
+                            <div class="message-text">📷 [Gambar]</div>
+                            <div class="message-time">${time}</div>
+                        `;
+                    } else {
+                        messageContent = `
+                            ${message.senderId !== currentUser.uid ? `<div class="message-sender">${message.senderName}</div>` : ''}
+                            <div class="message-text">${message.text}</div>
+                            <div class="message-time">${time}</div>
+                        `;
+                    }
+                    
+                    messageElement.innerHTML = messageContent;
+                    chatMessages.appendChild(messageElement);
+                });
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        // Fungsi untuk inisialisasi chat system
+        async function initializeChatSystem(user) {
+            if (isChatInitialized) return;
+            
+            console.log('Menginisialisasi sistem chat untuk user:', user.uid);
+            
+            currentUser = user;
+            currentChatId = await getOrCreateChatId(user);
+            
+            if (currentChatId) {
+                loadChatMessages();
+                chatSendBtn.disabled = false;
+                chatInput.placeholder = "Ketik pesan Anda...";
+                isChatInitialized = true;
+                
+                const chatRef = ref(chatDb, `chats/${currentChatId}`);
+                onValue(chatRef, (snapshot) => {
+                    const chatData = snapshot.val();
+                    if (chatData && chatData.unreadCount > 0) {
+                        chatFloatBtn.classList.add('has-unread');
+                    } else {
+                        chatFloatBtn.classList.remove('has-unread');
+                    }
+                });
+            } else {
+                console.error('Gagal membuat chat ID');
+                chatMessages.innerHTML = `
+                    <div class="chat-empty">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Gagal menginisialisasi chat. Silakan refresh halaman.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Pantau status autentikasi user untuk chat
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in - initialize chat system
+                await initializeChatSystem(user);
+            } else {
+                // User is signed out
+                currentUser = null;
+                currentChatId = null;
+                isChatInitialized = false;
+                chatMessages.innerHTML = `
+                    <div class="chat-empty">
+                        <i class="fas fa-user-slash"></i>
+                        <p>Silakan login untuk mengirim pesan</p>
+                    </div>
+                `;
+                chatSendBtn.disabled = true;
+                chatInput.placeholder = "Silakan login untuk mengirim pesan...";
+            }
+        });
+
+        // Muat informasi admin
+        loadAdminInfo();
+
+        console.log('Sistem chat telah diinisialisasi dengan database pesan yang berbeda');
+    </script>
+</body>
+</html>
