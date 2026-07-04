@@ -1,4 +1,4 @@
-const CryptoJS = require('crypto-js');
+const crypto = require('crypto');
 const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
@@ -17,6 +17,23 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
+const ALGORITHM = 'aes-256-cbc';
+const IV = Buffer.alloc(16, 0);
+const KEY = Buffer.from(ADMIN_KEY.padEnd(32).slice(0, 32));
+
+function encrypt(text) {
+  const cipher = crypto.createCipheriv(ALGORITHM, KEY, IV);
+  let encrypted = cipher.update(text, 'utf8', 'base64');
+  encrypted += cipher.final('base64');
+  return encrypted;
+}
+
+function decrypt(text) {
+  const decipher = crypto.createDecipheriv(ALGORITHM, KEY, IV);
+  let decrypted = decipher.update(text, 'base64', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -30,7 +47,7 @@ export default async function handler(req, res) {
     const body = req.body;
     if (!body || !body.data) return res.status(200).json({ error: 'No data' });
 
-    const decrypted = CryptoJS.AES.decrypt(body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+    const decrypted = decrypt(body.data);
     if (!decrypted) return res.status(200).json({ error: 'Access denied' });
     
     const { path, method, data } = JSON.parse(decrypted);
@@ -41,10 +58,9 @@ export default async function handler(req, res) {
       const raw = snap.val();
       
       if (path === 'admin/auth' && raw && raw.data) {
-        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const dec = decrypt(raw.data);
         const result = JSON.parse(dec);
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-        return res.status(200).json({ encrypted: true, data: encrypted });
+        return res.status(200).json({ encrypted: true, data: encrypt(JSON.stringify(result)) });
       }
       
       const result = {};
@@ -52,7 +68,7 @@ export default async function handler(req, res) {
         for (const key in raw) {
           if (raw[key] && raw[key].data) {
             try {
-              const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+              const dec = decrypt(raw[key].data);
               result[key] = JSON.parse(dec);
               result[key].id = key;
             } catch(e) {}
@@ -60,25 +76,22 @@ export default async function handler(req, res) {
         }
       }
       
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
+      return res.status(200).json({ encrypted: true, data: encrypt(JSON.stringify(result)) });
     }
 
     if (method === 'POST') {
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+      const enc = encrypt(JSON.stringify(data));
       const newRef = ref.push();
-      await newRef.set({ data: enc, created: Date.now() });
+      await newRef.set({ data: enc });
       const result = { success: true, id: newRef.key };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
+      return res.status(200).json({ encrypted: true, data: encrypt(JSON.stringify(result)) });
     }
 
     if (method === 'PUT') {
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-      await ref.set({ data: enc, created: Date.now() });
+      const enc = encrypt(JSON.stringify(data));
+      await ref.set({ data: enc });
       const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
+      return res.status(200).json({ encrypted: true, data: encrypt(JSON.stringify(result)) });
     }
 
     if (method === 'PATCH') {
@@ -86,22 +99,20 @@ export default async function handler(req, res) {
       const existing = snap.val();
       let existingData = {};
       if (existing && existing.data) {
-        const dec = CryptoJS.AES.decrypt(existing.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const dec = decrypt(existing.data);
         existingData = JSON.parse(dec);
       }
       const merged = { ...existingData, ...data };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
-      await ref.update({ data: enc, updated: Date.now() });
+      const enc = encrypt(JSON.stringify(merged));
+      await ref.update({ data: enc });
       const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
+      return res.status(200).json({ encrypted: true, data: encrypt(JSON.stringify(result)) });
     }
 
     if (method === 'DELETE') {
       await ref.remove();
       const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
+      return res.status(200).json({ encrypted: true, data: encrypt(JSON.stringify(result)) });
     }
 
     return res.status(200).json({ error: 'Invalid method' });
