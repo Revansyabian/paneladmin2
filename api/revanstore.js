@@ -1,5 +1,5 @@
-import CryptoJS from 'crypto-js';
-import admin from 'firebase-admin';
+const CryptoJS = require('crypto-js');
+const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
     admin.initializeApp({
@@ -17,251 +17,38 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
-const API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
-const ALLOWED_ORIGINS = [
-    'https://paneladmin2.vercel.app/',
-];
-
-async function isIPBlocked(ip) {
-    const snap = await db.ref('admin/blocked_ips/' + ip.replace(/\./g, '_')).once('value');
-    return snap.exists();
-}
-
-async function verifyAPIKey(key) {
-    return key === API_KEY;
-}
-
-async function apiLogin(email, password) {
-    const snap = await db.ref('admin/auth').once('value');
-    const raw = snap.val();
-
-    if (raw && raw.data) {
-        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        const admin = JSON.parse(dec);
-
-        if (admin.email === email && admin.password === password) {
-            return {
-                success: true,
-                message: 'Login berhasil',
-                data: { email: admin.email, role: admin.role }
-            };
-        }
-    }
-
-    return { success: false, message: 'Email atau password salah' };
-}
-
-async function apiGetUsers() {
-    const snap = await db.ref('users').once('value');
-    const raw = snap.val() || {};
-    const users = [];
-
-    for (const key in raw) {
-        if (raw[key] && raw[key].data) {
-            try {
-                const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-                const user = JSON.parse(dec);
-                user.id = key;
-                users.push(user);
-            } catch (e) {}
-        }
-    }
-
-    return { success: true, total: users.length, users: users };
-}
-
-async function apiAddUser(userData) {
-    if (!userData.username || !userData.password) {
-        return { success: false, message: 'Username dan password wajib diisi' };
-    }
-
-    const users = await apiGetUsers();
-    const exists = users.users.some(function(u) {
-        return u.username === userData.username;
-    });
-
-    if (exists) {
-        return { success: false, message: 'Username sudah digunakan' };
-    }
-
-    const enc = CryptoJS.AES.encrypt(JSON.stringify({
-        username: userData.username,
-        phone: userData.phone || '',
-        password: userData.password,
-        role: userData.role || 'User',
-        expiry_date: userData.expiry_date || '12/31/2026'
-    }), ADMIN_KEY).toString();
-
-    const ref = db.ref('users').push();
-    await ref.set({ data: enc, created: Date.now(), created_by: userData.created_by || 'api' });
-
-    return { success: true, message: 'User berhasil ditambahkan', id: ref.key };
-}
-
-function checkOrigin(origin, referer) {
-    if (!origin && !referer) return false;
-    
-    for (const allowed of ALLOWED_ORIGINS) {
-        if (origin && origin.startsWith(allowed)) return true;
-        if (referer && referer.startsWith(allowed)) return true;
-    }
-    
-    return false;
-}
 
 export default async function handler(req, res) {
-    const origin = req.headers['origin'] || '';
-    const referer = req.headers['referer'] || '';
-    const isAPI = req.body && (req.body.action === 'api_login' || req.body.action === 'api_get_users' || req.body.action === 'api_add_user');
-    const isEncrypted = req.body && req.body.data;
-
-    if (!isAPI && !isEncrypted) {
-        return res.status(200).json({ status: 'OK', version: '2.0' });
-    }
-
-    if (isAPI) {
-        const apiKey = req.headers['x-api-key'] || req.body.api_key || '';
-        const validKey = await verifyAPIKey(apiKey);
-
-        if (!validKey) {
-            return res.status(401).json({
-                error: 'Akses ditolak. Gunakan web resmi topupbussidku.web.id',
-                code: 'INVALID_API_KEY'
-            });
-        }
-    }
-
-    if (isEncrypted) {
-        const allowed = checkOrigin(origin, referer);
-        if (!allowed) {
-            return res.status(403).json({
-                error: 'Akses ditolak. Gunakan web resmi topupbussidku.web.id',
-                code: 'INVALID_ORIGIN'
-            });
-        }
-    }
-
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method === 'GET') return res.status(200).json({ status: 'Login API' });
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
-        const body = req.body;
+        const { email, password } = req.body;
 
-        if (body.action === 'api_login') {
-            const result = await apiLogin(body.email, body.password);
-            return res.status(200).json(result);
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: 'Email dan password wajib diisi' });
         }
 
-        if (body.action === 'api_get_users') {
-            const result = await apiGetUsers();
-            return res.status(200).json(result);
-        }
+        const snap = await db.ref('admin/auth').once('value');
+        const raw = snap.val();
 
-        if (body.action === 'api_add_user') {
-            const result = await apiAddUser(body.user || body);
-            return res.status(200).json(result);
-        }
+        if (raw && raw.data) {
+            const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+            const admin = JSON.parse(dec);
 
-        if (!body.data) {
-            return res.status(200).json({ error: 'No data' });
-        }
-
-        res.setHeader('Access-Control-Allow-Origin', 'https://topupbussidku.web.id');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
-
-        if (req.method === 'OPTIONS') {
-            return res.status(200).end();
-        }
-
-        const decrypted = CryptoJS.AES.decrypt(body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        if (!decrypted) {
-            return res.status(200).json({ error: 'Access denied' });
-        }
-
-        const { path, method, data } = JSON.parse(decrypted);
-
-        if (path === 'admin/auth' && method === 'GET') {
-            const blocked = await isIPBlocked(ip);
-            if (blocked) {
-                const result = { success: false, error: 'IP diblokir', blocked: true };
-                const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-                return res.status(200).json({ encrypted: true, data: encrypted });
+            if (admin.email === email && admin.password === password) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Login berhasil',
+                    data: { email: admin.email, role: admin.role }
+                });
             }
         }
 
-        const ref = db.ref(path);
-
-        if (method === 'GET') {
-            const snap = await ref.once('value');
-            const raw = snap.val();
-
-            if (path === 'admin/auth' && raw && raw.data) {
-                const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-                const result = JSON.parse(dec);
-                const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-                return res.status(200).json({ encrypted: true, data: encrypted });
-            }
-
-            const result = {};
-            if (raw) {
-                for (const key in raw) {
-                    if (raw[key] && raw[key].data) {
-                        try {
-                            const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-                            result[key] = JSON.parse(dec);
-                            result[key].id = key;
-                        } catch (e) {}
-                    }
-                }
-            }
-
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-            return res.status(200).json({ encrypted: true, data: encrypted });
-        }
-
-        if (method === 'POST') {
-            const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-            const newRef = ref.push();
-            await newRef.set({ data: enc });
-            const result = { success: true, id: newRef.key };
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-            return res.status(200).json({ encrypted: true, data: encrypted });
-        }
-
-        if (method === 'PUT') {
-            const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-            await ref.set({ data: enc });
-            const result = { success: true };
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-            return res.status(200).json({ encrypted: true, data: encrypted });
-        }
-
-        if (method === 'PATCH') {
-            const snap = await ref.once('value');
-            const existing = snap.val();
-            let existingData = {};
-            if (existing && existing.data) {
-                const dec = CryptoJS.AES.decrypt(existing.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-                existingData = JSON.parse(dec);
-            }
-            const merged = { ...existingData, ...data };
-            const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
-            await ref.update({ data: enc });
-            const result = { success: true };
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-            return res.status(200).json({ encrypted: true, data: encrypted });
-        }
-
-        if (method === 'DELETE') {
-            await ref.remove();
-            const result = { success: true };
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-            return res.status(200).json({ encrypted: true, data: encrypted });
-        }
-
-        return res.status(200).json({ error: 'Invalid method' });
+        return res.status(200).json({ success: false, message: 'Email atau password salah' });
 
     } catch (error) {
-        return res.status(200).json({ error: error.message });
+        return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
     }
 }
