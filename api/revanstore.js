@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js';
 import admin from 'firebase-admin';
-import middleware from '../middleware/middleware';
+import middleware from 'middleware/middleware';
 
 const ADMIN_KEY = process.env.ADMIN_KEY;
 
@@ -9,7 +9,7 @@ if (!admin.apps.length) {
     credential: admin.credential.cert({
       type: "service_account",
       project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      private_key: process.env.FIREBASE_PRIVATE_KEY,
       client_email: process.env.FIREBASE_CLIENT_EMAIL,
     }),
     databaseURL: process.env.FIREBASE_DATABASE_URL
