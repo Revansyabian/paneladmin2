@@ -4,18 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin BUSSID Panel</title>
-    
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://dhagwxwhu-default-rtdb.firebaseio.com;">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
     <meta name="robots" content="noindex, nofollow">
-    
     <link rel="stylesheet" href="admin.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" integrity="sha384-SULjTKehdcYLCkNVUx7XQToBGjLjWsiu8sv5+4g2oOBKtWjdc4oS1kObFgM3PKbB" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="main.js"></script>
 </head>
 <body>
@@ -31,10 +22,10 @@
                 <button class="close-modal" onclick="closeEditModal()">&times;</button>
             </div>
             <input type="hidden" id="editUserId">
-            <div class="input-box"><label>Username</label><input type="text" id="editUsername" maxlength="30" autocomplete="off"></div>
-            <div class="input-box"><label>Password (biarkan kosong jika tidak diubah)</label><input type="text" id="editPassword" placeholder="min 8 karakter" maxlength="50" autocomplete="off"></div>
+            <div class="input-box"><label>Username</label><input type="text" id="editUsername" maxlength="30"></div>
+            <div class="input-box"><label>Password (biarkan kosong jika tidak diubah)</label><input type="text" id="editPassword" placeholder="min 6 karakter" maxlength="50"></div>
             <div class="input-box"><label>Role</label><select id="editRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-            <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate" placeholder="01/28/2026" maxlength="10" autocomplete="off">
+            <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate" placeholder="01/28/2026" maxlength="10">
                 <div class="quick-dates">
                     <span class="date-option" onclick="setQuickDate('edit','permanent')">Permanent</span>
                     <span class="date-option" onclick="setQuickDate('edit','week')">+1 Minggu</span>
@@ -68,10 +59,10 @@
                     <button class="tab" onclick="switchTab('users')">Daftar User <span id="userCount" class="counter-badge">0</span></button>
                 </div>
                 <div id="adduser" class="tab-content active">
-                    <div class="input-box"><label>Username</label><input type="text" id="newUser" placeholder="operator1" maxlength="30" autocomplete="off"></div>
-                    <div class="input-box"><label>Password (min 8 karakter, huruf & angka)</label><input type="text" id="newPass" placeholder="min 8 karakter" maxlength="50" autocomplete="off"></div>
+                    <div class="input-box"><label>Username</label><input type="text" id="newUser" placeholder="operator1" maxlength="30"></div>
+                    <div class="input-box"><label>Password (min 6 karakter)</label><input type="text" id="newPass" placeholder="min 6 karakter" maxlength="50"></div>
                     <div class="input-box"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-                    <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="01/28/2026" maxlength="10" autocomplete="off">
+                    <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="01/28/2026" maxlength="10">
                         <div class="quick-dates">
                             <span class="date-option" onclick="setQuickDate('new','permanent')">Permanent</span>
                             <span class="date-option" onclick="setQuickDate('new','week')">+1 Minggu</span>
