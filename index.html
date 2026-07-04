@@ -87,6 +87,17 @@
                         </div>
                         <div style="font-size:12px;color:#8899aa;">Total: <span id="totalUsers" style="font-weight:600;color:#1a1a2e;">0</span> user</div>
                     </div>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('SW registered');
+      }).catch(function(err) {
+        console.log('SW failed:', err);
+      });
+    });
+  }
+</script>
                     <div class="search-box"><input type="text" id="searchUser" placeholder="Cari user..." maxlength="50" onkeyup="searchUsers()"></div>
                     <div id="userListContainer" class="user-list"><div style="text-align:center;padding:40px;color:#aabbcc;">Memuat data...</div></div>
                 </div>
