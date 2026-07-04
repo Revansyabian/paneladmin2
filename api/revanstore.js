@@ -1,81 +1,95 @@
+import admin from 'firebase-admin';
+import CryptoJS from 'crypto-js';
+
+// Init Firebase Admin (cuma sekali)
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      type: "service_account",
+      project_id: "dhagwxwhu",
+      private_key_id: "f4afc5aa03e73130f5e055dfe6a708c4dc40759b",
+      private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDa1ySxVtAR7yk3\noWtpNRDYlT/p4MhiJzqD4eIKlyhIVH6bgYBXGd+HtWUIoO3Gv+HBKZQ71ESDOaSH\nxEBsZJV84HyqrjntjdaC5sac5+IJ7e1wfDhK/RCIDLHyjjlI0rsc8wOV5Qi95qUA\nUymh6UNE9YsUJMwX+KfkiI8nV1AOGUigqKQ26ucT9B1u5v/iP9RiwXZv08DLbMfl\nXSZHU0ctSo5Yo0fBdXsRAGFmYh7eIUjkL+L8h6xbbKfVsp6fFvu871H/qP6v0NcG\nC1ZRoywy4xdCJMMrw/1b3WDgInYV9Bzr3h+L2mdPk17GvGPgY292RN+Qn4uUD2tX\noW98kaKbAgMBAAECggEAMvN1WQ6vygUnUQr1oZyXy/1P0KmjreqZPpxoTvPrjo+R\nnK4VjfH5r7SFjfE9+xCwxJLkLtvYib7xdiS0pSf0AAuaKvj+hrcH0xlc86ovYAVz\ny0U4rAjogOyHv8PqRXC+3NodoxgcpW4eS4mRP1+6aENM+scod4pOuLAsuEmlW2qM\nSmi63miQEToiI2e5eHQYoA15cTVsddz1Nes05rKVAdnMgtyQF3/F2SaIAkxhqJbu\nclliVZwU9himfYkZderoWCfIoIIaikbdoYaZa5Z+rF9fgEpvlSNiP4wukTpIYBnW\nHuxT5EIQib+wXfaWO+Km2h+9qEuZrEsXJsDb4jbmzQKBgQD1jIFu/VM4xA9VbfYW\nKmKEyrw0SAjsmuROg2es5c7jCcdC5OQOGmhMJMXHJUF9Ekz2/OlzEPoBy6IMYuJQ\n3PZG84vmDGGOTS0QNXt7HZm4X2Ahf8w+cg2avYZRltCNgJwVZaP/Gb/i1TU3yWdf\n+NWFxeZvfC9nbVfNXWO+oHHgfwKBgQDkJ5+F+RE3v6/56oucv5Bzo0sadxGCgNte\n5sEjwAAHnsFoULBnLWZd6NeFKNXfPpHFb+wwEJ/vkI+zKREIEpHiD058qgqPl/GM\n6KraKxZooSLgjtkjHM0WTpskGbdaJwcsu4e3sZlRLw7Z8dCpkPvz5Li8+H2hgaFa\nr3jDI0Ov5QKBgHRHjEe+CPn5xnUjNIT8n1jZFNUBQ9Cf7PvNOHxk+1sCl2zzLZgM\nI1XjmBEdcGzFDNNtozONV4cgImYRMbEvYiTpUlenh0829t8VJJuBwfjQmZpjhZoQ\nsqaTl5btf2dy/vcXAdldHURSyPfZFW4aTSsjM2OaAGzPF+Q1lHWCT0sLAoGAaHec\nG4QH1jb3JL+4XXV5dvl2EhAi/FZ0G+gc13m6icKvXExV+WhYTvemd1pTU30a0gSF\naRyznsXahnZvTfrywUew8HQLkeRIvfRrBqpkAFSH27qMwf8WCPjFIKqFwcnNBzZ2\n1i2DviCF9FU87eds9ifsTtqY67KnZxahfPhQreECgYAjjTEXBMJ5h4pXEykLhXPg\nhsFqaj2OcdZVx4LYE9H2FzN7qbEQRlkreTdJe8l/ai15P9HXN8zGHaLLy6h2jpP5\nFzUjV0AEMbekXU418o0HPKfRTIAHSRvv4RpIGpNypWwqO3KZnLAQv0WrvGus7YUQ\nEhRzMA67jAl74Op3hQymIg==\n-----END PRIVATE KEY-----\n",
+      client_email: "firebase-adminsdk-fbsvc@dhagwxwhu.iam.gserviceaccount.com",
+      client_id: "101642214777392044779"
+    }),
+    databaseURL: "https://dhagwxwhu-default-rtdb.firebaseio.com"
+  });
+}
+
+const db = admin.database();
+const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
-  const FIREBASE_URL = 'https://dhagwxwhu-default-rtdb.firebaseio.com';
-
   try {
-    const CryptoJS = await import('crypto-js');
-    
-    const decrypted = CryptoJS.default.AES.decrypt(req.body.data, ADMIN_KEY).toString(CryptoJS.default.enc.Utf8);
-    if (!decrypted) {
-      return res.status(200).json({ success: false, error: 'Invalid encryption' });
-    }
+    const decrypted = CryptoJS.AES.decrypt(req.body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+    if (!decrypted) return res.status(200).json({ success: false, error: 'Access denied' });
     
     const { path, method, data } = JSON.parse(decrypted);
+    const ref = db.ref(path);
 
     // LOGIN
     if (path === 'login') {
-      const response = await fetch(FIREBASE_URL + '/users.json');
-      const users = await response.json();
+      const snap = await db.ref('admin/auth').once('value');
+      const admin = snap.val();
       
-      if (users) {
-        for (const key in users) {
-          if (users[key] && users[key].username === data.username && users[key].password === data.password) {
-            const result = {
-              success: true,
-              data: {
-                id: key,
-                username: users[key].username,
-                role: users[key].role || 'User',
-                expiry_date: users[key].expiry_date || '',
-                created: users[key].created || null,
-                created_by: users[key].created_by || 'admin'
-              }
-            };
-            const encrypted = CryptoJS.default.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-            return res.status(200).json({ encrypted: true, data: encrypted });
-          }
-        }
+      if (admin && admin.email === data.email && admin.password === data.password) {
+        const result = { success: true, data: { email: admin.email, role: admin.role } };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
       }
       
-      const failResult = { success: false, error: 'Username atau password salah' };
-      const failEncrypted = CryptoJS.default.AES.encrypt(JSON.stringify(failResult), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: failEncrypted });
+      const fail = { success: false, error: 'Email atau password salah' };
+      const enc = CryptoJS.AES.encrypt(JSON.stringify(fail), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: enc });
     }
 
-    // GET USERS
-    if (path === 'users' && (!method || method === 'GET')) {
-      const response = await fetch(FIREBASE_URL + '/users.json');
-      const users = await response.json();
-      const result = users || {};
-      const encrypted = CryptoJS.default.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+    // GET
+    if (method === 'GET') {
+      const snap = await ref.once('value');
+      const result = snap.val() || {};
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // CRUD OPERATIONS
-    let url = FIREBASE_URL + '/' + path + '.json';
-    let options = {
-      method: method || 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    };
-    
-    if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
-      options.body = JSON.stringify(data);
+    // POST
+    if (method === 'POST') {
+      const newRef = ref.push();
+      await newRef.set(data);
+      const result = { success: true, id: newRef.key };
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    const response = await fetch(url, options);
-    const text = await response.text();
-    const resultData = text && text !== 'null' ? JSON.parse(text) : null;
-    const result = resultData || { success: true };
-    const encrypted = CryptoJS.default.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-    return res.status(200).json({ encrypted: true, data: encrypted });
+    // PUT
+    if (method === 'PUT') {
+      await ref.set(data);
+      const result = { success: true };
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
+    // PATCH
+    if (method === 'PATCH') {
+      await ref.update(data);
+      const result = { success: true };
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
+    // DELETE
+    if (method === 'DELETE') {
+      await ref.remove();
+      const result = { success: true };
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
 
   } catch (error) {
-    const errResult = { success: false, error: error.message };
     return res.status(200).json({ success: false, error: error.message });
   }
 }
