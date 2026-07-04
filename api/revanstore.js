@@ -19,57 +19,85 @@ const db = admin.database();
 
 async function isIPBlocked(ip) {
   const snap = await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).once('value');
-  const data = snap.val();
-  if (data && data.blocked) return true;
+  const raw = snap.val();
+  if (raw && raw.data) {
+    try {
+      const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+      const data = JSON.parse(dec);
+      if (data && data.blocked) return true;
+    } catch(e) {}
+  }
   return false;
 }
 
 async function isFPBlocked(fp) {
   const snap = await db.ref('blocked_fp/' + fp).once('value');
-  const data = snap.val();
-  if (data && data.blocked) return true;
+  const raw = snap.val();
+  if (raw && raw.data) {
+    try {
+      const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+      const data = JSON.parse(dec);
+      if (data && data.blocked) return true;
+    } catch(e) {}
+  }
   return false;
 }
 
 async function blockIP(ip) {
-  await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).set({
+  const enc = CryptoJS.AES.encrypt(JSON.stringify({
     ip: ip,
     blocked: true,
     blocked_at: new Date().toISOString()
-  });
+  }), ADMIN_KEY).toString();
+  await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).set({ data: enc });
 }
 
 async function blockFP(fp) {
-  await db.ref('blocked_fp/' + fp).set({
+  const enc = CryptoJS.AES.encrypt(JSON.stringify({
     fingerprint: fp,
     blocked: true,
     blocked_at: new Date().toISOString()
-  });
+  }), ADMIN_KEY).toString();
+  await db.ref('blocked_fp/' + fp).set({ data: enc });
 }
 
 async function trackLoginAttempt(ip, fp) {
   const key = ip.replace(/\./g, '_') + '_' + (fp || 'nofp');
   const ref = db.ref('login_attempts/' + key);
   const snap = await ref.once('value');
-  const data = snap.val();
+  const raw = snap.val();
   const now = Date.now();
   
-  if (data) {
-    const attempts = data.count || 0;
-    const lastAttempt = data.last_attempt || 0;
-    
-    if (now - lastAttempt > 3600000) {
-      await ref.set({ count: 1, last_attempt: now, fingerprint: fp });
-      return 1;
-    }
-    
-    const newCount = attempts + 1;
-    await ref.update({ count: newCount, last_attempt: now });
-    return newCount;
-  } else {
-    await ref.set({ count: 1, last_attempt: now, fingerprint: fp });
+  let attempts = 0;
+  let lastAttempt = 0;
+  
+  if (raw && raw.data) {
+    try {
+      const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+      const data = JSON.parse(dec);
+      attempts = data.count || 0;
+      lastAttempt = data.last_attempt || 0;
+    } catch(e) {}
+  }
+  
+  if (now - lastAttempt > 3600000) {
+    const enc = CryptoJS.AES.encrypt(JSON.stringify({
+      count: 1,
+      last_attempt: now,
+      fingerprint: fp
+    }), ADMIN_KEY).toString();
+    await ref.set({ data: enc });
     return 1;
   }
+  
+  const newCount = attempts + 1;
+  const enc = CryptoJS.AES.encrypt(JSON.stringify({
+    count: newCount,
+    last_attempt: now,
+    fingerprint: fp
+  }), ADMIN_KEY).toString();
+  await ref.update({ data: enc });
+  return newCount;
 }
 
 async function resetLoginAttempt(ip, fp) {
@@ -80,7 +108,7 @@ async function resetLoginAttempt(ip, fp) {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Fingerprint');
   
   if (req.method === 'OPTIONS') return res.status(200).end();
   
@@ -98,7 +126,7 @@ export default async function handler(req, res) {
     const body = req.body;
     if (!body || !body.data) return res.status(400).json({ error: 'No data' });
 
-    const decrypted = CryptoJS.AES.decrypt(body.data, process.env.ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+    const decrypted = CryptoJS.AES.decrypt(body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
     if (!decrypted) return res.status(403).json({ error: 'Access denied' });
     
     const parsed = JSON.parse(decrypted);
@@ -110,7 +138,7 @@ export default async function handler(req, res) {
       
       if (ipBlocked || fpBlocked) {
         const result = { blocked: true, message: 'Akses diblokir permanen' };
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
         return res.status(200).json({ encrypted: true, data: encrypted });
       }
       
@@ -118,13 +146,13 @@ export default async function handler(req, res) {
       const raw = snap.val();
       
       if (raw && raw.data) {
-        const dec = CryptoJS.AES.decrypt(raw.data, process.env.ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         const result = JSON.parse(dec);
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
         return res.status(200).json({ encrypted: true, data: encrypted });
       }
       
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify({}), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify({}), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
@@ -137,19 +165,19 @@ export default async function handler(req, res) {
         await blockIP(ip);
         if (fp) await blockFP(fp);
         const result = { blocked: true, message: 'Diblokir permanen setelah 5x gagal' };
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
         return res.status(200).json({ encrypted: true, data: encrypted });
       }
       
       const result = { attempts: attempts, remaining: 5 - attempts };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
     if (parsed.path === 'admin/login_success' && parsed.method === 'POST') {
       await resetLoginAttempt(ip, fp);
       const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
@@ -158,7 +186,7 @@ export default async function handler(req, res) {
     
     if (ipBlocked || fpBlocked) {
       const result = { blocked: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
@@ -171,7 +199,7 @@ export default async function handler(req, res) {
         for (const key in raw) {
           if (raw[key] && raw[key].data) {
             try {
-              const dec = CryptoJS.AES.decrypt(raw[key].data, process.env.ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+              const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
               result[key] = JSON.parse(dec);
               result[key].id = key;
             } catch(e) {}
@@ -179,24 +207,24 @@ export default async function handler(req, res) {
         }
       }
       
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
     if (parsed.method === 'POST') {
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(parsed.data), process.env.ADMIN_KEY).toString();
+      const enc = CryptoJS.AES.encrypt(JSON.stringify(parsed.data), ADMIN_KEY).toString();
       const newRef = ref.push();
       await newRef.set({ data: enc });
       const result = { success: true, id: newRef.key };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
     if (parsed.method === 'PUT') {
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(parsed.data), process.env.ADMIN_KEY).toString();
+      const enc = CryptoJS.AES.encrypt(JSON.stringify(parsed.data), ADMIN_KEY).toString();
       await ref.set({ data: enc });
       const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
@@ -205,21 +233,21 @@ export default async function handler(req, res) {
       const existing = snap.val();
       let existingData = {};
       if (existing && existing.data) {
-        const dec = CryptoJS.AES.decrypt(existing.data, process.env.ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const dec = CryptoJS.AES.decrypt(existing.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         existingData = JSON.parse(dec);
       }
       const merged = Object.assign({}, existingData, parsed.data);
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), process.env.ADMIN_KEY).toString();
+      const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
       await ref.update({ data: enc });
       const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
     if (parsed.method === 'DELETE') {
       await ref.remove();
       const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
