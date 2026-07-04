@@ -3,13 +3,14 @@ var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 
 var currentAdmin = null;
 var allUsers = [];
-var loginAttempts = 0;
-var loginBlocked = false;
-var blockTimer = null;
-var sessionTimer = null;
-var csrfToken = '';
 
-csrfToken = CryptoJS.SHA256(Date.now() + Math.random().toString()).toString();
+function showAlert(t, m, type) {
+    var b = document.getElementById('alertBox');
+    document.getElementById('alertTitle').textContent = t;
+    document.getElementById('alertMessage').textContent = m;
+    b.className = 'alert-box alert-' + type + ' show';
+    setTimeout(function() { b.classList.remove('show'); }, 4000);
+}
 
 function parseDate(d) {
     if (!d) return null;
@@ -19,10 +20,8 @@ function parseDate(d) {
     var day = parseInt(p[1]);
     var y = parseInt(p[2]);
     if (isNaN(day) || isNaN(m) || isNaN(y)) return null;
-    if (m < 0 || m > 11 || day < 1 || day > 31 || y < 1000 || y > 9999) return null;
     var dt = new Date(y, m, day);
     if (y === 9999) return dt;
-    if (dt.getMonth() !== m || dt.getDate() !== day || dt.getFullYear() !== y) return null;
     return dt;
 }
 
@@ -40,23 +39,15 @@ function calculateDaysLeft(e) {
 }
 
 function getStatus(d) {
-    if (d === 999999) return { text: 'PERMANENT', class: 'status-permanent', icon: '♾️' };
-    if (d <= 0) return { text: 'EXPIRED', class: 'status-expired', icon: '⏰' };
-    if (d <= 3) return { text: 'SEGERA HABIS', class: 'status-warning', icon: '⚠️' };
-    return { text: 'AKTIF', class: 'status-aktif', icon: '✅' };
+    if (d === 999999) return { text: 'PERMANENT', class: 'status-permanent' };
+    if (d <= 0) return { text: 'EXPIRED', class: 'status-expired' };
+    if (d <= 3) return { text: 'SEGERA HABIS', class: 'status-warning' };
+    return { text: 'AKTIF', class: 'status-aktif' };
 }
 
 function esc(s) {
     if (!s) return '';
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
-
-function showAlert(t, m, type) {
-    var b = document.getElementById('alertBox');
-    document.getElementById('alertTitle').textContent = t;
-    document.getElementById('alertMessage').textContent = m;
-    b.className = 'alert-box alert-' + type + ' show';
-    setTimeout(function() { b.classList.remove('show'); }, 5000);
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function setQuickDate(t, p) {
@@ -84,7 +75,7 @@ function switchTab(t) {
 
 function openEditModal(id) {
     var u = allUsers.find(function(x) { return x.id === id; });
-    if (!u) return showAlert('Error', 'User tidak ditemukan', 'error');
+    if (!u) return;
     document.getElementById('editUserId').value = id;
     document.getElementById('editUsername').value = u.username;
     document.getElementById('editPassword').value = '';
@@ -124,14 +115,12 @@ function displayUsers(users) {
     users.forEach(function(u) {
         var d = calculateDaysLeft(u.expiry_date);
         var s = getStatus(d);
-        var cd = u.created ? new Date(u.created).toLocaleDateString('id-ID') : '-';
         var dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa');
         
         h += '<div class="user-item">';
-        h += '<div class="user-name"><span>' + esc(u.username) + '</span><span class="user-status ' + s.class + '">' + s.icon + ' ' + s.text + '</span></div>';
-        h += '<div class="user-details">Password: ' + esc(u.password) + ' &bull; Role: ' + esc(u.role) + '</div>';
-        h += '<div class="user-details">Aktif: ' + esc(u.expiry_date) + ' &bull; ' + dt + '</div>';
-        h += '<div class="user-details" style="font-size:11px;opacity:0.6;">Dibuat: ' + cd + ' &bull; Oleh: ' + esc(u.created_by) + '</div>';
+        h += '<div class="user-name"><span>' + esc(u.username) + '</span><span class="user-status ' + s.class + '">' + s.text + '</span></div>';
+        h += '<div class="user-details">Password: ' + esc(u.password) + ' | Role: ' + esc(u.role) + '</div>';
+        h += '<div class="user-details">Aktif: ' + esc(u.expiry_date) + ' | ' + dt + '</div>';
         h += '<div class="action-buttons">';
         h += '<button class="btn-small btn-orange" onclick="openEditModal(\'' + u.id + '\')">Edit</button>';
         h += '<button class="btn-small btn-purple" onclick="setSingleUserPermanent(\'' + u.id + '\',\'' + esc(u.username) + '\')">Permanent</button>';
@@ -146,9 +135,7 @@ async function apiCall(path, method, data) {
     var payload = CryptoJS.AES.encrypt(JSON.stringify({
         path: path,
         method: method,
-        data: data,
-        csrf: csrfToken,
-        timestamp: Date.now()
+        data: data
     }), ADMIN_KEY).toString();
     
     var res = await fetch(API_REVANSTORE, {
@@ -163,15 +150,11 @@ async function apiCall(path, method, data) {
         var dec = CryptoJS.AES.decrypt(result.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         return JSON.parse(dec);
     }
+    
     return result;
 }
 
 async function login() {
-    if (loginBlocked) {
-        var remaining = Math.ceil((blockTimer - Date.now()) / 1000 / 60);
-        return showAlert('Diblokir', 'Terlalu banyak percobaan. Coba lagi dalam ' + remaining + ' menit.', 'error');
-    }
-    
     var email = document.getElementById('loginEmail').value.trim();
     var pass = document.getElementById('loginPassword').value.trim();
     
@@ -180,46 +163,26 @@ async function login() {
     showAlert('Info', 'Memverifikasi...', 'info');
     
     try {
-        var r = await apiCall('login', 'POST', { email: email, password: pass });
+        var r = await apiCall('admin/auth', 'GET');
         
-        if (r.success) {
-            loginAttempts = 0;
+        if (r && r.email === email && r.password === pass) {
             currentAdmin = email;
             document.getElementById('loggedUser').textContent = email;
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('adminPanel').style.maxWidth = '850px';
             document.querySelector('.container').style.maxWidth = '850px';
             showAlert('Berhasil', 'Login berhasil', 'success');
-            
-            if (sessionTimer) clearTimeout(sessionTimer);
-            sessionTimer = setTimeout(function() {
-                if (currentAdmin) {
-                    logout();
-                    showAlert('Sesi Berakhir', 'Sesi berakhir karena tidak ada aktivitas.', 'info');
-                }
-            }, 30 * 60 * 1000);
-            
             await loadUsers();
         } else {
-            loginAttempts++;
-            if (loginAttempts >= 5) {
-                loginBlocked = true;
-                blockTimer = Date.now() + (15 * 60 * 1000);
-                showAlert('Diblokir', 'Terlalu banyak percobaan login. Akun diblokir selama 15 menit.', 'error');
-            } else {
-                var sisa = 5 - loginAttempts;
-                showAlert('Gagal', r.error || 'Login gagal. Sisa percobaan: ' + sisa, 'error');
-            }
+            showAlert('Error', 'Email atau password salah', 'error');
         }
     } catch (e) {
-        showAlert('Error', e.message, 'error');
+        showAlert('Error', 'Gagal: ' + e.message, 'error');
     }
 }
 
 function logout() {
     currentAdmin = null;
-    if (sessionTimer) clearTimeout(sessionTimer);
     document.getElementById('adminPanel').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'block';
     document.getElementById('loginPassword').value = '';
@@ -238,9 +201,7 @@ async function loadUsers() {
             }
         }
         displayUsers(allUsers);
-    } catch (e) {
-        showAlert('Error', 'Gagal memuat data', 'error');
-    }
+    } catch (e) {}
 }
 
 async function addUserNow() {
@@ -250,21 +211,10 @@ async function addUserNow() {
     var e = document.getElementById('newExpiryDate').value.trim();
     
     if (!u || !p || !e) return showAlert('Error', 'Semua field wajib diisi', 'error');
-    if (p.length < 8) return showAlert('Error', 'Password minimal 8 karakter', 'error');
-    if (!/[a-zA-Z]/.test(p)) return showAlert('Error', 'Password harus mengandung huruf', 'error');
-    if (!/[0-9]/.test(p)) return showAlert('Error', 'Password harus mengandung angka', 'error');
-    if (!e.match(/^\d{2}\/\d{2}\/\d{4}$/)) return showAlert('Error', 'Format tanggal: MM/DD/YYYY', 'error');
+    if (p.length < 6) return showAlert('Error', 'Password minimal 6 karakter', 'error');
     
     try {
-        showAlert('Info', 'Menambahkan user...', 'info');
-        await apiCall('users', 'POST', {
-            username: u,
-            password: p,
-            role: r,
-            expiry_date: e,
-            created_by: currentAdmin
-        });
-        
+        await apiCall('users', 'POST', { username: u, password: p, role: r, expiry_date: e });
         document.getElementById('newUser').value = '';
         document.getElementById('newPass').value = '';
         showAlert('Berhasil', 'User berhasil ditambahkan', 'success');
@@ -283,11 +233,8 @@ async function saveUserChanges() {
     var e = document.getElementById('editExpiryDate').value.trim();
     
     if (!id || !u || !e) return showAlert('Error', 'Field wajib diisi', 'error');
-    if (p && p.length < 8) return showAlert('Error', 'Password minimal 8 karakter', 'error');
-    if (p && !/[a-zA-Z]/.test(p)) return showAlert('Error', 'Password harus mengandung huruf', 'error');
-    if (p && !/[0-9]/.test(p)) return showAlert('Error', 'Password harus mengandung angka', 'error');
     
-    var data = { username: u, role: r, expiry_date: e, updated_by: currentAdmin };
+    var data = { username: u, role: r, expiry_date: e };
     if (p) data.password = p;
     
     try {
@@ -309,9 +256,7 @@ async function deleteUser(id) {
         await apiCall('users/' + id, 'DELETE');
         showAlert('Berhasil', 'User berhasil dihapus', 'success');
         await loadUsers();
-    } catch (e) {
-        showAlert('Error', 'Gagal menghapus user', 'error');
-    }
+    } catch (e) {}
 }
 
 async function setSingleUserPermanent(id, name) {
@@ -320,9 +265,7 @@ async function setSingleUserPermanent(id, name) {
         await apiCall('users/' + id, 'PATCH', { expiry_date: '12/31/9999' });
         showAlert('Berhasil', name + ' sekarang PERMANENT', 'permanent');
         await loadUsers();
-    } catch (e) {
-        showAlert('Error', 'Gagal', 'error');
-    }
+    } catch (e) {}
 }
 
 async function setAllUsersPermanent() {
@@ -335,9 +278,7 @@ async function setAllUsersPermanent() {
         }
         showAlert('Berhasil', count + ' user diubah menjadi PERMANENT', 'permanent');
         await loadUsers();
-    } catch (e) {
-        showAlert('Error', 'Gagal', 'error');
-    }
+    } catch (e) {}
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -347,17 +288,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('loginPassword').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') login();
-    });
-    
-    document.addEventListener('click', function() {
-        if (currentAdmin) {
-            if (sessionTimer) clearTimeout(sessionTimer);
-            sessionTimer = setTimeout(function() {
-                if (currentAdmin) {
-                    logout();
-                    showAlert('Sesi Berakhir', 'Sesi berakhir karena tidak ada aktivitas.', 'info');
-                }
-            }, 30 * 60 * 1000);
-        }
     });
 });
