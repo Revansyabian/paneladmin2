@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin BUSSID Panel</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="main.js"></script>
 </head>
@@ -37,9 +37,10 @@
         <div id="loginScreen">
             <div class="header"><h1>🔐 ADMIN BUSSID</h1><div class="subtitle">Secure Panel v2.0</div></div>
             <div class="content">
-                <div class="input-box"><label>Username</label><input type="text" id="loginUsername" autocomplete="off" placeholder="Masukkan username"></div>
+                <div class="input-box"><label>Email</label><input type="email" id="loginEmail" autocomplete="off" placeholder="admin@bussid.com"></div>
                 <div class="input-box"><label>Password</label><input type="password" id="loginPassword" autocomplete="off" placeholder="Masukkan password"></div>
                 <button class="btn" onclick="login()">🔑 LOGIN</button>
+                <div class="back-link"><a href="tambah-admin.html">➕ Buat Akun Admin</a></div>
             </div>
         </div>
 
@@ -68,7 +69,7 @@
                         <div style="display:flex;gap:10px;flex-wrap:wrap;">
                             <button class="btn-small btn-blue" onclick="loadUsers()">🔄 Refresh</button>
                             <button class="btn-small btn-green" onclick="switchTab('adduser')">➕ Tambah</button>
-                            <button class="btn-small btn-permanent" onclick="setAllUsersPermanent()">♾️ Set Semua Permanent</button>
+                            <button class="btn-small btn-purple" onclick="setAllUsersPermanent()">♾️ Set Semua Permanent</button>
                         </div>
                         <div>Total: <span id="totalUsers">0</span> user</div>
                     </div>
