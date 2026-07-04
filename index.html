@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin BUSSID Panel</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <script src="api/revanstore.js"></script>
     <script src="main.js"></script>
 </head>
 <body>
-    <div id="alertBox" class="alert-box"><div id="alertMessage"></div><button onclick="hideAlert()" class="btn-small btn-blue" style="width:100%;">OK</button></div>
+    <div id="alertBox" class="alert-box">
+        <div id="alertTitle"></div>
+        <div id="alertMessage"></div>
+    </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
@@ -37,8 +37,8 @@
         <div id="loginScreen">
             <div class="header"><h1>🔐 ADMIN BUSSID</h1><div class="subtitle">Secure Panel v2.0</div></div>
             <div class="content">
-                <div class="input-box"><label>Username</label><input type="text" id="loginUsername" autocomplete="off"></div>
-                <div class="input-box"><label>Password</label><input type="password" id="loginPassword" autocomplete="off"></div>
+                <div class="input-box"><label>Username</label><input type="text" id="loginUsername" autocomplete="off" placeholder="Masukkan username"></div>
+                <div class="input-box"><label>Password</label><input type="password" id="loginPassword" autocomplete="off" placeholder="Masukkan password"></div>
                 <button class="btn" onclick="login()">🔑 LOGIN</button>
             </div>
         </div>
