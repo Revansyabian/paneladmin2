@@ -132,6 +132,21 @@ export default async function handler(req, res) {
     const parsed = JSON.parse(decrypted);
     const ref = db.ref(parsed.path);
 
+    if (parsed.path === 'access_key' && parsed.method === 'GET') {
+      const snap = await db.ref('access_key').once('value');
+      const raw = snap.val();
+      
+      if (raw && raw.data) {
+        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const result = JSON.parse(dec);
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
+      
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify({ key: '' }), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
     if (parsed.path === 'admin/auth' && parsed.method === 'GET') {
       const ipBlocked = await isIPBlocked(ip);
       const fpBlocked = fp ? await isFPBlocked(fp) : false;
