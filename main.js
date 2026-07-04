@@ -356,9 +356,35 @@ async function saveUserChanges() {
 }
 
 function deleteUserConfirm(id, name) {
-    if (confirm('Yakin hapus user "' + name + '"?')) {
-        deleteUser(id);
+    var overlay = document.getElementById('confirmOverlay');
+    var msg = document.getElementById('confirmMessage');
+    var yesBtn = document.getElementById('confirmYes');
+    var noBtn = document.getElementById('confirmNo');
+    
+    if (!overlay || !msg || !yesBtn || !noBtn) {
+        if (confirm('Yakin hapus user "' + name + '"?')) {
+            deleteUser(id);
+        }
+        return;
     }
+    
+    msg.textContent = 'Yakin hapus user "' + name + '"?';
+    overlay.classList.add('show');
+    
+    yesBtn.onclick = function() {
+        overlay.classList.remove('show');
+        deleteUser(id);
+    };
+    
+    noBtn.onclick = function() {
+        overlay.classList.remove('show');
+    };
+    
+    overlay.onclick = function(e) {
+        if (e.target === overlay) {
+            overlay.classList.remove('show');
+        }
+    };
 }
 
 async function deleteUser(id) {
@@ -412,7 +438,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') login();
     });
     
-    // Reset session timer on any click
     document.addEventListener('click', function() {
         if (currentAdmin && sessionTimer) {
             clearTimeout(sessionTimer);
@@ -425,7 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Close modal on outside click
     document.getElementById('editModal').addEventListener('click', function(e) {
         if (e.target === this) closeEditModal();
     });
