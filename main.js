@@ -1,145 +1,363 @@
-const admin = require('firebase-admin');
-const CryptoJS = require('crypto-js');
+var API_REVANSTORE = '/api/revanstore';
+var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      type: "service_account",
-      project_id: "dhagwxwhu",
-      private_key_id: "f4afc5aa03e73130f5e055dfe6a708c4dc40759b",
-      private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDa1ySxVtAR7yk3\noWtpNRDYlT/p4MhiJzqD4eIKlyhIVH6bgYBXGd+HtWUIoO3Gv+HBKZQ71ESDOaSH\nxEBsZJV84HyqrjntjdaC5sac5+IJ7e1wfDhK/RCIDLHyjjlI0rsc8wOV5Qi95qUA\nUymh6UNE9YsUJMwX+KfkiI8nV1AOGUigqKQ26ucT9B1u5v/iP9RiwXZv08DLbMfl\nXSZHU0ctSo5Yo0fBdXsRAGFmYh7eIUjkL+L8h6xbbKfVsp6fFvu871H/qP6v0NcG\nC1ZRoywy4xdCJMMrw/1b3WDgInYV9Bzr3h+L2mdPk17GvGPgY292RN+Qn4uUD2tX\noW98kaKbAgMBAAECggEAMvN1WQ6vygUnUQr1oZyXy/1P0KmjreqZPpxoTvPrjo+R\nnK4VjfH5r7SFjfE9+xCwxJLkLtvYib7xdiS0pSf0AAuaKvj+hrcH0xlc86ovYAVz\ny0U4rAjogOyHv8PqRXC+3NodoxgcpW4eS4mRP1+6aENM+scod4pOuLAsuEmlW2qM\nSmi63miQEToiI2e5eHQYoA15cTVsddz1Nes05rKVAdnMgtyQF3/F2SaIAkxhqJbu\nclliVZwU9himfYkZderoWCfIoIIaikbdoYaZa5Z+rF9fgEpvlSNiP4wukTpIYBnW\nHuxT5EIQib+wXfaWO+Km2h+9qEuZrEsXJsDb4jbmzQKBgQD1jIFu/VM4xA9VbfYW\nKmKEyrw0SAjsmuROg2es5c7jCcdC5OQOGmhMJMXHJUF9Ekz2/OlzEPoBy6IMYuJQ\n3PZG84vmDGGOTS0QNXt7HZm4X2Ahf8w+cg2avYZRltCNgJwVZaP/Gb/i1TU3yWdf\n+NWFxeZvfC9nbVfNXWO+oHHgfwKBgQDkJ5+F+RE3v6/56oucv5Bzo0sadxGCgNte\n5sEjwAAHnsFoULBnLWZd6NeFKNXfPpHFb+wwEJ/vkI+zKREIEpHiD058qgqPl/GM\n6KraKxZooSLgjtkjHM0WTpskGbdaJwcsu4e3sZlRLw7Z8dCpkPvz5Li8+H2hgaFa\nr3jDI0Ov5QKBgHRHjEe+CPn5xnUjNIT8n1jZFNUBQ9Cf7PvNOHxk+1sCl2zzLZgM\nI1XjmBEdcGzFDNNtozONV4cgImYRMbEvYiTpUlenh0829t8VJJuBwfjQmZpjhZoQ\nsqaTl5btf2dy/vcXAdldHURSyPfZFW4aTSsjM2OaAGzPF+Q1lHWCT0sLAoGAaHec\nG4QH1jb3JL+4XXV5dvl2EhAi/FZ0G+gc13m6icKvXExV+WhYTvemd1pTU30a0gSF\naRyznsXahnZvTfrywUew8HQLkeRIvfRrBqpkAFSH27qMwf8WCPjFIKqFwcnNBzZ2\n1i2DviCF9FU87eds9ifsTtqY67KnZxahfPhQreECgYAjjTEXBMJ5h4pXEykLhXPg\nhsFqaj2OcdZVx4LYE9H2FzN7qbEQRlkreTdJe8l/ai15P9HXN8zGHaLLy6h2jpP5\nFzUjV0AEMbekXU418o0HPKfRTIAHSRvv4RpIGpNypWwqO3KZnLAQv0WrvGus7YUQ\nEhRzMA67jAl74Op3hQymIg==\n-----END PRIVATE KEY-----\n",
-      client_email: "firebase-adminsdk-fbsvc@dhagwxwhu.iam.gserviceaccount.com",
-      client_id: "101642214777392044779"
-    }),
-    databaseURL: "https://dhagwxwhu-default-rtdb.firebaseio.com"
-  });
+var currentAdmin = null;
+var allUsers = [];
+var loginAttempts = 0;
+var loginBlocked = false;
+var blockTimer = null;
+var sessionTimer = null;
+var csrfToken = '';
+
+csrfToken = CryptoJS.SHA256(Date.now() + Math.random().toString()).toString();
+
+function parseDate(d) {
+    if (!d) return null;
+    var p = d.split('/');
+    if (p.length !== 3) return null;
+    var m = parseInt(p[0]) - 1;
+    var day = parseInt(p[1]);
+    var y = parseInt(p[2]);
+    if (isNaN(day) || isNaN(m) || isNaN(y)) return null;
+    if (m < 0 || m > 11 || day < 1 || day > 31 || y < 1000 || y > 9999) return null;
+    var dt = new Date(y, m, day);
+    if (y === 9999) return dt;
+    if (dt.getMonth() !== m || dt.getDate() !== day || dt.getFullYear() !== y) return null;
+    return dt;
 }
 
-const db = admin.database();
-const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
-
-async function addLog(action, detail, email) {
-  const logRef = db.ref('admin/logs').push();
-  await logRef.set({
-    action: action,
-    detail: detail,
-    email: email || 'unknown',
-    ip: 'server',
-    timestamp: Date.now()
-  });
+function formatDate(d) {
+    return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + '/' + d.getFullYear();
 }
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+function calculateDaysLeft(e) {
+    var ex = parseDate(e);
+    if (!ex) return -9999;
+    if (ex.getFullYear() === 9999) return 999999;
+    var n = new Date();
+    n.setHours(0, 0, 0, 0);
+    return Math.floor((ex - n) / (1000 * 60 * 60 * 24));
+}
 
-  try {
-    const decrypted = CryptoJS.AES.decrypt(req.body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-    if (!decrypted) return res.status(200).json({ success: false, error: 'Access denied' });
+function getStatus(d) {
+    if (d === 999999) return { text: 'PERMANENT', class: 'status-permanent', icon: '♾️' };
+    if (d <= 0) return { text: 'EXPIRED', class: 'status-expired', icon: '⏰' };
+    if (d <= 3) return { text: 'SEGERA HABIS', class: 'status-warning', icon: '⚠️' };
+    return { text: 'AKTIF', class: 'status-aktif', icon: '✅' };
+}
+
+function esc(s) {
+    if (!s) return '';
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function showAlert(t, m, type) {
+    var b = document.getElementById('alertBox');
+    document.getElementById('alertTitle').textContent = t;
+    document.getElementById('alertMessage').textContent = m;
+    b.className = 'alert-box alert-' + type + ' show';
+    setTimeout(function() { b.classList.remove('show'); }, 5000);
+}
+
+function setQuickDate(t, p) {
+    var f = t === 'new' ? 'newExpiryDate' : 'editExpiryDate';
+    var d;
+    if (p === 'permanent') d = '12/31/9999';
+    else if (p === 'week') { d = new Date(); d.setDate(d.getDate() + 7); d = formatDate(d); }
+    else if (p === 'month') { d = new Date(); d.setMonth(d.getMonth() + 1); d = formatDate(d); }
+    else if (p === 'year') { d = new Date(); d.setFullYear(d.getFullYear() + 1); d = formatDate(d); }
+    document.getElementById(f).value = d;
+}
+
+function switchTab(t) {
+    document.querySelectorAll('.tab').forEach(function(x) { x.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(x) { x.classList.remove('active'); });
+    if (t === 'adduser') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('adduser').classList.add('active');
+    } else {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('users').classList.add('active');
+        loadUsers();
+    }
+}
+
+function openEditModal(id) {
+    var u = allUsers.find(function(x) { return x.id === id; });
+    if (!u) return showAlert('Error', 'User tidak ditemukan', 'error');
+    document.getElementById('editUserId').value = id;
+    document.getElementById('editUsername').value = u.username;
+    document.getElementById('editPassword').value = '';
+    document.getElementById('editRole').value = u.role;
+    document.getElementById('editExpiryDate').value = u.expiry_date;
+    document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+}
+
+function searchUsers() {
+    var t = document.getElementById('searchUser').value.toLowerCase();
+    if (t) {
+        displayUsers(allUsers.filter(function(u) {
+            return u.username.toLowerCase().includes(t) || u.role.toLowerCase().includes(t) || u.expiry_date.includes(t);
+        }));
+    } else {
+        displayUsers(allUsers);
+    }
+}
+
+function displayUsers(users) {
+    var c = document.getElementById('userListContainer');
+    document.getElementById('totalUsers').textContent = users.length;
+    document.getElementById('userCount').textContent = users.length;
     
-    const { path, method, data } = JSON.parse(decrypted);
-    const ref = db.ref(path);
-
-    if (path === 'login') {
-      const snap = await db.ref('admin/auth').once('value');
-      const raw = snap.val();
-      
-      if (raw && raw.data) {
-        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        const admin = JSON.parse(dec);
+    if (!users.length) {
+        c.innerHTML = '<div style="text-align:center;padding:40px;color:#aabbcc;">Tidak ada user</div>';
+        return;
+    }
+    
+    users.sort(function(a, b) { return a.username.localeCompare(b.username); });
+    
+    var h = '';
+    users.forEach(function(u) {
+        var d = calculateDaysLeft(u.expiry_date);
+        var s = getStatus(d);
+        var cd = u.created ? new Date(u.created).toLocaleDateString('id-ID') : '-';
+        var dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa');
         
-        if (admin.email === data.email && admin.password === data.password) {
-          await addLog('LOGIN', 'Login berhasil', data.email);
-          const result = { success: true, data: { email: admin.email, role: admin.role } };
-          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-          return res.status(200).json({ encrypted: true, data: encrypted });
-        }
-      }
-      
-      await addLog('LOGIN_GAGAL', 'Password salah', data.email);
-      const fail = { success: false, error: 'Email atau password salah' };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(fail), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: enc });
-    }
-
-    if (method === 'GET') {
-      const snap = await ref.once('value');
-      const raw = snap.val() || {};
-      const result = {};
-      for (const key in raw) {
-        if (raw[key] && raw[key].data) {
-          try {
-            const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-            result[key] = JSON.parse(dec);
-            result[key].id = key;
-            result[key].created = raw[key].created;
-            result[key].created_by = raw[key].created_by;
-          } catch(e) { result[key] = raw[key]; }
-        } else { result[key] = raw[key]; }
-      }
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
-    }
-
-    if (method === 'POST') {
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-      const newRef = ref.push();
-      await newRef.set({ data: enc, created: Date.now(), created_by: data.created_by || 'system' });
-      await addLog('TAMBAH', 'Menambah user: ' + (data.username || 'unknown'), data.created_by);
-      const result = { success: true, id: newRef.key };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
-    }
-
-    if (method === 'PUT') {
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-      await ref.set({ data: enc, created: Date.now() });
-      await addLog('BUAT_ADMIN', 'Membuat akun admin: ' + (data.email || 'unknown'), data.email);
-      const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
-    }
-
-    if (method === 'PATCH') {
-      const snap = await ref.once('value');
-      const existing = snap.val();
-      let existingData = {};
-      if (existing && existing.data) {
-        const dec = CryptoJS.AES.decrypt(existing.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        existingData = JSON.parse(dec);
-      }
-      const merged = { ...existingData, ...data };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
-      await ref.update({ data: enc, updated: Date.now(), updated_by: data.updated_by || 'system' });
-      await addLog('EDIT', 'Mengedit user: ' + (existingData.username || merged.username || 'unknown'), data.updated_by);
-      const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
-    }
-
-    if (method === 'DELETE') {
-      const snap = await ref.once('value');
-      const raw = snap.val();
-      let username = 'unknown';
-      if (raw && raw.data) {
-        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        const userData = JSON.parse(dec);
-        username = userData.username || 'unknown';
-      }
-      await ref.remove();
-      await addLog('HAPUS', 'Menghapus user: ' + username, data.deleted_by || 'system');
-      const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
-    }
-
-    return res.status(200).json({ success: false, error: 'Invalid method' });
-
-  } catch (error) {
-    const err = { success: false, error: error.message };
-    const enc = CryptoJS.AES.encrypt(JSON.stringify(err), ADMIN_KEY).toString();
-    return res.status(200).json({ encrypted: true, data: enc });
-  }
+        h += '<div class="user-item">';
+        h += '<div class="user-name"><span>' + esc(u.username) + '</span><span class="user-status ' + s.class + '">' + s.icon + ' ' + s.text + '</span></div>';
+        h += '<div class="user-details">Password: ' + esc(u.password) + ' &bull; Role: ' + esc(u.role) + '</div>';
+        h += '<div class="user-details">Aktif: ' + esc(u.expiry_date) + ' &bull; ' + dt + '</div>';
+        h += '<div class="user-details" style="font-size:11px;opacity:0.6;">Dibuat: ' + cd + ' &bull; Oleh: ' + esc(u.created_by) + '</div>';
+        h += '<div class="action-buttons">';
+        h += '<button class="btn-small btn-orange" onclick="openEditModal(\'' + u.id + '\')">Edit</button>';
+        h += '<button class="btn-small btn-purple" onclick="setSingleUserPermanent(\'' + u.id + '\',\'' + esc(u.username) + '\')">Permanent</button>';
+        h += '<button class="btn-small btn-red" onclick="deleteUserConfirm(\'' + u.id + '\',\'' + esc(u.username) + '\')">Hapus</button>';
+        h += '</div></div>';
+    });
+    
+    c.innerHTML = h;
 }
+
+async function apiCall(path, method, data) {
+    var payload = CryptoJS.AES.encrypt(JSON.stringify({
+        path: path,
+        method: method,
+        data: data,
+        csrf: csrfToken,
+        timestamp: Date.now()
+    }), ADMIN_KEY).toString();
+    
+    var res = await fetch(API_REVANSTORE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: payload })
+    });
+    
+    var result = await res.json();
+    
+    if (result.encrypted) {
+        var dec = CryptoJS.AES.decrypt(result.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        return JSON.parse(dec);
+    }
+    return result;
+}
+
+async function login() {
+    if (loginBlocked) {
+        var remaining = Math.ceil((blockTimer - Date.now()) / 1000 / 60);
+        return showAlert('Diblokir', 'Terlalu banyak percobaan. Coba lagi dalam ' + remaining + ' menit.', 'error');
+    }
+    
+    var email = document.getElementById('loginEmail').value.trim();
+    var pass = document.getElementById('loginPassword').value.trim();
+    
+    if (!email || !pass) return showAlert('Error', 'Email dan password wajib diisi', 'error');
+    
+    showAlert('Info', 'Memverifikasi...', 'info');
+    
+    try {
+        var r = await apiCall('login', 'POST', { email: email, password: pass });
+        
+        if (r.success) {
+            loginAttempts = 0;
+            currentAdmin = email;
+            document.getElementById('loggedUser').textContent = email;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminPanel').style.maxWidth = '850px';
+            document.querySelector('.container').style.maxWidth = '850px';
+            showAlert('Berhasil', 'Login berhasil', 'success');
+            
+            if (sessionTimer) clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(function() {
+                if (currentAdmin) {
+                    logout();
+                    showAlert('Sesi Berakhir', 'Sesi berakhir karena tidak ada aktivitas.', 'info');
+                }
+            }, 30 * 60 * 1000);
+            
+            await loadUsers();
+        } else {
+            loginAttempts++;
+            if (loginAttempts >= 5) {
+                loginBlocked = true;
+                blockTimer = Date.now() + (15 * 60 * 1000);
+                showAlert('Diblokir', 'Terlalu banyak percobaan login. Akun diblokir selama 15 menit.', 'error');
+            } else {
+                var sisa = 5 - loginAttempts;
+                showAlert('Gagal', r.error || 'Login gagal. Sisa percobaan: ' + sisa, 'error');
+            }
+        }
+    } catch (e) {
+        showAlert('Error', e.message, 'error');
+    }
+}
+
+function logout() {
+    currentAdmin = null;
+    if (sessionTimer) clearTimeout(sessionTimer);
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('loginPassword').value = '';
+    document.querySelector('.container').style.maxWidth = '420px';
+    showAlert('Info', 'Berhasil logout', 'info');
+}
+
+async function loadUsers() {
+    try {
+        var data = await apiCall('users', 'GET');
+        allUsers = [];
+        for (var key in data) {
+            if (data[key] && data[key].username) {
+                data[key].id = key;
+                allUsers.push(data[key]);
+            }
+        }
+        displayUsers(allUsers);
+    } catch (e) {
+        showAlert('Error', 'Gagal memuat data', 'error');
+    }
+}
+
+async function addUserNow() {
+    var u = document.getElementById('newUser').value.trim();
+    var p = document.getElementById('newPass').value.trim();
+    var r = document.getElementById('newRole').value;
+    var e = document.getElementById('newExpiryDate').value.trim();
+    
+    if (!u || !p || !e) return showAlert('Error', 'Semua field wajib diisi', 'error');
+    if (p.length < 8) return showAlert('Error', 'Password minimal 8 karakter', 'error');
+    if (!/[a-zA-Z]/.test(p)) return showAlert('Error', 'Password harus mengandung huruf', 'error');
+    if (!/[0-9]/.test(p)) return showAlert('Error', 'Password harus mengandung angka', 'error');
+    if (!e.match(/^\d{2}\/\d{2}\/\d{4}$/)) return showAlert('Error', 'Format tanggal: MM/DD/YYYY', 'error');
+    
+    try {
+        showAlert('Info', 'Menambahkan user...', 'info');
+        await apiCall('users', 'POST', {
+            username: u,
+            password: p,
+            role: r,
+            expiry_date: e,
+            created_by: currentAdmin
+        });
+        
+        document.getElementById('newUser').value = '';
+        document.getElementById('newPass').value = '';
+        showAlert('Berhasil', 'User berhasil ditambahkan', 'success');
+        await loadUsers();
+        switchTab('users');
+    } catch (e) {
+        showAlert('Error', e.message, 'error');
+    }
+}
+
+async function saveUserChanges() {
+    var id = document.getElementById('editUserId').value;
+    var u = document.getElementById('editUsername').value.trim();
+    var p = document.getElementById('editPassword').value.trim();
+    var r = document.getElementById('editRole').value;
+    var e = document.getElementById('editExpiryDate').value.trim();
+    
+    if (!id || !u || !e) return showAlert('Error', 'Field wajib diisi', 'error');
+    if (p && p.length < 8) return showAlert('Error', 'Password minimal 8 karakter', 'error');
+    if (p && !/[a-zA-Z]/.test(p)) return showAlert('Error', 'Password harus mengandung huruf', 'error');
+    if (p && !/[0-9]/.test(p)) return showAlert('Error', 'Password harus mengandung angka', 'error');
+    
+    var data = { username: u, role: r, expiry_date: e, updated_by: currentAdmin };
+    if (p) data.password = p;
+    
+    try {
+        await apiCall('users/' + id, 'PATCH', data);
+        closeEditModal();
+        showAlert('Berhasil', 'User berhasil diperbarui', 'success');
+        await loadUsers();
+    } catch (e) {
+        showAlert('Error', e.message, 'error');
+    }
+}
+
+function deleteUserConfirm(id, name) {
+    if (confirm('Hapus user "' + name + '"?')) deleteUser(id);
+}
+
+async function deleteUser(id) {
+    try {
+        await apiCall('users/' + id, 'DELETE');
+        showAlert('Berhasil', 'User berhasil dihapus', 'success');
+        await loadUsers();
+    } catch (e) {
+        showAlert('Error', 'Gagal menghapus user', 'error');
+    }
+}
+
+async function setSingleUserPermanent(id, name) {
+    if (!confirm('Jadikan "' + name + '" PERMANENT?')) return;
+    try {
+        await apiCall('users/' + id, 'PATCH', { expiry_date: '12/31/9999' });
+        showAlert('Berhasil', name + ' sekarang PERMANENT', 'permanent');
+        await loadUsers();
+    } catch (e) {
+        showAlert('Error', 'Gagal', 'error');
+    }
+}
+
+async function setAllUsersPermanent() {
+    if (!confirm('Jadikan SEMUA user PERMANENT?')) return;
+    try {
+        var count = 0;
+        for (var i = 0; i < allUsers.length; i++) {
+            await apiCall('users/' + allUsers[i].id, 'PATCH', { expiry_date: '12/31/9999' });
+            count++;
+        }
+        showAlert('Berhasil', count + ' user diubah menjadi PERMANENT', 'permanent');
+        await loadUsers();
+    } catch (e) {
+        showAlert('Error', 'Gagal', 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var nm = new Date();
+    nm.setMonth(nm.getMonth() + 1);
+    document.getElementById('newExpiryDate').value = formatDate(nm);
+    
+    document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') login();
+    });
+    
+    document.addEventListener('click', function() {
+        if (currentAdmin) {
+            if (sessionTimer) clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(function() {
+                if (currentAdmin) {
+                    logout();
+                    showAlert('Sesi Berakhir', 'Sesi berakhir karena tidak ada aktivitas.', 'info');
+                }
+            }, 30 * 60 * 1000);
+        }
+    });
+});
