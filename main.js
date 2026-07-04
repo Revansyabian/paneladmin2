@@ -1,4 +1,3 @@
-
 var API_REVANSTORE = '/api/revanstore';
 
 var currentAdmin = null;
@@ -117,15 +116,17 @@ async function login() {
     var u = document.getElementById('loginUsername').value.trim();
     var p = document.getElementById('loginPassword').value.trim();
     if(!u||!p) return showAlert('Isi username dan password!','error');
-    var r = await API.login(u, p);
-    if(r.success) {
-        currentAdmin = u;
-        document.getElementById('loggedUser').textContent = u;
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'block';
-        showAlert('Login berhasil!','success');
-        await loadUsers();
-    } else { showAlert(r.message,'error'); }
+    try {
+        var r = await API.login(u, p);
+        if(r.success) {
+            currentAdmin = u;
+            document.getElementById('loggedUser').textContent = u;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            showAlert('Login berhasil!','success');
+            await loadUsers();
+        } else { showAlert(r.message,'error'); }
+    } catch(e) { showAlert('Error: '+e.message,'error'); }
 }
 
 function logout() {
