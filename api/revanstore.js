@@ -31,7 +31,6 @@ export default async function handler(req, res) {
     const { path, method, data } = JSON.parse(decrypted);
     const ref = db.ref(path);
 
-    // LOGIN
     if (path === 'login') {
       const snap = await db.ref('admin/auth').once('value');
       const raw = snap.val();
@@ -52,11 +51,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: enc });
     }
 
-    // GET
     if (method === 'GET') {
       const snap = await ref.once('value');
       const raw = snap.val() || {};
-      
       const result = {};
       for (const key in raw) {
         if (raw[key] && raw[key].data) {
@@ -66,77 +63,51 @@ export default async function handler(req, res) {
             result[key].id = key;
             result[key].created = raw[key].created;
             result[key].created_by = raw[key].created_by;
-          } catch(e) {
-            result[key] = raw[key];
-          }
-        } else {
-          result[key] = raw[key];
-        }
+          } catch(e) { result[key] = raw[key]; }
+        } else { result[key] = raw[key]; }
       }
-      
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // POST
     if (method === 'POST') {
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+      const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
       const newRef = ref.push();
-      await newRef.set({
-        data: encrypted,
-        created: Date.now(),
-        created_by: data.created_by || 'system'
-      });
-      
+      await newRef.set({ data: enc, created: Date.now(), created_by: data.created_by || 'system' });
       const result = { success: true, id: newRef.key };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: enc });
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // PUT
     if (method === 'PUT') {
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-      await ref.set({
-        data: encrypted,
-        created: Date.now()
-      });
-      
+      const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+      await ref.set({ data: enc, created: Date.now() });
       const result = { success: true };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: enc });
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // PATCH
     if (method === 'PATCH') {
       const snap = await ref.once('value');
       const existing = snap.val();
-      
       let existingData = {};
       if (existing && existing.data) {
         const dec = CryptoJS.AES.decrypt(existing.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         existingData = JSON.parse(dec);
       }
-      
       const merged = { ...existingData, ...data };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
-      
-      await ref.update({
-        data: encrypted,
-        updated: Date.now(),
-        updated_by: data.updated_by || 'system'
-      });
-      
+      const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
+      await ref.update({ data: enc, updated: Date.now(), updated_by: data.updated_by || 'system' });
       const result = { success: true };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: enc });
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // DELETE
     if (method === 'DELETE') {
       await ref.remove();
       const result = { success: true };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: enc });
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
     return res.status(200).json({ success: false, error: 'Invalid method' });
