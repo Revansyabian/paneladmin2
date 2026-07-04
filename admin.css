@@ -189,10 +189,9 @@ body {
     padding: 16px 18px;
     border-radius: 8px;
     margin-bottom: 10px;
-    border-left: 3px solid #00bfff;
-    transition: all 0.2s;
     border: 1px solid #e8eef4;
     border-left: 3px solid #00bfff;
+    transition: all 0.2s;
 }
 
 .user-item:hover {
@@ -252,7 +251,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* ALERT OVERLAY */
 .alert-overlay {
     position: fixed;
     top: 0;
@@ -280,7 +278,6 @@ body {
     animation: popIn 0.3s ease-out;
 }
 
-/* CONFIRM OVERLAY */
 .confirm-overlay {
     position: fixed;
     top: 0;
@@ -292,10 +289,6 @@ body {
     display: none;
     justify-content: center;
     align-items: center;
-}
-
-.confirm-overlay.show {
-    display: flex;
 }
 
 .confirm-box {
@@ -345,31 +338,16 @@ body {
     color: #445566;
 }
 
-.confirm-no:hover {
-    background: #dde4ed;
-}
-
 .confirm-yes {
     background: #ef4444;
     color: white;
 }
 
-.confirm-yes:hover {
-    background: #dc2626;
-}
-
 @keyframes popIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
-/* SPINNER LOADING */
 .spinner {
     width: 45px;
     height: 45px;
@@ -381,15 +359,10 @@ body {
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-/* CENTANG BERHASIL */
 .checkmark {
     width: 50px;
     height: 50px;
@@ -412,26 +385,15 @@ body {
 }
 
 @keyframes scaleUp {
-    from {
-        transform: scale(0);
-    }
-    to {
-        transform: scale(1);
-    }
+    from { transform: scale(0); }
+    to { transform: scale(1); }
 }
 
 @keyframes checkDraw {
-    from {
-        width: 0;
-        height: 0;
-    }
-    to {
-        width: 25px;
-        height: 12px;
-    }
+    from { width: 0; height: 0; }
+    to { width: 25px; height: 12px; }
 }
 
-/* SILANG ERROR */
 .crossmark {
     width: 40px;
     height: 40px;
@@ -451,15 +413,9 @@ body {
     top: 3px;
 }
 
-.crossmark::before {
-    transform: rotate(45deg);
-}
+.crossmark::before { transform: rotate(45deg); }
+.crossmark::after { transform: rotate(-45deg); }
 
-.crossmark::after {
-    transform: rotate(-45deg);
-}
-
-/* INFO */
 .info-icon {
     width: 45px;
     height: 45px;
@@ -511,30 +467,24 @@ body {
     display: flex;
     margin-bottom: 20px;
     border-bottom: 2px solid #e8eef4;
-    gap: 0;
 }
 
 .tab {
     padding: 10px 20px;
-    text-align: center;
     background: none;
     border: none;
     cursor: pointer;
     font-weight: 500;
     color: #8899aa;
     font-size: 13px;
-    transition: all 0.2s;
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
+    transition: all 0.2s;
 }
 
 .tab.active {
     color: #00bfff;
     border-bottom-color: #00bfff;
-}
-
-.tab:not(.active):hover {
-    color: #556677;
 }
 
 .tab-content {
@@ -547,14 +497,8 @@ body {
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .modal-overlay {
@@ -605,7 +549,6 @@ body {
     font-size: 22px;
     cursor: pointer;
     color: #aabbcc;
-    transition: all 0.2s;
 }
 
 .close-modal:hover {
