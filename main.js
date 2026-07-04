@@ -34,6 +34,21 @@ var loginBlocked = false;
 var blockTimer = null;
 var sessionTimer = null;
 var alertTimeout = null;
+var fingerprint = '';
+
+async function getFingerprint() {
+    var fp = '';
+    fp += navigator.userAgent || '';
+    fp += navigator.language || '';
+    fp += (screen.width || 0) + 'x' + (screen.height || 0);
+    fp += screen.colorDepth || '';
+    fp += new Date().getTimezoneOffset();
+    fp += navigator.hardwareConcurrency || '';
+    fp += navigator.deviceMemory || '';
+    fp += navigator.platform || '';
+    
+    return CryptoJS.MD5(fp).toString();
+}
 
 function showAlert(t, m, type) {
     var overlay = document.getElementById('alertOverlay');
@@ -207,13 +222,18 @@ function displayUsers(users) {
 }
 
 async function apiCall(path, method, data) {
+    if (!fingerprint) {
+        fingerprint = await getFingerprint();
+    }
+    
     var payload = CryptoJS.AES.encrypt(JSON.stringify({ path: path, method: method, data: data }), ADMIN_KEY).toString();
     
     var res = await fetch(API_REVANSTORE, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': API_KEY
+            'x-api-key': API_KEY,
+            'X-Fingerprint': fingerprint
         },
         body: JSON.stringify({ data: payload })
     });
@@ -258,7 +278,13 @@ async function login() {
     try {
         var r = await apiCall('admin/auth', 'GET');
         
+        if (r && r.blocked) {
+            hideAlert();
+            return showAlert('Diblokir', 'Akses Anda telah diblokir permanen!', 'error');
+        }
+        
         if (r && r.email === email && r.password === pass) {
+            await apiCall('admin/login_success', 'POST', {});
             loginAttempts = 0;
             loginBlocked = false;
             blockTimer = null;
@@ -282,14 +308,14 @@ async function login() {
             
             await loadUsers();
         } else {
-            loginAttempts++;
-            if (loginAttempts >= 5) {
-                loginBlocked = true;
-                blockTimer = Date.now() + (15 * 60 * 1000);
-                showAlert('Diblokir', 'Terlalu banyak percobaan. Akun diblokir 15 menit.', 'error');
-            } else {
-                showAlert('Gagal', 'Email atau password salah. Sisa percobaan: ' + (5 - loginAttempts), 'error');
+            var track = await apiCall('admin/login_failed', 'POST', {});
+            
+            if (track && track.blocked) {
+                hideAlert();
+                return showAlert('Diblokir', 'Diblokir permanen setelah 5x gagal!', 'error');
             }
+            
+            showAlert('Gagal', 'Email atau password salah. Sisa: ' + (track ? track.remaining : '?'), 'error');
         }
     } catch (e) {
         showAlert('Error', e.message, 'error');
