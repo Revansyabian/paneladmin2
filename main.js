@@ -29,7 +29,7 @@ function showAlert(t, m, type) {
     if (type !== 'loading') {
         setTimeout(function() {
             overlay.classList.remove('show');
-        }, 4000);
+        }, 2000);
     }
 }
 
@@ -249,7 +249,7 @@ async function login() {
         var r = await apiCall('admin/auth', 'GET');
 
         if (r.blocked) {
-            return showAlert('IP Diblokir', 'IP Anda telah diblokir permanen karena terlalu banyak percobaan.', 'error');
+            return showAlert('IP Diblokir', 'IP Anda telah diblokir permanen.', 'error');
         }
 
         if (r && r.email === email && r.password === pass) {
@@ -263,7 +263,7 @@ async function login() {
             document.getElementById('adminPanel').style.display = 'block';
             document.querySelector('.container').style.maxWidth = '850px';
 
-            showAlert('Berhasil', 'Login berhasil! Selamat datang.', 'success');
+            showAlert('Berhasil', 'Login berhasil!', 'success');
 
             if (sessionTimer) {
                 clearTimeout(sessionTimer);
@@ -271,7 +271,7 @@ async function login() {
             sessionTimer = setTimeout(function() {
                 if (currentAdmin) {
                     logout();
-                    showAlert('Sesi Berakhir', 'Tidak ada aktivitas selama 30 menit.', 'info');
+                    showAlert('Sesi Berakhir', 'Tidak ada aktivitas.', 'info');
                 }
             }, 30 * 60 * 1000);
 
@@ -281,13 +281,13 @@ async function login() {
             if (loginAttempts >= 5) {
                 loginBlocked = true;
                 blockTimer = Date.now() + (15 * 60 * 1000);
-                showAlert('Diblokir', 'Akun diblokir 15 menit karena terlalu banyak percobaan.', 'error');
+                showAlert('Diblokir', 'Akun diblokir 15 menit.', 'error');
             } else {
-                showAlert('Gagal', 'Email atau password salah. Sisa percobaan: ' + (5 - loginAttempts), 'error');
+                showAlert('Gagal', 'Email atau password salah. Sisa: ' + (5 - loginAttempts), 'error');
             }
         }
     } catch (e) {
-        showAlert('Error', 'Terjadi kesalahan: ' + e.message, 'error');
+        showAlert('Error', e.message, 'error');
     }
 }
 
@@ -315,7 +315,7 @@ async function loadUsers() {
         }
         displayUsers(allUsers);
     } catch (e) {
-        showAlert('Error', 'Gagal memuat data user.', 'error');
+        showAlert('Error', 'Gagal memuat data.', 'error');
     }
 }
 
@@ -333,7 +333,7 @@ async function addUserNow() {
         return showAlert('Error', 'Password minimal 6 karakter', 'error');
     }
 
-    showAlert('Proses', 'Menambahkan user baru...', 'loading');
+    showAlert('Proses', 'Menambahkan user...', 'loading');
 
     try {
         await apiCall('users', 'POST', {
@@ -348,7 +348,7 @@ async function addUserNow() {
         document.getElementById('newPhone').value = '';
         document.getElementById('newPass').value = '';
 
-        showAlert('Berhasil', 'User ' + u + ' berhasil ditambahkan!', 'success');
+        showAlert('Berhasil', 'User berhasil ditambahkan!', 'success');
         await loadUsers();
         switchTab('users');
     } catch (e) {
@@ -383,7 +383,7 @@ async function saveUserChanges() {
     try {
         await apiCall('users/' + id, 'PATCH', data);
         closeEditModal();
-        showAlert('Berhasil', 'User ' + u + ' berhasil diperbarui!', 'success');
+        showAlert('Berhasil', 'User berhasil diperbarui!', 'success');
         await loadUsers();
     } catch (e) {
         showAlert('Error', e.message, 'error');
@@ -391,7 +391,7 @@ async function saveUserChanges() {
 }
 
 function deleteUserConfirm(id, name) {
-    if (confirm('Yakin ingin menghapus user "' + name + '"?')) {
+    if (confirm('Hapus user "' + name + '"?')) {
         deleteUser(id);
     }
 }
@@ -403,23 +403,21 @@ async function deleteUser(id) {
         showAlert('Berhasil', 'User berhasil dihapus!', 'success');
         await loadUsers();
     } catch (e) {
-        showAlert('Error', 'Gagal menghapus user.', 'error');
+        showAlert('Error', 'Gagal menghapus.', 'error');
     }
 }
 
 async function setSingleUserPermanent(id, name) {
-    if (!confirm('Jadikan user "' + name + '" PERMANENT?')) {
+    if (!confirm('Jadikan "' + name + '" PERMANENT?')) {
         return;
     }
-    showAlert('Proses', 'Mengubah status user...', 'loading');
+    showAlert('Proses', 'Mengubah status...', 'loading');
     try {
-        await apiCall('users/' + id, 'PATCH', {
-            expiry_date: '12/31/9999'
-        });
+        await apiCall('users/' + id, 'PATCH', { expiry_date: '12/31/9999' });
         showAlert('Berhasil', name + ' sekarang PERMANENT!', 'success');
         await loadUsers();
     } catch (e) {
-        showAlert('Error', 'Gagal mengubah status.', 'error');
+        showAlert('Error', 'Gagal.', 'error');
     }
 }
 
@@ -431,15 +429,13 @@ async function setAllUsersPermanent() {
     try {
         var count = 0;
         for (var i = 0; i < allUsers.length; i++) {
-            await apiCall('users/' + allUsers[i].id, 'PATCH', {
-                expiry_date: '12/31/9999'
-            });
+            await apiCall('users/' + allUsers[i].id, 'PATCH', { expiry_date: '12/31/9999' });
             count++;
         }
-        showAlert('Berhasil', count + ' user berhasil diubah menjadi PERMANENT!', 'success');
+        showAlert('Berhasil', count + ' user PERMANENT!', 'success');
         await loadUsers();
     } catch (e) {
-        showAlert('Error', 'Gagal mengubah semua user.', 'error');
+        showAlert('Error', 'Gagal.', 'error');
     }
 }
 
