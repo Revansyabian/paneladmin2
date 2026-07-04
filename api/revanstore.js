@@ -22,13 +22,25 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'GET') return res.status(200).json({ status: 'API Ready' });
 
   try {
-    const decrypted = CryptoJS.AES.decrypt(req.body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-    if (!decrypted) return res.status(200).json({ error: 'Access denied' });
+    const body = req.body;
     
-    const { path, method, data } = JSON.parse(decrypted);
+    if (!body || !body.data) {
+      return res.status(200).json({ error: 'No data provided' });
+    }
+
+    const decrypted = CryptoJS.AES.decrypt(body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+    
+    if (!decrypted) {
+      return res.status(200).json({ error: 'Decrypt failed' });
+    }
+    
+    const parsed = JSON.parse(decrypted);
+    const { path, method, data } = parsed;
     const ref = db.ref(path);
 
     if (path === 'login') {
@@ -55,6 +67,7 @@ export default async function handler(req, res) {
       const snap = await ref.once('value');
       const raw = snap.val() || {};
       const result = {};
+      
       for (const key in raw) {
         if (raw[key] && raw[key].data) {
           try {
@@ -64,6 +77,7 @@ export default async function handler(req, res) {
           } catch(e) {}
         }
       }
+      
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
@@ -89,13 +103,16 @@ export default async function handler(req, res) {
       const snap = await ref.once('value');
       const existing = snap.val();
       let existingData = {};
+      
       if (existing && existing.data) {
         const dec = CryptoJS.AES.decrypt(existing.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         existingData = JSON.parse(dec);
       }
+      
       const merged = { ...existingData, ...data };
       const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
       await ref.update({ data: enc });
+      
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
