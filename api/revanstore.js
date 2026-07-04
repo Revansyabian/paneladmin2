@@ -1,5 +1,5 @@
-const admin = require('firebase-admin');
-const CryptoJS = require('crypto-js');
+import CryptoJS from 'crypto-js';
+import admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -22,50 +22,44 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'GET') return res.status(200).json({ status: 'OK' });
 
   try {
-    const decrypted = CryptoJS.AES.decrypt(req.body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-    if (!decrypted) return res.status(200).json({ success: false, error: 'Access denied' });
+    const body = req.body;
+    if (!body || !body.data) return res.status(200).json({ error: 'No data' });
+
+    const decrypted = CryptoJS.AES.decrypt(body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+    if (!decrypted) return res.status(200).json({ error: 'Access denied' });
     
     const { path, method, data } = JSON.parse(decrypted);
     const ref = db.ref(path);
 
-    if (path === 'login') {
-      const snap = await db.ref('admin/auth').once('value');
+    if (method === 'GET') {
+      const snap = await ref.once('value');
       const raw = snap.val();
       
-      if (raw && raw.data) {
+      if (path === 'admin/auth' && raw && raw.data) {
         const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        const admin = JSON.parse(dec);
-        
-        if (admin.email === data.email && admin.password === data.password) {
-          const result = { success: true, data: { email: admin.email, role: admin.role } };
-          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-          return res.status(200).json({ encrypted: true, data: encrypted });
+        const result = JSON.parse(dec);
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
+      
+      const result = {};
+      if (raw) {
+        for (const key in raw) {
+          if (raw[key] && raw[key].data) {
+            try {
+              const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+              result[key] = JSON.parse(dec);
+              result[key].id = key;
+            } catch(e) {}
+          }
         }
       }
       
-      const fail = { success: false, error: 'Email atau password salah' };
-      const enc = CryptoJS.AES.encrypt(JSON.stringify(fail), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: enc });
-    }
-
-    if (method === 'GET') {
-      const snap = await ref.once('value');
-      const raw = snap.val() || {};
-      const result = {};
-      for (const key in raw) {
-        if (raw[key] && raw[key].data) {
-          try {
-            const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-            result[key] = JSON.parse(dec);
-            result[key].id = key;
-            result[key].created = raw[key].created;
-            result[key].created_by = raw[key].created_by;
-          } catch(e) { result[key] = raw[key]; }
-        } else { result[key] = raw[key]; }
-      }
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
@@ -73,7 +67,7 @@ export default async function handler(req, res) {
     if (method === 'POST') {
       const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
       const newRef = ref.push();
-      await newRef.set({ data: enc, created: Date.now(), created_by: data.created_by || 'system' });
+      await newRef.set({ data: enc });
       const result = { success: true, id: newRef.key };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
@@ -81,7 +75,7 @@ export default async function handler(req, res) {
 
     if (method === 'PUT') {
       const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-      await ref.set({ data: enc, created: Date.now() });
+      await ref.set({ data: enc });
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
@@ -97,7 +91,7 @@ export default async function handler(req, res) {
       }
       const merged = { ...existingData, ...data };
       const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
-      await ref.update({ data: enc, updated: Date.now(), updated_by: data.updated_by || 'system' });
+      await ref.update({ data: enc });
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
@@ -110,11 +104,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    return res.status(200).json({ success: false, error: 'Invalid method' });
+    return res.status(200).json({ error: 'Invalid method' });
 
   } catch (error) {
-    const err = { success: false, error: error.message };
-    const enc = CryptoJS.AES.encrypt(JSON.stringify(err), ADMIN_KEY).toString();
-    return res.status(200).json({ encrypted: true, data: enc });
+    return res.status(200).json({ error: error.message });
   }
 }
