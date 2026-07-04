@@ -40,7 +40,7 @@ function showAlert(t, m, type) {
     if (type !== 'loading') {
         alertTimeout = setTimeout(function() {
             overlay.classList.remove('show');
-        }, 2000);
+        }, 1000);
     }
 }
 
