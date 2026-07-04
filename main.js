@@ -1,4 +1,5 @@
 var API_REVANSTORE = '/api/revanstore';
+var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 
 var currentAdmin = null;
 var allUsers = [];
@@ -37,15 +38,13 @@ function getStatus(d) {
 
 function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;') : ''; }
 
-function showAlert(m, t) {
+function showAlert(t, m, type) {
     var b = document.getElementById('alertBox');
+    document.getElementById('alertTitle').textContent = t;
     document.getElementById('alertMessage').textContent = m;
-    b.style.borderLeftColor = t==='success'?'#00a65a':t==='warning'?'#f39c12':t==='permanent'?'#9b59b6':'#e74c3c';
-    b.classList.add('show');
+    b.className = 'alert-box alert-'+type+' show';
     setTimeout(function(){ b.classList.remove('show'); }, 4000);
 }
-
-function hideAlert() { document.getElementById('alertBox').classList.remove('show'); }
 
 function setQuickDate(t, p) {
     var f = t==='new'?'newExpiryDate':'editExpiryDate', d;
@@ -71,7 +70,7 @@ function switchTab(t) {
 
 function openEditModal(id) {
     var u = allUsers.find(function(x){ return x.id===id; });
-    if(!u) return;
+    if(!u) return showAlert('Error','User tidak ditemukan!','error');
     document.getElementById('editUserId').value = id;
     document.getElementById('editUsername').value = u.username;
     document.getElementById('editPassword').value = '';
@@ -112,31 +111,65 @@ function displayUsers(users) {
     c.innerHTML = h;
 }
 
+// ============ API CALLS ============
+async function apiCall(path, method, data) {
+    var payload = CryptoJS.AES.encrypt(JSON.stringify({ path: path, method: method, data: data }), ADMIN_KEY).toString();
+    var res = await fetch(API_REVANSTORE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: payload })
+    });
+    var result = await res.json();
+    if(result.encrypted) {
+        var dec = CryptoJS.AES.decrypt(result.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        return JSON.parse(dec);
+    }
+    return result;
+}
+
 async function login() {
     var u = document.getElementById('loginUsername').value.trim();
     var p = document.getElementById('loginPassword').value.trim();
-    if(!u||!p) return showAlert('Isi username dan password!','error');
+    if(!u||!p) return showAlert('Gagal','Harap isi username dan password!','error');
+    showAlert('Loading','Memverifikasi...','info');
     try {
-        var r = await API.login(u, p);
+        var r = await apiCall('login', 'POST', { username: u, password: p });
         if(r.success) {
             currentAdmin = u;
             document.getElementById('loggedUser').textContent = u;
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            showAlert('Login berhasil!','success');
+            showAlert('Berhasil','Login berhasil! Selamat datang '+u,'success');
             await loadUsers();
-        } else { showAlert(r.message,'error'); }
-    } catch(e) { showAlert('Error: '+e.message,'error'); }
+        } else {
+            showAlert('Gagal',r.error||'Login gagal','error');
+        }
+    } catch(e) {
+        showAlert('Error',e.message,'error');
+    }
 }
 
 function logout() {
     currentAdmin = null;
     document.getElementById('adminPanel').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('loginPassword').value = '';
+    showAlert('Logout','Berhasil logout','info');
 }
 
 async function loadUsers() {
-    try { allUsers = await API.getUsers(); displayUsers(allUsers); } catch(e) {}
+    try {
+        var data = await apiCall('users', 'GET');
+        allUsers = [];
+        for(var key in data) {
+            data[key].id = key;
+            allUsers.push(data[key]);
+        }
+        displayUsers(allUsers);
+        showAlert('Berhasil',allUsers.length+' user dimuat','success');
+    } catch(e) {
+        showAlert('Gagal','Gagal memuat data','error');
+    }
 }
 
 async function addUserNow() {
@@ -144,16 +177,19 @@ async function addUserNow() {
     var p = document.getElementById('newPass').value.trim();
     var r = document.getElementById('newRole').value;
     var e = document.getElementById('newExpiryDate').value.trim();
-    if(!u||!p||!e) return showAlert('Semua field wajib diisi!','error');
-    if(p.length<6) return showAlert('Password min 6 karakter!','error');
+    if(!u||!p||!e) return showAlert('Gagal','Semua field wajib diisi!','error');
+    if(p.length<6) return showAlert('Gagal','Password min 6 karakter!','error');
     try {
-        await API.addUser({ username:u, password:p, role:r, expiry_date:e });
+        showAlert('Loading','Menambahkan...','info');
+        await apiCall('users', 'POST', { username: u, password: p, role: r, expiry_date: e, created: Date.now(), created_by: currentAdmin });
         document.getElementById('newUser').value = '';
         document.getElementById('newPass').value = '';
-        showAlert('User berhasil ditambahkan!','success');
+        showAlert('Berhasil','User "'+u+'" ditambahkan!','success');
         await loadUsers();
         switchTab('users');
-    } catch(e) { showAlert(e.message,'error'); }
+    } catch(e) {
+        showAlert('Gagal',e.message,'error');
+    }
 }
 
 async function saveUserChanges() {
@@ -162,25 +198,60 @@ async function saveUserChanges() {
     var p = document.getElementById('editPassword').value.trim();
     var r = document.getElementById('editRole').value;
     var e = document.getElementById('editExpiryDate').value.trim();
+    if(!id||!u||!e) return showAlert('Gagal','Field wajib diisi!','error');
+    var data = { username: u, role: r, expiry_date: e, updated: Date.now(), updated_by: currentAdmin };
+    if(p) data.password = p;
     try {
-        await API.updateUser(id, { username:u, password:p||undefined, role:r, expiry_date:e });
+        showAlert('Loading','Menyimpan...','info');
+        await apiCall('users/'+id, 'PATCH', data);
         closeEditModal();
-        showAlert('User diperbarui!','success');
+        showAlert('Berhasil','User diperbarui!','success');
         await loadUsers();
-    } catch(e) { showAlert(e.message,'error'); }
+    } catch(e) {
+        showAlert('Gagal',e.message,'error');
+    }
 }
 
-function deleteUserConfirm(id, name) { if(confirm('Yakin hapus "'+name+'"?')) deleteUser(id); }
-async function deleteUser(id) { try { await API.deleteUser(id); showAlert('User dihapus','success'); await loadUsers(); } catch(e) {} }
+function deleteUserConfirm(id, name) {
+    if(confirm('Yakin hapus "'+name+'"?')) deleteUser(id);
+}
+
+async function deleteUser(id) {
+    try {
+        showAlert('Loading','Menghapus...','info');
+        await apiCall('users/'+id, 'DELETE');
+        showAlert('Berhasil','User dihapus','success');
+        await loadUsers();
+    } catch(e) {
+        showAlert('Gagal','Gagal menghapus','error');
+    }
+}
 
 async function setSingleUserPermanent(id, name) {
     if(!confirm('Ubah "'+name+'" jadi PERMANENT?')) return;
-    try { await API.updateUser(id, { expiry_date:'12/31/9999' }); showAlert(name+' PERMANENT!','permanent'); await loadUsers(); } catch(e) {}
+    try {
+        await apiCall('users/'+id, 'PATCH', { expiry_date: '12/31/9999', updated: Date.now() });
+        showAlert('Berhasil',name+' PERMANENT!','permanent');
+        await loadUsers();
+    } catch(e) {
+        showAlert('Gagal','Gagal','error');
+    }
 }
 
 async function setAllUsersPermanent() {
     if(!confirm('Ubah SEMUA user jadi PERMANENT?')) return;
-    try { var r = await API.setAllPermanent(); showAlert(r.count+' user diubah!','permanent'); await loadUsers(); } catch(e) {}
+    try {
+        showAlert('Loading','Memproses...','info');
+        var count = 0;
+        for(var i = 0; i < allUsers.length; i++) {
+            await apiCall('users/'+allUsers[i].id, 'PATCH', { expiry_date: '12/31/9999', updated: Date.now() });
+            count++;
+        }
+        showAlert('Berhasil',count+' user diubah PERMANENT!','permanent');
+        await loadUsers();
+    } catch(e) {
+        showAlert('Gagal','Gagal','error');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
