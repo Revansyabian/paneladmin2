@@ -18,6 +18,17 @@ if (!admin.apps.length) {
 const db = admin.database();
 const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 
+async function addLog(action, detail, email) {
+  const logRef = db.ref('admin/logs').push();
+  const logData = CryptoJS.AES.encrypt(JSON.stringify({
+    action: action,
+    detail: detail,
+    email: email || 'unknown',
+    timestamp: Date.now()
+  }), ADMIN_KEY).toString();
+  await logRef.set({ data: logData });
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
@@ -37,15 +48,17 @@ export default async function handler(req, res) {
       
       if (raw && raw.data) {
         const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        const admin = JSON.parse(dec);
+        const adminData = JSON.parse(dec);
         
-        if (admin.email === data.email && admin.password === data.password) {
-          const result = { success: true, data: { email: admin.email, role: admin.role } };
+        if (adminData.email === data.email && adminData.password === data.password) {
+          await addLog('LOGIN', 'Login berhasil', data.email);
+          const result = { success: true, data: { email: adminData.email, role: adminData.role } };
           const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
           return res.status(200).json({ encrypted: true, data: encrypted });
         }
       }
       
+      await addLog('LOGIN_GAGAL', 'Password salah', data.email);
       const fail = { success: false, error: 'Email atau password salah' };
       const enc = CryptoJS.AES.encrypt(JSON.stringify(fail), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: enc });
@@ -74,6 +87,7 @@ export default async function handler(req, res) {
       const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
       const newRef = ref.push();
       await newRef.set({ data: enc, created: Date.now(), created_by: data.created_by || 'system' });
+      await addLog('TAMBAH', 'Menambah user: ' + (data.username || 'unknown'), data.created_by);
       const result = { success: true, id: newRef.key };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
@@ -82,6 +96,7 @@ export default async function handler(req, res) {
     if (method === 'PUT') {
       const enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
       await ref.set({ data: enc, created: Date.now() });
+      await addLog('BUAT_ADMIN', 'Membuat akun admin: ' + (data.email || 'unknown'), data.email);
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
@@ -98,13 +113,23 @@ export default async function handler(req, res) {
       const merged = { ...existingData, ...data };
       const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
       await ref.update({ data: enc, updated: Date.now(), updated_by: data.updated_by || 'system' });
+      await addLog('EDIT', 'Mengedit user: ' + (existingData.username || merged.username || 'unknown'), data.updated_by);
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
     if (method === 'DELETE') {
+      const snap = await ref.once('value');
+      const raw = snap.val();
+      let username = 'unknown';
+      if (raw && raw.data) {
+        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const userData = JSON.parse(dec);
+        username = userData.username || 'unknown';
+      }
       await ref.remove();
+      await addLog('HAPUS', 'Menghapus user: ' + username, data.deleted_by || 'system');
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
