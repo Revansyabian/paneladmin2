@@ -1,5 +1,5 @@
 var API_REVANSTORE = 'api/revanstore';
-var ADMIN_KEY = 'dhagwxwhu:26842054da86ba8d19b1ac13f4ffed55cdcb859c';
+var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 var API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
 
 var currentAdmin = null;
