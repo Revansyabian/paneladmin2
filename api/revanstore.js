@@ -29,6 +29,7 @@ export default async function handler(req, res) {
     if (!decrypted) return res.status(200).json({ success: false, error: 'Access denied' });
     
     const { path, method, data } = JSON.parse(decrypted);
+    const ref = db.ref(path);
 
     // LOGIN
     if (path === 'login') {
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: enc });
     }
 
-    // GET USERS
+    // GET
     if (method === 'GET') {
       const snap = await ref.once('value');
       const raw = snap.val() || {};
@@ -77,11 +78,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // POST - Simpan dengan enkripsi
+    // POST
     if (method === 'POST') {
-      const dataToEncrypt = { ...data };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(dataToEncrypt), ADMIN_KEY).toString();
-      
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
       const newRef = ref.push();
       await newRef.set({
         data: encrypted,
@@ -94,13 +93,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: enc });
     }
 
-    // PUT - Simpan dengan enkripsi
+    // PUT
     if (method === 'PUT') {
-      const dataToEncrypt = { ...data };
-      delete dataToEncrypt.data;
-      
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(dataToEncrypt), ADMIN_KEY).toString();
-      
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
       await ref.set({
         data: encrypted,
         created: Date.now()
@@ -111,7 +106,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: enc });
     }
 
-    // PATCH - Update dengan enkripsi
+    // PATCH
     if (method === 'PATCH') {
       const snap = await ref.once('value');
       const existing = snap.val();
@@ -123,8 +118,6 @@ export default async function handler(req, res) {
       }
       
       const merged = { ...existingData, ...data };
-      delete merged.data;
-      
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
       
       await ref.update({
