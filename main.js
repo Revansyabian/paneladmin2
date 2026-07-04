@@ -1,3 +1,28 @@
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+var devtoolsOpen = false;
+var threshold = 160;
+setInterval(function() {
+    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+        if (!devtoolsOpen) {
+            devtoolsOpen = true;
+            document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:#fff;font-size:20px;">DevTools terdeteksi! Tutup untuk melanjutkan.</div>';
+        }
+    } else {
+        devtoolsOpen = false;
+    }
+}, 1000);
+
 var API_REVANSTORE = 'api/revanstore';
 var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 var API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
@@ -369,20 +394,20 @@ function deleteUserConfirm(id, name) {
     }
     
     msg.textContent = 'Yakin hapus user "' + name + '"?';
-    overlay.classList.add('show');
+    overlay.style.display = 'flex';
     
     yesBtn.onclick = function() {
-        overlay.classList.remove('show');
+        overlay.style.display = 'none';
         deleteUser(id);
     };
     
     noBtn.onclick = function() {
-        overlay.classList.remove('show');
+        overlay.style.display = 'none';
     };
     
     overlay.onclick = function(e) {
         if (e.target === overlay) {
-            overlay.classList.remove('show');
+            overlay.style.display = 'none';
         }
     };
 }
@@ -428,7 +453,6 @@ async function setAllUsersPermanent() {
     }
 }
 
-// Init
 document.addEventListener('DOMContentLoaded', function() {
     var nm = new Date();
     nm.setMonth(nm.getMonth() + 1);
