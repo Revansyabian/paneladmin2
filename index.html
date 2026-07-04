@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin BUSSID Panel</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="main.js"></script>
 </head>
@@ -16,65 +16,72 @@
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
-            <div class="modal-header"><div class="modal-title">✏️ Edit User</div><button class="close-modal" onclick="closeEditModal()">×</button></div>
+            <div class="modal-header">
+                <div class="modal-title">Edit User</div>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
             <input type="hidden" id="editUserId">
-            <div class="input-box"><label>Username *</label><input type="text" id="editUsername"></div>
-            <div class="input-box"><label>Password (kosongkan jika tidak diubah)</label><input type="text" id="editPassword" placeholder="min 6 karakter"></div>
-            <div class="input-box"><label>Role *</label><select id="editRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-            <div class="input-box"><label>Masa Aktif (MM/DD/YYYY) *</label><input type="text" id="editExpiryDate" placeholder="01/28/2026">
+            <div class="input-box"><label>Username</label><input type="text" id="editUsername"></div>
+            <div class="input-box"><label>Password (biarkan kosong jika tidak diubah)</label><input type="text" id="editPassword" placeholder="min 6 karakter"></div>
+            <div class="input-box"><label>Role</label><select id="editRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+            <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate" placeholder="01/28/2026">
                 <div class="quick-dates">
-                    <span class="date-option" onclick="setQuickDate('edit','permanent')">♾️ Permanent</span>
-                    <span class="date-option" onclick="setQuickDate('edit','week')">➕ 1 Minggu</span>
-                    <span class="date-option" onclick="setQuickDate('edit','month')">📅 1 Bulan</span>
-                    <span class="date-option" onclick="setQuickDate('edit','year')">🗓️ 1 Tahun</span>
+                    <span class="date-option" onclick="setQuickDate('edit','permanent')">Permanent</span>
+                    <span class="date-option" onclick="setQuickDate('edit','week')">+1 Minggu</span>
+                    <span class="date-option" onclick="setQuickDate('edit','month')">+1 Bulan</span>
+                    <span class="date-option" onclick="setQuickDate('edit','year')">+1 Tahun</span>
                 </div>
             </div>
-            <div class="modal-actions"><button class="btn btn-green btn-full" onclick="saveUserChanges()">💾 SIMPAN</button><button class="btn btn-red btn-full" onclick="closeEditModal()">❌ BATAL</button></div>
+            <div class="modal-actions"><button class="btn btn-green btn-full" onclick="saveUserChanges()">Simpan</button><button class="btn btn-red btn-full" onclick="closeEditModal()">Batal</button></div>
         </div>
     </div>
 
-    <div class="container">
+    <div class="container" style="max-width:420px;">
         <div id="loginScreen">
-            <div class="header"><h1>🔐 ADMIN BUSSID</h1><div class="subtitle">Secure Panel v2.0</div></div>
+            <div class="header"><h1>Admin Panel</h1><div class="subtitle">BUSSID Management</div></div>
             <div class="content">
                 <div class="input-box"><label>Email</label><input type="email" id="loginEmail" autocomplete="off" placeholder="admin@bussid.com"></div>
                 <div class="input-box"><label>Password</label><input type="password" id="loginPassword" autocomplete="off" placeholder="Masukkan password"></div>
-                <button class="btn" onclick="login()">🔑 LOGIN</button>
-                <div class="back-link"><a href="tambah-admin.html">➕ Buat Akun Admin</a></div>
+                <button class="btn" onclick="login()">Masuk</button>
             </div>
         </div>
 
         <div id="adminPanel" style="display:none;">
-            <div class="header"><h1>👑 PANEL ADMIN</h1><div style="font-size:14px;margin-top:5px;opacity:0.9;">Login sebagai: <span id="loggedUser">-</span></div><button class="logout-btn" onclick="logout()">🚪 Logout</button></div>
+            <div class="header">
+                <h1>Panel Admin</h1>
+                <div class="subtitle"><span id="loggedUser">-</span></div>
+                <button class="logout-btn" onclick="logout()">Keluar</button>
+            </div>
             <div class="content">
-                <div class="tabs"><button class="tab active" onclick="switchTab('adduser')">➕ Tambah User</button><button class="tab" onclick="switchTab('users')">👥 List User <span id="userCount" class="counter-badge">0</span></button></div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('adduser')">Tambah User</button>
+                    <button class="tab" onclick="switchTab('users')">Daftar User <span id="userCount" class="counter-badge">0</span></button>
+                </div>
                 <div id="adduser" class="tab-content active">
-                    <h3>➕ Tambah User Baru</h3>
-                    <div class="input-box"><label>Username *</label><input type="text" id="newUser" placeholder="operator1"></div>
-                    <div class="input-box"><label>Password * (min 6 karakter)</label><input type="text" id="newPass" placeholder="password123"></div>
-                    <div class="input-box"><label>Role *</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-                    <div class="input-box"><label>Masa Aktif (MM/DD/YYYY) *</label><input type="text" id="newExpiryDate" placeholder="01/28/2026">
+                    <div class="input-box"><label>Username</label><input type="text" id="newUser" placeholder="operator1"></div>
+                    <div class="input-box"><label>Password</label><input type="text" id="newPass" placeholder="min 6 karakter"></div>
+                    <div class="input-box"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+                    <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="01/28/2026">
                         <div class="quick-dates">
-                            <span class="date-option" onclick="setQuickDate('new','permanent')">♾️ Permanent</span>
-                            <span class="date-option" onclick="setQuickDate('new','week')">➕ 1 Minggu</span>
-                            <span class="date-option" onclick="setQuickDate('new','month')">📅 1 Bulan</span>
-                            <span class="date-option" onclick="setQuickDate('new','year')">🗓️ 1 Tahun</span>
+                            <span class="date-option" onclick="setQuickDate('new','permanent')">Permanent</span>
+                            <span class="date-option" onclick="setQuickDate('new','week')">+1 Minggu</span>
+                            <span class="date-option" onclick="setQuickDate('new','month')">+1 Bulan</span>
+                            <span class="date-option" onclick="setQuickDate('new','year')">+1 Tahun</span>
                         </div>
                     </div>
-                    <button class="btn btn-green" onclick="addUserNow()">✅ TAMBAH USER</button>
+                    <button class="btn btn-green" onclick="addUserNow()">Tambah User</button>
                 </div>
                 <div id="users" class="tab-content">
-                    <h3>👥 Daftar User</h3>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <button class="btn-small btn-blue" onclick="loadUsers()">🔄 Refresh</button>
-                            <button class="btn-small btn-green" onclick="switchTab('adduser')">➕ Tambah</button>
-                            <button class="btn-small btn-purple" onclick="setAllUsersPermanent()">♾️ Set Semua Permanent</button>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px;">
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <button class="btn-small btn-blue" onclick="loadUsers()">Refresh</button>
+                            <button class="btn-small btn-green" onclick="switchTab('adduser')">Tambah</button>
+                            <button class="btn-small btn-purple" onclick="setAllUsersPermanent()">Set Permanent</button>
                         </div>
-                        <div>Total: <span id="totalUsers">0</span> user</div>
+                        <div style="font-size:12px;color:#8899aa;">Total: <span id="totalUsers" style="font-weight:600;color:#1a1a2e;">0</span> user</div>
                     </div>
-                    <div class="search-box"><input type="text" id="searchUser" placeholder="🔍 Cari user..." onkeyup="searchUsers()"></div>
-                    <div id="userListContainer" class="user-list"><div style="text-align:center;padding:50px;">👥<br>Memuat data...</div></div>
+                    <div class="search-box"><input type="text" id="searchUser" placeholder="Cari user..." onkeyup="searchUsers()"></div>
+                    <div id="userListContainer" class="user-list"><div style="text-align:center;padding:40px;color:#aabbcc;">Memuat data...</div></div>
                 </div>
             </div>
         </div>
