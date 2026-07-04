@@ -1,114 +1,61 @@
-var API = (function() {
-    
-    var db = null;
-    var SERVICE_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b:RevanStore2024!@#$%';
-    
-    firebase.initializeApp({
-        apiKey: "AIzaSyBq2btJlvAQ1Q9DEXHFgzJ37KF38JjwjoI",
-        authDomain: "dhagwxwhu.firebaseapp.com",
-        databaseURL: "https://dhagwxwhu-default-rtdb.firebaseio.com",
-        projectId: "dhagwxwhu",
-        storageBucket: "dhagwxwhu.firebasestorage.app",
-        messagingSenderId: "110053074373",
-        appId: "1:110053074373:web:1984ce99fd4902354857ac"
-    });
-    
-    db = firebase.database();
-    
-    function encryptData(data) {
-        return CryptoJS.AES.encrypt(JSON.stringify(data), SERVICE_KEY).toString();
-    }
-    
-    function decryptData(str) {
-        try {
-            var bytes = CryptoJS.AES.decrypt(str, SERVICE_KEY);
-            var decrypted = bytes.toString(CryptoJS.enc.Utf8);
-            return decrypted ? JSON.parse(decrypted) : null;
-        } catch(e) { return null; }
-    }
-    
-    return {
-        setupAdmin: async function() {
-            var snap = await db.ref('admin/auth').once('value');
-            if(!snap.exists()) {
-                await db.ref('admin/auth').set({
-                    data: encryptData({ username: 'admin', password: 'admin123', role: 'Admin' }),
-                    created: Date.now()
-                });
-            }
-        },
-        
-        login: async function(username, password) {
-            await this.setupAdmin();
-            var snap = await db.ref('admin/auth').once('value');
-            if(!snap.exists()) return { success: false, message: 'Admin tidak ditemukan' };
-            var dec = decryptData(snap.val().data);
-            if(!dec || dec.username !== username || dec.password !== password) {
-                return { success: false, message: 'Username atau password salah' };
-            }
-            return { success: true };
-        },
-        getUsers: async function() {
-            var snap = await db.ref('users').once('value');
-            if(!snap.exists()) return [];
-            var users = [];
-            var data = snap.val();
-            for(var key in data) {
-                var dec = decryptData(data[key].data);
-                if(dec) {
-                    dec.id = key;
-                    dec.created = data[key].created;
-                    dec.created_by = data[key].created_by || 'admin';
-                    users.push(dec);
-                }
-            }
-            return users;
-        },
-        addUser: async function(userData) {
-            var users = await this.getUsers();
-            if(users.some(function(u) { return u.username === userData.username; })) {
-                throw new Error('Username sudah digunakan!');
-            }
-            var enc = encryptData(userData);
-            var ref = db.ref('users').push();
-            await ref.set({ data: enc, created: Date.now(), created_by: currentAdmin || 'system' });
-        },
-        updateUser: async function(userId, userData) {
-            var snap = await db.ref('users/' + userId).once('value');
-            if(!snap.exists()) throw new Error('User tidak ditemukan');
-            var existing = decryptData(snap.val().data);
-            if(!existing) throw new Error('Data user rusak');
-            if(userData.username && userData.username !== existing.username) {
-                var users = await this.getUsers();
-                if(users.some(function(u) { return u.id !== userId && u.username === userData.username; })) {
-                    throw new Error('Username sudah digunakan!');
-                }
-            }
-            var merged = {
-                username: userData.username || existing.username,
-                password: userData.password || existing.password,
-                role: userData.role || existing.role,
-                expiry_date: userData.expiry_date || existing.expiry_date
-            };
-            var enc = encryptData(merged);
-            await db.ref('users/' + userId).update({ data: enc, updated: Date.now(), updated_by: currentAdmin || 'system' });
-        },
-        deleteUser: async function(userId) {
-            await db.ref('users/' + userId).remove();
-        },
-        setAllPermanent: async function() {
-            var users = await this.getUsers();
-            for(var i = 0; i < users.length; i++) {
-                var enc = encryptData({
-                    username: users[i].username,
-                    password: users[i].password,
-                    role: users[i].role,
-                    expiry_date: '12/31/9999'
-                });
-                await db.ref('users/' + users[i].id).update({ data: enc, updated: Date.now(), updated_by: currentAdmin || 'system' });
-            }
-            return { count: users.length };
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
+  const FIREBASE_URL = 'https://dhagwxwhu-default-rtdb.firebaseio.com';
+  const CryptoJS = require('crypto-js');
+
+  try {
+    var decrypted = CryptoJS.AES.decrypt(req.body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+    var { path, method, data } = JSON.parse(decrypted);
+  } catch(e) {
+    return res.status(200).json({ success: false, error: 'Invalid request' });
+  }
+
+  try {
+    // LOGIN
+    if (path === 'login') {
+      var response = await fetch(FIREBASE_URL + '/users.json');
+      var users = await response.json();
+      for (var key in users) {
+        if (users[key].username === data.username && users[key].password === data.password) {
+          var result = { success: true, data: { id: key, username: users[key].username, role: users[key].role || 'User', expiry_date: users[key].expiry_date || '', created: users[key].created, created_by: users[key].created_by } };
+          var encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+          return res.status(200).json({ encrypted: true, data: encrypted });
         }
-    };
+      }
+      var failResult = { success: false, error: 'Username atau password salah' };
+      var failEncrypted = CryptoJS.AES.encrypt(JSON.stringify(failResult), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: failEncrypted });
+    }
+
+    // GET USERS
+    if (path === 'users' && (!method || method === 'GET')) {
+      var response = await fetch(FIREBASE_URL + '/users.json');
+      var users = await response.json();
+      var encrypted = CryptoJS.AES.encrypt(JSON.stringify(users || {}), ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
+    // CRUD
+    var url = FIREBASE_URL + '/' + path + '.json';
+    var options = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
     
-})();
+    if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+      options.body = JSON.stringify(data);
+    }
+
+    var response = await fetch(url, options);
+    var text = await response.text();
+    var result = text && text !== 'null' ? JSON.parse(text) : null;
+    var encrypted = CryptoJS.AES.encrypt(JSON.stringify(result || { success: true }), ADMIN_KEY).toString();
+    return res.status(200).json({ encrypted: true, data: encrypted });
+  } catch (error) {
+    var errResult = { success: false, error: error.message };
+    var errEncrypted = CryptoJS.AES.encrypt(JSON.stringify(errResult), ADMIN_KEY).toString();
+    return res.status(200).json({ encrypted: true, data: errEncrypted });
+  }
+}
