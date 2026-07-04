@@ -1,5 +1,6 @@
 var API_REVANSTORE = '/api/revanstore';
 var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
+var STORAGE_KEY = CryptoJS.SHA256('bussid_admin_storage').toString();
 
 var currentAdmin = null;
 var allUsers = [];
@@ -8,12 +9,53 @@ var loginBlocked = false;
 var blockTimer = null;
 var sessionTimer = null;
 
+try {
+    var enc = localStorage.getItem(STORAGE_KEY);
+    if (enc) {
+        var dec = CryptoJS.AES.decrypt(enc, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        var saved = JSON.parse(dec);
+        if (saved.loginBlocked) {
+            loginBlocked = true;
+            blockTimer = saved.blockTimer;
+            loginAttempts = saved.loginAttempts || 5;
+        }
+        if (saved.session && saved.session.expires > Date.now()) {
+            currentAdmin = saved.session.email;
+        }
+    }
+} catch(e) {}
+
+function saveStorage() {
+    var data = {
+        loginBlocked: loginBlocked,
+        blockTimer: blockTimer,
+        loginAttempts: loginAttempts,
+        session: currentAdmin ? { email: currentAdmin, expires: Date.now() + (30 * 60 * 1000) } : null
+    };
+    var enc = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+    localStorage.setItem(STORAGE_KEY, enc);
+}
+
 function showAlert(t, m, type) {
     var b = document.getElementById('alertBox');
+    var icon = document.getElementById('alertIcon');
     document.getElementById('alertTitle').textContent = t;
     document.getElementById('alertMessage').textContent = m;
     b.className = 'alert-box alert-' + type + ' show';
-    setTimeout(function() { b.classList.remove('show'); }, 4000);
+    
+    if (type === 'loading') {
+        icon.innerHTML = '<div class="spinner"></div>';
+    } else if (type === 'success') {
+        icon.innerHTML = '<div class="checkmark"></div>';
+    } else if (type === 'error') {
+        icon.innerHTML = '<div class="crossmark"></div>';
+    } else {
+        icon.innerHTML = '<div class="info-icon">i</div>';
+    }
+    
+    if (type !== 'loading') {
+        setTimeout(function() { b.classList.remove('show'); }, 4000);
+    }
 }
 
 function parseDate(d) {
@@ -133,22 +175,34 @@ async function apiCall(path, method, data) {
 async function login() {
     if (loginBlocked) {
         var remaining = Math.ceil((blockTimer - Date.now()) / 1000 / 60);
-        return showAlert('Diblokir', 'Coba lagi dalam ' + remaining + ' menit.', 'error');
+        if (remaining <= 0) {
+            loginBlocked = false;
+            loginAttempts = 0;
+            blockTimer = null;
+            saveStorage();
+        } else {
+            return showAlert('Diblokir', 'Coba lagi dalam ' + remaining + ' menit.', 'error');
+        }
     }
     var email = document.getElementById('loginEmail').value.trim();
     var pass = document.getElementById('loginPassword').value.trim();
     if (!email || !pass) return showAlert('Error', 'Email dan password wajib diisi', 'error');
-    showAlert('Info', 'Memverifikasi...', 'info');
+    
+    showAlert('Memverifikasi', 'Mohon tunggu sebentar...', 'loading');
+    
     try {
         var r = await apiCall('admin/auth', 'GET');
         if (r && r.email === email && r.password === pass) {
             loginAttempts = 0;
+            loginBlocked = false;
+            blockTimer = null;
             currentAdmin = email;
             document.getElementById('loggedUser').textContent = email;
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             document.querySelector('.container').style.maxWidth = '850px';
-            showAlert('Berhasil', 'Login berhasil', 'success');
+            saveStorage();
+            showAlert('Berhasil', 'Login berhasil!', 'success');
             if (sessionTimer) clearTimeout(sessionTimer);
             sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', 'Tidak ada aktivitas.', 'info'); } }, 30 * 60 * 1000);
             await loadUsers();
@@ -157,8 +211,10 @@ async function login() {
             if (loginAttempts >= 5) {
                 loginBlocked = true;
                 blockTimer = Date.now() + (15 * 60 * 1000);
+                saveStorage();
                 showAlert('Diblokir', 'Akun diblokir 15 menit.', 'error');
             } else {
+                saveStorage();
                 showAlert('Gagal', 'Email atau password salah. Sisa: ' + (5 - loginAttempts), 'error');
             }
         }
@@ -172,6 +228,7 @@ function logout() {
     document.getElementById('loginScreen').style.display = 'block';
     document.getElementById('loginPassword').value = '';
     document.querySelector('.container').style.maxWidth = '420px';
+    saveStorage();
 }
 
 async function loadUsers() {
@@ -195,11 +252,12 @@ async function addUserNow() {
     var e = document.getElementById('newExpiryDate').value.trim();
     if (!u || !p || !e) return showAlert('Error', 'Semua field wajib diisi', 'error');
     if (p.length < 6) return showAlert('Error', 'Password minimal 6 karakter', 'error');
+    showAlert('Proses', 'Menambahkan user...', 'loading');
     try {
         await apiCall('users', 'POST', { username: u, password: p, role: r, expiry_date: e });
         document.getElementById('newUser').value = '';
         document.getElementById('newPass').value = '';
-        showAlert('Berhasil', 'User berhasil ditambahkan', 'success');
+        showAlert('Berhasil', 'User berhasil ditambahkan!', 'success');
         await loadUsers();
         switchTab('users');
     } catch (e) { showAlert('Error', e.message, 'error'); }
@@ -212,32 +270,38 @@ async function saveUserChanges() {
     var r = document.getElementById('editRole').value;
     var e = document.getElementById('editExpiryDate').value.trim();
     if (!id || !u || !e) return showAlert('Error', 'Field wajib diisi', 'error');
+    showAlert('Proses', 'Menyimpan perubahan...', 'loading');
     var data = { username: u, role: r, expiry_date: e };
     if (p) data.password = p;
     try {
         await apiCall('users/' + id, 'PATCH', data);
         closeEditModal();
-        showAlert('Berhasil', 'User berhasil diperbarui', 'success');
+        showAlert('Berhasil', 'User berhasil diperbarui!', 'success');
         await loadUsers();
     } catch (e) { showAlert('Error', e.message, 'error'); }
 }
 
 function deleteUserConfirm(id, name) { if (confirm('Hapus user "' + name + '"?')) deleteUser(id); }
-async function deleteUser(id) { try { await apiCall('users/' + id, 'DELETE'); showAlert('Berhasil', 'User dihapus', 'success'); await loadUsers(); } catch (e) {} }
+async function deleteUser(id) { 
+    showAlert('Proses', 'Menghapus user...', 'loading');
+    try { await apiCall('users/' + id, 'DELETE'); showAlert('Berhasil', 'User berhasil dihapus!', 'success'); await loadUsers(); } catch (e) { showAlert('Error', 'Gagal', 'error'); } 
+}
 
 async function setSingleUserPermanent(id, name) {
     if (!confirm('Jadikan "' + name + '" PERMANENT?')) return;
-    try { await apiCall('users/' + id, 'PATCH', { expiry_date: '12/31/9999' }); showAlert('Berhasil', name + ' sekarang PERMANENT', 'permanent'); await loadUsers(); } catch (e) {}
+    showAlert('Proses', 'Mengubah status...', 'loading');
+    try { await apiCall('users/' + id, 'PATCH', { expiry_date: '12/31/9999' }); showAlert('Berhasil', name + ' sekarang PERMANENT!', 'success'); await loadUsers(); } catch (e) { showAlert('Error', 'Gagal', 'error'); }
 }
 
 async function setAllUsersPermanent() {
     if (!confirm('Jadikan SEMUA user PERMANENT?')) return;
+    showAlert('Proses', 'Mengubah semua user...', 'loading');
     try {
         var count = 0;
         for (var i = 0; i < allUsers.length; i++) { await apiCall('users/' + allUsers[i].id, 'PATCH', { expiry_date: '12/31/9999' }); count++; }
-        showAlert('Berhasil', count + ' user PERMANENT', 'permanent');
+        showAlert('Berhasil', count + ' user berhasil diubah!', 'success');
         await loadUsers();
-    } catch (e) {}
+    } catch (e) { showAlert('Error', 'Gagal', 'error'); }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -247,4 +311,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function() {
         if (currentAdmin && sessionTimer) { clearTimeout(sessionTimer); sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', 'Tidak ada aktivitas.', 'info'); } }, 30 * 60 * 1000); }
     });
+    if (currentAdmin) {
+        document.getElementById('loggedUser').textContent = currentAdmin;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        document.querySelector('.container').style.maxWidth = '850px';
+        loadUsers();
+    }
 });
