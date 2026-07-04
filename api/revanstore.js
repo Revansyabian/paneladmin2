@@ -1,7 +1,6 @@
-import admin from 'firebase-admin';
-import CryptoJS from 'crypto-js';
+const admin = require('firebase-admin');
+const CryptoJS = require('crypto-js');
 
-// Init Firebase Admin (cuma sekali)
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -30,9 +29,7 @@ export default async function handler(req, res) {
     if (!decrypted) return res.status(200).json({ success: false, error: 'Access denied' });
     
     const { path, method, data } = JSON.parse(decrypted);
-    const ref = db.ref(path);
 
-    // LOGIN
     if (path === 'login') {
       const snap = await db.ref('admin/auth').once('value');
       const admin = snap.val();
@@ -48,7 +45,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: enc });
     }
 
-    // GET
+    const ref = db.ref(path);
+
     if (method === 'GET') {
       const snap = await ref.once('value');
       const result = snap.val() || {};
@@ -56,7 +54,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // POST
     if (method === 'POST') {
       const newRef = ref.push();
       await newRef.set(data);
@@ -65,7 +62,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // PUT
     if (method === 'PUT') {
       await ref.set(data);
       const result = { success: true };
@@ -73,7 +69,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // PATCH
     if (method === 'PATCH') {
       await ref.update(data);
       const result = { success: true };
@@ -81,7 +76,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    // DELETE
     if (method === 'DELETE') {
       await ref.remove();
       const result = { success: true };
@@ -89,7 +83,11 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
+    return res.status(200).json({ success: false, error: 'Invalid method' });
+
   } catch (error) {
-    return res.status(200).json({ success: false, error: error.message });
+    const err = { success: false, error: error.message };
+    const enc = CryptoJS.AES.encrypt(JSON.stringify(err), ADMIN_KEY).toString();
+    return res.status(200).json({ encrypted: true, data: enc });
   }
 }
