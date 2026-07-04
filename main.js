@@ -46,7 +46,6 @@ async function getFingerprint() {
     fp += navigator.hardwareConcurrency || '';
     fp += navigator.deviceMemory || '';
     fp += navigator.platform || '';
-    
     return CryptoJS.MD5(fp).toString();
 }
 
@@ -256,6 +255,33 @@ async function apiCall(path, method, data) {
     return result;
 }
 
+async function verifyKey() {
+    var key = document.getElementById('accessKey').value.trim();
+    
+    if (!key) return showAlert('Error', 'Key wajib diisi', 'error');
+    
+    showAlert('Verifikasi', 'Memeriksa key...', 'loading');
+    
+    try {
+        var r = await apiCall('access_key', 'GET');
+        
+        if (r && r.key === key) {
+            document.getElementById('keyScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('accessKey').value = '';
+            hideAlert();
+            showAlert('Berhasil', 'Key valid!', 'success');
+        } else {
+            document.getElementById('accessKey').value = '';
+            hideAlert();
+            showAlert('Error', 'Key salah!', 'error');
+        }
+    } catch (e) {
+        hideAlert();
+        showAlert('Error', 'Gagal verifikasi key', 'error');
+    }
+}
+
 async function login() {
     if (loginBlocked) {
         var remaining = Math.ceil((blockTimer - Date.now()) / 1000 / 60);
@@ -327,6 +353,7 @@ function logout() {
     if (sessionTimer) clearTimeout(sessionTimer);
     document.getElementById('adminPanel').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('keyScreen').style.display = 'none';
     document.getElementById('loginPassword').value = '';
     document.querySelector('.container').style.maxWidth = '420px';
     showAlert('Logout', 'Anda telah logout.', 'info');
@@ -482,11 +509,23 @@ async function setAllUsersPermanent() {
 document.addEventListener('DOMContentLoaded', function() {
     var nm = new Date();
     nm.setMonth(nm.getMonth() + 1);
-    document.getElementById('newExpiryDate').value = formatDate(nm);
     
-    document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') login();
-    });
+    var newExpiry = document.getElementById('newExpiryDate');
+    if (newExpiry) newExpiry.value = formatDate(nm);
+    
+    var loginPass = document.getElementById('loginPassword');
+    if (loginPass) {
+        loginPass.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+    }
+    
+    var accessKey = document.getElementById('accessKey');
+    if (accessKey) {
+        accessKey.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyKey();
+        });
+    }
     
     document.addEventListener('click', function() {
         if (currentAdmin && sessionTimer) {
@@ -500,7 +539,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    document.getElementById('editModal').addEventListener('click', function(e) {
-        if (e.target === this) closeEditModal();
-    });
+    var editModal = document.getElementById('editModal');
+    if (editModal) {
+        editModal.addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+    }
 });
