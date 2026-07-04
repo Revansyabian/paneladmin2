@@ -60,77 +60,75 @@
         </div>
     </div>
 
-    <script>
-        var API_REVANSTORE = '/api/revanstore';
-        var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
+ <script>
+    var API_REVANSTORE = '/api/revanstore';
+    var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 
-        function showAlert(t, m, type) {
-            var b = document.getElementById('alertBox');
-            document.getElementById('alertTitle').textContent = t;
-            document.getElementById('alertMessage').textContent = m;
-            b.className = 'alert-box ' + type + ' show';
-            setTimeout(function(){ b.classList.remove('show'); }, 4000);
-        }
+    function showAlert(t, m, type) {
+        var b = document.getElementById('alertBox');
+        document.getElementById('alertTitle').textContent = t;
+        document.getElementById('alertMessage').textContent = m;
+        b.className = 'alert-box ' + type + ' show';
+        setTimeout(function(){ b.classList.remove('show'); }, 4000);
+    }
 
-        async function tambahAdmin() {
-            var email = document.getElementById('adminEmail').value.trim();
-            var pass = document.getElementById('adminPass').value.trim();
-
-            if (!email || !pass) {
-                return showAlert('Gagal', 'Email dan password wajib diisi!', 'error');
-            }
-            if (pass.length < 6) {
-                return showAlert('Gagal', 'Password minimal 6 karakter!', 'error');
-            }
-
-            var btn = document.getElementById('btnSubmit');
-            btn.disabled = true;
-            btn.textContent = '⏳ Menyimpan...';
-            showAlert('Proses', 'Menyimpan admin baru...', 'info');
-
-            try {
-                var dataEncrypt = CryptoJS.AES.encrypt(JSON.stringify({
-                    path: 'admin/auth',
-                    method: 'PUT',
-                    data: {
-                        email: email,
-                        password: pass,
-                        role: 'Admin',
-                        created: Date.now()
-                    }
-                }), ADMIN_KEY).toString();
-
-                var response = await fetch(API_REVANSTORE, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: dataEncrypt })
-                });
-
-                var result = await response.json();
-
-                if (result.encrypted) {
-                    var dec = CryptoJS.AES.decrypt(result.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-                    result = JSON.parse(dec);
-                }
-
-                if (result.success || result.email) {
-                    showAlert('Berhasil', 'Admin berhasil ditambahkan! Silakan login.', 'success');
-                    document.getElementById('adminEmail').value = '';
-                    document.getElementById('adminPass').value = '';
-                } else {
-                    showAlert('Gagal', result.error || 'Gagal menambah admin', 'error');
-                }
-            } catch (e) {
-                showAlert('Error', 'Koneksi gagal: ' + e.message, 'error');
-            }
-
-            btn.disabled = false;
-            btn.textContent = '✅ Tambah Admin';
-        }
-
-        document.getElementById('adminPass').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') tambahAdmin();
+    async function apiCall(path, method, data) {
+        var payload = CryptoJS.AES.encrypt(JSON.stringify({ path: path, method: method, data: data }), ADMIN_KEY).toString();
+        var res = await fetch(API_REVANSTORE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: payload })
         });
-    </script>
+        var result = await res.json();
+        if(result.encrypted) {
+            var dec = CryptoJS.AES.decrypt(result.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+            return JSON.parse(dec);
+        }
+        return result;
+    }
+
+    async function tambahAdmin() {
+        var email = document.getElementById('adminEmail').value.trim();
+        var pass = document.getElementById('adminPass').value.trim();
+
+        if (!email || !pass) {
+            return showAlert('Gagal', 'Email dan password wajib diisi!', 'error');
+        }
+        if (pass.length < 6) {
+            return showAlert('Gagal', 'Password minimal 6 karakter!', 'error');
+        }
+
+        var btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.textContent = '⏳ Menyimpan...';
+        showAlert('Proses', 'Menyimpan admin baru...', 'info');
+
+        try {
+            var result = await apiCall('admin/auth', 'PUT', {
+                email: email,
+                password: pass,
+                role: 'Admin',
+                created: Date.now()
+            });
+
+            if (result.success || result.email) {
+                showAlert('Berhasil', 'Admin berhasil ditambahkan! Silakan login.', 'success');
+                document.getElementById('adminEmail').value = '';
+                document.getElementById('adminPass').value = '';
+            } else {
+                showAlert('Gagal', result.error || 'Gagal menambah admin', 'error');
+            }
+        } catch (e) {
+            showAlert('Error', 'Koneksi gagal: ' + e.message, 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = '✅ Tambah Admin';
+    }
+
+    document.getElementById('adminPass').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') tambahAdmin();
+    });
+</script>
 </body>
 </html>
