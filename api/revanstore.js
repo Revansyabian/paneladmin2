@@ -1,6 +1,8 @@
 import CryptoJS from 'crypto-js';
 import admin from 'firebase-admin';
 
+const ADMIN_KEY = process.env.ADMIN_KEY;
+
 if (!admin.apps.length) {
   const key = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
   admin.initializeApp({
@@ -15,6 +17,66 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
+async function isIPBlocked(ip) {
+  const snap = await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).once('value');
+  const data = snap.val();
+  if (data && data.blocked) return true;
+  return false;
+}
+
+async function isFPBlocked(fp) {
+  const snap = await db.ref('blocked_fp/' + fp).once('value');
+  const data = snap.val();
+  if (data && data.blocked) return true;
+  return false;
+}
+
+async function blockIP(ip) {
+  await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).set({
+    ip: ip,
+    blocked: true,
+    blocked_at: new Date().toISOString()
+  });
+}
+
+async function blockFP(fp) {
+  await db.ref('blocked_fp/' + fp).set({
+    fingerprint: fp,
+    blocked: true,
+    blocked_at: new Date().toISOString()
+  });
+}
+
+async function trackLoginAttempt(ip, fp) {
+  const key = ip.replace(/\./g, '_') + '_' + (fp || 'nofp');
+  const ref = db.ref('login_attempts/' + key);
+  const snap = await ref.once('value');
+  const data = snap.val();
+  const now = Date.now();
+  
+  if (data) {
+    const attempts = data.count || 0;
+    const lastAttempt = data.last_attempt || 0;
+    
+    if (now - lastAttempt > 3600000) {
+      await ref.set({ count: 1, last_attempt: now, fingerprint: fp });
+      return 1;
+    }
+    
+    const newCount = attempts + 1;
+    await ref.update({ count: newCount, last_attempt: now });
+    return newCount;
+  } else {
+    await ref.set({ count: 1, last_attempt: now, fingerprint: fp });
+    return 1;
+  }
+}
+
+async function resetLoginAttempt(ip, fp) {
+  const key = ip.replace(/\./g, '_') + '_' + (fp || 'nofp');
+  await db.ref('login_attempts/' + key).remove();
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
@@ -26,6 +88,9 @@ export default async function handler(req, res) {
   if (!apiKey || apiKey !== process.env.API_KEY) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  
+  const ip = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
+  const fp = req.headers['x-fingerprint'] || '';
   
   if (req.method === 'GET') return res.status(200).json({ status: 'OK' });
 
@@ -39,16 +104,67 @@ export default async function handler(req, res) {
     const parsed = JSON.parse(decrypted);
     const ref = db.ref(parsed.path);
 
-    if (parsed.method === 'GET') {
+    if (parsed.path === 'admin/auth' && parsed.method === 'GET') {
+      const ipBlocked = await isIPBlocked(ip);
+      const fpBlocked = fp ? await isFPBlocked(fp) : false;
+      
+      if (ipBlocked || fpBlocked) {
+        const result = { blocked: true, message: 'Akses diblokir permanen' };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
+      
       const snap = await ref.once('value');
       const raw = snap.val();
       
-      if (parsed.path === 'admin/auth' && raw && raw.data) {
+      if (raw && raw.data) {
         const dec = CryptoJS.AES.decrypt(raw.data, process.env.ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         const result = JSON.parse(dec);
         const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
         return res.status(200).json({ encrypted: true, data: encrypted });
       }
+      
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify({}), process.env.ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
+    if (parsed.path === 'admin/login_failed' && parsed.method === 'POST') {
+      const attempts = await trackLoginAttempt(ip, fp);
+      
+      await new Promise(r => setTimeout(r, attempts * 1000));
+      
+      if (attempts >= 5) {
+        await blockIP(ip);
+        if (fp) await blockFP(fp);
+        const result = { blocked: true, message: 'Diblokir permanen setelah 5x gagal' };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
+      
+      const result = { attempts: attempts, remaining: 5 - attempts };
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
+    if (parsed.path === 'admin/login_success' && parsed.method === 'POST') {
+      await resetLoginAttempt(ip, fp);
+      const result = { success: true };
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
+    const ipBlocked = await isIPBlocked(ip);
+    const fpBlocked = fp ? await isFPBlocked(fp) : false;
+    
+    if (ipBlocked || fpBlocked) {
+      const result = { blocked: true };
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), process.env.ADMIN_KEY).toString();
+      return res.status(200).json({ encrypted: true, data: encrypted });
+    }
+
+    if (parsed.method === 'GET') {
+      const snap = await ref.once('value');
+      const raw = snap.val();
       
       const result = {};
       if (raw) {
