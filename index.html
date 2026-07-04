@@ -5,17 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin BUSSID Panel</title>
     <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="no-referrer">
     <link rel="stylesheet" href="admin.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <script src="main.js"></script>
 </head>
-<body>
+<body oncontextmenu="return false">
 
     <div id="alertOverlay" class="alert-overlay">
         <div id="alertBox" class="alert-box">
             <div id="alertIcon"></div>
             <div id="alertTitle"></div>
             <div id="alertMessage"></div>
+        </div>
+    </div>
+
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <div class="confirm-icon">⚠️</div>
+            <p class="confirm-message" id="confirmMessage"></p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-no" id="confirmNo">Batal</button>
+                <button class="confirm-btn confirm-yes" id="confirmYes">Hapus</button>
+            </div>
         </div>
     </div>
 
@@ -28,15 +41,15 @@
             <input type="hidden" id="editUserId">
             <div class="input-box">
                 <label>Username</label>
-                <input type="text" id="editUsername" maxlength="30">
+                <input type="text" id="editUsername" maxlength="30" autocomplete="off">
             </div>
             <div class="input-box">
                 <label>Nomor (WhatsApp/Telepon)</label>
-                <input type="text" id="editPhone" maxlength="20" placeholder="08123456789">
+                <input type="text" id="editPhone" maxlength="20" placeholder="08123456789" autocomplete="off">
             </div>
             <div class="input-box">
                 <label>Password (biarkan kosong jika tidak diubah)</label>
-                <input type="text" id="editPassword" placeholder="min 6 karakter" maxlength="50">
+                <input type="password" id="editPassword" placeholder="min 6 karakter" maxlength="50" autocomplete="new-password">
             </div>
             <div class="input-box">
                 <label>Role</label>
@@ -51,7 +64,7 @@
             </div>
             <div class="input-box">
                 <label>Masa Aktif (MM/DD/YYYY)</label>
-                <input type="text" id="editExpiryDate" placeholder="01/28/2026" maxlength="10">
+                <input type="text" id="editExpiryDate" placeholder="01/28/2026" maxlength="10" autocomplete="off">
                 <div class="quick-dates">
                     <span class="date-option" onclick="setQuickDate('edit','permanent')">Permanent</span>
                     <span class="date-option" onclick="setQuickDate('edit','week')">+1 Minggu</span>
@@ -99,15 +112,15 @@
                 <div id="adduser" class="tab-content active">
                     <div class="input-box">
                         <label>Username</label>
-                        <input type="text" id="newUser" placeholder="operator1" maxlength="30">
+                        <input type="text" id="newUser" placeholder="operator1" maxlength="30" autocomplete="off">
                     </div>
                     <div class="input-box">
                         <label>Nomor (WhatsApp/Telepon)</label>
-                        <input type="text" id="newPhone" placeholder="08123456789" maxlength="20">
+                        <input type="text" id="newPhone" placeholder="08123456789" maxlength="20" autocomplete="off">
                     </div>
                     <div class="input-box">
                         <label>Password (min 6 karakter)</label>
-                        <input type="text" id="newPass" placeholder="min 6 karakter" maxlength="50">
+                        <input type="password" id="newPass" placeholder="min 6 karakter" maxlength="50" autocomplete="new-password">
                     </div>
                     <div class="input-box">
                         <label>Role</label>
@@ -122,7 +135,7 @@
                     </div>
                     <div class="input-box">
                         <label>Masa Aktif (MM/DD/YYYY)</label>
-                        <input type="text" id="newExpiryDate" placeholder="01/28/2026" maxlength="10">
+                        <input type="text" id="newExpiryDate" placeholder="01/28/2026" maxlength="10" autocomplete="off">
                         <div class="quick-dates">
                             <span class="date-option" onclick="setQuickDate('new','permanent')">Permanent</span>
                             <span class="date-option" onclick="setQuickDate('new','week')">+1 Minggu</span>
@@ -142,7 +155,7 @@
                         <div style="font-size:12px;color:#8899aa;">Total: <span id="totalUsers" style="font-weight:600;color:#1a1a2e;">0</span> user</div>
                     </div>
                     <div class="search-box">
-                        <input type="text" id="searchUser" placeholder="Cari user..." maxlength="50" onkeyup="searchUsers()">
+                        <input type="text" id="searchUser" placeholder="Cari user..." maxlength="50" onkeyup="searchUsers()" autocomplete="off">
                     </div>
                     <div id="userListContainer" class="user-list">
                         <div style="text-align:center;padding:40px;color:#aabbcc;">Memuat data...</div>
@@ -152,5 +165,6 @@
         </div>
     </div>
 
+    <script src="main.js"></script>
 </body>
 </html>
