@@ -17,6 +17,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
+const API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
 
 async function isIPBlocked(ip) {
     const snap = await db.ref('admin/blocked_ips/' + ip.replace(/\./g, '_')).once('value');
@@ -43,24 +44,160 @@ async function addFailedAttempt(ip) {
     return data.count;
 }
 
+async function verifyAPIKey(key) {
+    return key === API_KEY;
+}
+
+async function apiLogin(email, password) {
+    const snap = await db.ref('admin/auth').once('value');
+    const raw = snap.val();
+
+    if (raw && raw.data) {
+        const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const admin = JSON.parse(dec);
+
+        if (admin.email === email && admin.password === password) {
+            return {
+                success: true,
+                message: 'Login berhasil',
+                data: {
+                    email: admin.email,
+                    role: admin.role
+                }
+            };
+        }
+    }
+
+    return {
+        success: false,
+        message: 'Email atau password salah'
+    };
+}
+
+async function apiGetUsers() {
+    const snap = await db.ref('users').once('value');
+    const raw = snap.val() || {};
+    const users = [];
+
+    for (const key in raw) {
+        if (raw[key] && raw[key].data) {
+            try {
+                const dec = CryptoJS.AES.decrypt(raw[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+                const user = JSON.parse(dec);
+                user.id = key;
+                users.push(user);
+            } catch (e) {}
+        }
+    }
+
+    return {
+        success: true,
+        total: users.length,
+        users: users
+    };
+}
+
+async function apiAddUser(userData) {
+    if (!userData.username || !userData.password) {
+        return {
+            success: false,
+            message: 'Username dan password wajib diisi'
+        };
+    }
+
+    const users = await apiGetUsers();
+    const exists = users.users.some(function(u) {
+        return u.username === userData.username;
+    });
+
+    if (exists) {
+        return {
+            success: false,
+            message: 'Username sudah digunakan'
+        };
+    }
+
+    const enc = CryptoJS.AES.encrypt(JSON.stringify({
+        username: userData.username,
+        phone: userData.phone || '',
+        password: userData.password,
+        role: userData.role || 'User',
+        expiry_date: userData.expiry_date || '12/31/2026'
+    }), ADMIN_KEY).toString();
+
+    const ref = db.ref('users').push();
+    await ref.set({
+        data: enc,
+        created: Date.now(),
+        created_by: userData.created_by || 'api'
+    });
+
+    return {
+        success: true,
+        message: 'User berhasil ditambahkan',
+        id: ref.key
+    };
+}
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
     if (req.method === 'GET') {
-        return res.status(200).json({ status: 'OK' });
+        return res.status(200).json({ status: 'OK', version: '2.0' });
     }
 
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
 
     try {
         const body = req.body;
-        if (!body || !body.data) {
+
+        // API ENDPOINT: Login
+        if (body.action === 'api_login') {
+            const apiKey = req.headers['x-api-key'] || body.api_key || '';
+            const validKey = await verifyAPIKey(apiKey);
+
+            if (!validKey) {
+                return res.status(401).json({ success: false, message: 'Invalid API Key' });
+            }
+
+            const result = await apiLogin(body.email, body.password);
+            return res.status(200).json(result);
+        }
+
+        // API ENDPOINT: Get Users
+        if (body.action === 'api_get_users') {
+            const apiKey = req.headers['x-api-key'] || body.api_key || '';
+            const validKey = await verifyAPIKey(apiKey);
+
+            if (!validKey) {
+                return res.status(401).json({ success: false, message: 'Invalid API Key' });
+            }
+
+            const result = await apiGetUsers();
+            return res.status(200).json(result);
+        }
+
+        // API ENDPOINT: Add User
+        if (body.action === 'api_add_user') {
+            const apiKey = req.headers['x-api-key'] || body.api_key || '';
+            const validKey = await verifyAPIKey(apiKey);
+
+            if (!validKey) {
+                return res.status(401).json({ success: false, message: 'Invalid API Key' });
+            }
+
+            const result = await apiAddUser(body.user || body);
+            return res.status(200).json(result);
+        }
+
+        // ENCRYPTED REQUEST (Dari Panel Admin)
+        if (!body.data) {
             return res.status(200).json({ error: 'No data' });
         }
 
