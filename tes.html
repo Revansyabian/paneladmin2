@@ -104,14 +104,14 @@
         showAlert('Proses', 'Menyimpan admin baru...', 'info');
 
         try {
+            // Kirim data mentah, API yang akan enkripsi
             var result = await apiCall('admin/auth', 'PUT', {
                 email: email,
                 password: pass,
-                role: 'Admin',
-                created: Date.now()
+                role: 'Admin'
             });
 
-            if (result.success || result.email) {
+            if (result.success) {
                 showAlert('Berhasil', 'Admin berhasil ditambahkan! Silakan login.', 'success');
                 document.getElementById('adminEmail').value = '';
                 document.getElementById('adminPass').value = '';
