@@ -18,30 +18,13 @@ if (!admin.apps.length) {
 const db = admin.database();
 const ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
 const API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
+const ALLOWED_ORIGINS = [
+    'https://paneladmin2.vercel.app/',
+];
 
 async function isIPBlocked(ip) {
     const snap = await db.ref('admin/blocked_ips/' + ip.replace(/\./g, '_')).once('value');
     return snap.exists();
-}
-
-async function addFailedAttempt(ip) {
-    const ref = db.ref('admin/failed_logins/' + ip.replace(/\./g, '_'));
-    const snap = await ref.once('value');
-    const data = snap.val() || { count: 0, firstAttempt: Date.now() };
-
-    data.count++;
-    data.lastAttempt = Date.now();
-
-    if (data.count >= 10) {
-        await db.ref('admin/blocked_ips/' + ip.replace(/\./g, '_')).set({
-            ip: ip,
-            blockedAt: Date.now(),
-            reason: 'Terlalu banyak percobaan login gagal'
-        });
-    }
-
-    await ref.set(data);
-    return data.count;
 }
 
 async function verifyAPIKey(key) {
@@ -60,18 +43,12 @@ async function apiLogin(email, password) {
             return {
                 success: true,
                 message: 'Login berhasil',
-                data: {
-                    email: admin.email,
-                    role: admin.role
-                }
+                data: { email: admin.email, role: admin.role }
             };
         }
     }
 
-    return {
-        success: false,
-        message: 'Email atau password salah'
-    };
+    return { success: false, message: 'Email atau password salah' };
 }
 
 async function apiGetUsers() {
@@ -90,19 +67,12 @@ async function apiGetUsers() {
         }
     }
 
-    return {
-        success: true,
-        total: users.length,
-        users: users
-    };
+    return { success: true, total: users.length, users: users };
 }
 
 async function apiAddUser(userData) {
     if (!userData.username || !userData.password) {
-        return {
-            success: false,
-            message: 'Username dan password wajib diisi'
-        };
+        return { success: false, message: 'Username dan password wajib diisi' };
     }
 
     const users = await apiGetUsers();
@@ -111,10 +81,7 @@ async function apiAddUser(userData) {
     });
 
     if (exists) {
-        return {
-            success: false,
-            message: 'Username sudah digunakan'
-        };
+        return { success: false, message: 'Username sudah digunakan' };
     }
 
     const enc = CryptoJS.AES.encrypt(JSON.stringify({
@@ -126,30 +93,52 @@ async function apiAddUser(userData) {
     }), ADMIN_KEY).toString();
 
     const ref = db.ref('users').push();
-    await ref.set({
-        data: enc,
-        created: Date.now(),
-        created_by: userData.created_by || 'api'
-    });
+    await ref.set({ data: enc, created: Date.now(), created_by: userData.created_by || 'api' });
 
-    return {
-        success: true,
-        message: 'User berhasil ditambahkan',
-        id: ref.key
-    };
+    return { success: true, message: 'User berhasil ditambahkan', id: ref.key };
+}
+
+function checkOrigin(origin, referer) {
+    if (!origin && !referer) return false;
+    
+    for (const allowed of ALLOWED_ORIGINS) {
+        if (origin && origin.startsWith(allowed)) return true;
+        if (referer && referer.startsWith(allowed)) return true;
+    }
+    
+    return false;
 }
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+    const origin = req.headers['origin'] || '';
+    const referer = req.headers['referer'] || '';
+    const isAPI = req.body && (req.body.action === 'api_login' || req.body.action === 'api_get_users' || req.body.action === 'api_add_user');
+    const isEncrypted = req.body && req.body.data;
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+    if (!isAPI && !isEncrypted) {
+        return res.status(200).json({ status: 'OK', version: '2.0' });
     }
 
-    if (req.method === 'GET') {
-        return res.status(200).json({ status: 'OK', version: '2.0' });
+    if (isAPI) {
+        const apiKey = req.headers['x-api-key'] || req.body.api_key || '';
+        const validKey = await verifyAPIKey(apiKey);
+
+        if (!validKey) {
+            return res.status(401).json({
+                error: 'Akses ditolak. Gunakan web resmi topupbussidku.web.id',
+                code: 'INVALID_API_KEY'
+            });
+        }
+    }
+
+    if (isEncrypted) {
+        const allowed = checkOrigin(origin, referer);
+        if (!allowed) {
+            return res.status(403).json({
+                error: 'Akses ditolak. Gunakan web resmi topupbussidku.web.id',
+                code: 'INVALID_ORIGIN'
+            });
+        }
     }
 
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
@@ -157,48 +146,31 @@ export default async function handler(req, res) {
     try {
         const body = req.body;
 
-        // API ENDPOINT: Login
         if (body.action === 'api_login') {
-            const apiKey = req.headers['x-api-key'] || body.api_key || '';
-            const validKey = await verifyAPIKey(apiKey);
-
-            if (!validKey) {
-                return res.status(401).json({ success: false, message: 'Invalid API Key' });
-            }
-
             const result = await apiLogin(body.email, body.password);
             return res.status(200).json(result);
         }
 
-        // API ENDPOINT: Get Users
         if (body.action === 'api_get_users') {
-            const apiKey = req.headers['x-api-key'] || body.api_key || '';
-            const validKey = await verifyAPIKey(apiKey);
-
-            if (!validKey) {
-                return res.status(401).json({ success: false, message: 'Invalid API Key' });
-            }
-
             const result = await apiGetUsers();
             return res.status(200).json(result);
         }
 
-        // API ENDPOINT: Add User
         if (body.action === 'api_add_user') {
-            const apiKey = req.headers['x-api-key'] || body.api_key || '';
-            const validKey = await verifyAPIKey(apiKey);
-
-            if (!validKey) {
-                return res.status(401).json({ success: false, message: 'Invalid API Key' });
-            }
-
             const result = await apiAddUser(body.user || body);
             return res.status(200).json(result);
         }
 
-        // ENCRYPTED REQUEST (Dari Panel Admin)
         if (!body.data) {
             return res.status(200).json({ error: 'No data' });
+        }
+
+        res.setHeader('Access-Control-Allow-Origin', 'https://topupbussidku.web.id');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+
+        if (req.method === 'OPTIONS') {
+            return res.status(200).end();
         }
 
         const decrypted = CryptoJS.AES.decrypt(body.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
