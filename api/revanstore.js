@@ -30,14 +30,20 @@ export default async function handler(req, res) {
     
     const { path, method, data } = JSON.parse(decrypted);
 
+    // LOGIN
     if (path === 'login') {
       const snap = await db.ref('admin/auth').once('value');
-      const admin = snap.val();
+      const encryptedData = snap.val();
       
-      if (admin && admin.email === data.email && admin.password === data.password) {
-        const result = { success: true, data: { email: admin.email, role: admin.role } };
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-        return res.status(200).json({ encrypted: true, data: encrypted });
+      if (encryptedData) {
+        const decData = CryptoJS.AES.decrypt(encryptedData.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const admin = JSON.parse(decData);
+        
+        if (admin.email === data.email && admin.password === data.password) {
+          const result = { success: true, data: { email: admin.email, role: admin.role } };
+          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+          return res.status(200).json({ encrypted: true, data: encrypted });
+        }
       }
       
       const fail = { success: false, error: 'Email atau password salah' };
@@ -45,37 +51,75 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: enc });
     }
 
-    const ref = db.ref(path);
-
+    // GET
     if (method === 'GET') {
       const snap = await ref.once('value');
-      const result = snap.val() || {};
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+      const rawData = snap.val() || {};
+      
+      // Dekripsi semua data
+      const decryptedData = {};
+      for (const key in rawData) {
+        try {
+          const dec = CryptoJS.AES.decrypt(rawData[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+          decryptedData[key] = JSON.parse(dec);
+          decryptedData[key].id = key;
+          decryptedData[key].created = rawData[key].created;
+          decryptedData[key].created_by = rawData[key].created_by;
+        } catch(e) {
+          decryptedData[key] = rawData[key];
+        }
+      }
+      
+      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedData), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    if (method === 'POST') {
-      const newRef = ref.push();
-      await newRef.set(data);
-      const result = { success: true, id: newRef.key };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
+    // POST, PUT, PATCH (SIMPAN TERENKRIPSI)
+    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+      // Enkripsi data sebelum simpan
+      const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+      
+      if (method === 'POST') {
+        const newRef = ref.push();
+        await newRef.set({ data: encryptedData, created: Date.now(), created_by: data.created_by || 'system' });
+        const result = { success: true, id: newRef.key };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
+      
+      if (method === 'PUT') {
+        await ref.set({ data: encryptedData, created: Date.now() });
+        const result = { success: true };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
+      
+      if (method === 'PATCH') {
+        const existingSnap = await ref.once('value');
+        const existing = existingSnap.val();
+        
+        if (existing && existing.data) {
+          const decExisting = CryptoJS.AES.decrypt(existing.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+          const existingData = JSON.parse(decExisting);
+          
+          // Merge data
+          for (const k in data) {
+            existingData[k] = data[k];
+          }
+          
+          const mergedEncrypted = CryptoJS.AES.encrypt(JSON.stringify(existingData), ADMIN_KEY).toString();
+          await ref.update({ data: mergedEncrypted, updated: Date.now(), updated_by: data.updated_by || 'system' });
+        } else {
+          await ref.update({ data: encryptedData, updated: Date.now(), updated_by: data.updated_by || 'system' });
+        }
+        
+        const result = { success: true };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
     }
 
-    if (method === 'PUT') {
-      await ref.set(data);
-      const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
-    }
-
-    if (method === 'PATCH') {
-      await ref.update(data);
-      const result = { success: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
-    }
-
+    // DELETE
     if (method === 'DELETE') {
       await ref.remove();
       const result = { success: true };
