@@ -39,7 +39,7 @@ var alertTimeout = null;
 var fingerprint = '';
 
 function showBlockedScreen() {
-    document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e0f2fe,#bae6fd,#7dd3fc);padding:20px;font-family:\'Segoe UI\',sans-serif;"><div style="background:#fff;border-radius:20px;padding:40px 30px;max-width:420px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.1);"><div style="font-size:70px;color:#ef4444;margin-bottom:20px;">🔒</div><h1 style="color:#0c4a6e;font-size:24px;margin-bottom:10px;">AKSES DITOLAK</h1><p style="color:#64748b;font-size:14px;">Maaf, akses Anda telah diblokir.</p></div></div>';
+    document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fff;padding:20px;font-family:\'Segoe UI\',sans-serif;"><div style="background:#fff;border-radius:20px;padding:40px 30px;max-width:420px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.1);border:1px solid #e2e8f0;"><div style="font-size:70px;color:#ef4444;margin-bottom:20px;">🔒</div><h1 style="color:#0c4a6e;font-size:24px;margin-bottom:10px;">AKSES DITOLAK</h1><p style="color:#64748b;font-size:14px;">Maaf, akses Anda telah diblokir.</p></div></div>';
 }
 
 async function getFingerprint() {
@@ -303,7 +303,7 @@ async function verifyKey() {
             }
             
             var sisa = 3 - keyAttempts;
-            showAlert('Error', '🔑 Key salah! Percobaan tersisa: ' + sisa + ' kali lagi sebelum diblokir.', 'error');
+            showAlert('Error', '🔑 Key salah! Sisa ' + sisa, 'error');
         }
     } catch (e) {
         hideAlert();
@@ -372,7 +372,7 @@ async function login() {
                 return;
             }
             
-            showAlert('Gagal', 'Email atau password salah. Sisa: ' + (track ? track.remaining : '?'), 'error');
+            showAlert('Gagal', 'Email atau password salah. Sisa ' + (track ? track.remaining : '?'), 'error');
         }
     } catch (e) {
         showAlert('Error', e.message, 'error');
