@@ -85,7 +85,7 @@ function showAlert(t, m, type) {
     if (type !== 'loading') {
         alertTimeout = setTimeout(function() {
             overlay.classList.remove('show');
-        }, 1000);
+        }, 1500);
     }
 }
 
@@ -292,16 +292,18 @@ async function verifyKey() {
             hideAlert();
             
             if (keyAttempts >= 3) {
-                await apiCall('admin/login_failed', 'POST', {});
-                await apiCall('admin/login_failed', 'POST', {});
-                await apiCall('admin/login_failed', 'POST', {});
-                await apiCall('admin/login_failed', 'POST', {});
-                await apiCall('admin/login_failed', 'POST', {});
-                showBlockedScreen();
+                showAlert('Error', '🔒 Key salah 3x! Akses diblokir permanen.', 'error');
+                setTimeout(async function() {
+                    for (var i = 0; i < 5; i++) {
+                        await apiCall('admin/login_failed', 'POST', {});
+                    }
+                    showBlockedScreen();
+                }, 1500);
                 return;
             }
             
-            showAlert('Error', 'Key salah! Sisa: ' + (3 - keyAttempts), 'error');
+            var sisa = 3 - keyAttempts;
+            showAlert('Error', '🔑 Key salah! Percobaan tersisa: ' + sisa + ' kali lagi sebelum diblokir.', 'error');
         }
     } catch (e) {
         hideAlert();
