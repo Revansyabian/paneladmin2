@@ -17,6 +17,44 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
+const rateLimitMap = new Map();
+const RATE_LIMIT_MAX = 20;
+const RATE_LIMIT_WINDOW = 60000;
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  if (!rateLimitMap.has(ip)) rateLimitMap.set(ip, []);
+  const requests = rateLimitMap.get(ip).filter(t => now - t < RATE_LIMIT_WINDOW);
+  if (requests.length >= RATE_LIMIT_MAX) return false;
+  requests.push(now);
+  rateLimitMap.set(ip, requests);
+  return true;
+}
+
+const requestTimestamps = new Map();
+const MIN_REQUEST_DELAY = 800;
+
+function checkRequestDelay(ip, path) {
+  if (path === 'login_success' || path === 'login_failed' || path === 'check_blocked' || path === 'admin/login_success' || path === 'admin/login_failed') return true;
+  const now = Date.now();
+  const last = requestTimestamps.get(ip) || 0;
+  if (now - last < MIN_REQUEST_DELAY) return false;
+  requestTimestamps.set(ip, now);
+  return true;
+}
+
+async function decryptData(raw) {
+  if (!raw) return raw;
+  if (raw.data) {
+    try {
+      const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+      const decData = JSON.parse(dec);
+      return { ...raw, ...decData };
+    } catch(e) { return raw; }
+  }
+  return raw;
+}
+
 async function isIPBlocked(ip) {
   const snap = await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).once('value');
   const raw = snap.val();
@@ -67,9 +105,7 @@ async function trackLoginAttempt(ip, fp) {
   const snap = await ref.once('value');
   const raw = snap.val();
   const now = Date.now();
-  
-  let attempts = 0;
-  let lastAttempt = 0;
+  let attempts = 0, lastAttempt = 0;
   
   if (raw && raw.data) {
     try {
@@ -77,17 +113,18 @@ async function trackLoginAttempt(ip, fp) {
       const data = JSON.parse(dec);
       attempts = data.count || 0;
       lastAttempt = data.last_attempt || 0;
+      
+      if (now - lastAttempt > 3600000) {
+        await ref.remove();
+        const enc = CryptoJS.AES.encrypt(JSON.stringify({
+          count: 1,
+          last_attempt: now,
+          fingerprint: fp
+        }), ADMIN_KEY).toString();
+        await ref.set({ data: enc });
+        return 1;
+      }
     } catch(e) {}
-  }
-  
-  if (now - lastAttempt > 3600000) {
-    const enc = CryptoJS.AES.encrypt(JSON.stringify({
-      count: 1,
-      last_attempt: now,
-      fingerprint: fp
-    }), ADMIN_KEY).toString();
-    await ref.set({ data: enc });
-    return 1;
   }
   
   const newCount = attempts + 1;
@@ -96,7 +133,7 @@ async function trackLoginAttempt(ip, fp) {
     last_attempt: now,
     fingerprint: fp
   }), ADMIN_KEY).toString();
-  await ref.update({ data: enc });
+  await ref.set({ data: enc });
   return newCount;
 }
 
@@ -105,10 +142,39 @@ async function resetLoginAttempt(ip, fp) {
   await db.ref('login_attempts/' + key).remove();
 }
 
+async function cleanupOldAttempts() {
+  const snap = await db.ref('login_attempts').once('value');
+  const data = snap.val();
+  if (!data) return;
+  const now = Date.now();
+  for (const key in data) {
+    if (data[key] && data[key].data) {
+      try {
+        const dec = CryptoJS.AES.decrypt(data[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const parsed = JSON.parse(dec);
+        if (now - (parsed.last_attempt || 0) > 86400000) {
+          await db.ref('login_attempts/' + key).remove();
+        }
+      } catch(e) {}
+    }
+  }
+}
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || '*').split(',');
+  const origin = req.headers.origin;
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (allowedOrigins.includes('*')) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Fingerprint');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
   
   if (req.method === 'OPTIONS') return res.status(200).end();
   
@@ -120,7 +186,13 @@ export default async function handler(req, res) {
   const ip = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
   const fp = req.headers['x-fingerprint'] || '';
   
-  if (req.method === 'GET') return res.status(200).json({ status: 'OK' });
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({ error: 'Terlalu banyak request. Coba lagi nanti.' });
+  }
+  
+  if (Math.random() < 0.05) {
+    cleanupOldAttempts().catch(() => {});
+  }
 
   try {
     const body = req.body;
@@ -130,7 +202,22 @@ export default async function handler(req, res) {
     if (!decrypted) return res.status(403).json({ error: 'Access denied' });
     
     const parsed = JSON.parse(decrypted);
+    
+    if (!checkRequestDelay(ip, parsed.path)) {
+      return res.status(429).json({ error: 'Request terlalu cepat. Harap tunggu.' });
+    }
+    
+    if (!parsed.path || typeof parsed.path !== 'string' || parsed.path.length > 200) {
+      return res.status(400).json({ error: 'Invalid path' });
+    }
+    
     const ref = db.ref(parsed.path);
+
+    if (parsed.path === 'check_blocked' && parsed.method === 'POST') {
+      const ipBlocked = await isIPBlocked(ip);
+      const fpBlocked = fp ? await isFPBlocked(fp) : false;
+      return res.status(200).json({ blocked: ipBlocked || fpBlocked });
+    }
 
     if (parsed.path === 'access_key' && parsed.method === 'GET') {
       const snap = await db.ref('access_key').once('value');
@@ -171,10 +258,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    if (parsed.path === 'admin/login_failed' && parsed.method === 'POST') {
+    if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
       const attempts = await trackLoginAttempt(ip, fp);
       
-      await new Promise(r => setTimeout(r, attempts * 1000));
+      await new Promise(r => setTimeout(r, attempts * 500));
       
       if (attempts >= 5) {
         await blockIP(ip);
@@ -189,20 +276,35 @@ export default async function handler(req, res) {
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    if (parsed.path === 'admin/login_success' && parsed.method === 'POST') {
+    if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
       await resetLoginAttempt(ip, fp);
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
-    const ipBlocked = await isIPBlocked(ip);
-    const fpBlocked = fp ? await isFPBlocked(fp) : false;
-    
-    if (ipBlocked || fpBlocked) {
-      const result = { blocked: true };
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-      return res.status(200).json({ encrypted: true, data: encrypted });
+    if (parsed.path === 'login' && parsed.method === 'POST') {
+      const ipBlocked = await isIPBlocked(ip);
+      const fpBlocked = fp ? await isFPBlocked(fp) : false;
+      if (ipBlocked || fpBlocked) {
+        const result = { blocked: true };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
+        return res.status(200).json({ encrypted: true, data: encrypted });
+      }
+      
+      const snap = await db.ref('users').once('value');
+      const users = snap.val();
+      
+      for (const key in users) {
+        const decryptedUser = await decryptData({ ...users[key], id: key });
+        if (decryptedUser.username === parsed.data.username && decryptedUser.password === parsed.data.password) {
+          return res.status(200).json({
+            success: true,
+            data: { id: key, username: decryptedUser.username, role: decryptedUser.role || 'User', full_name: decryptedUser.full_name || '', expiry_date: decryptedUser.expiry_date || '' }
+          });
+        }
+      }
+      return res.status(200).json({ success: false });
     }
 
     if (parsed.method === 'GET') {
