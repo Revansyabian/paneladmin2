@@ -15,7 +15,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <script src="loader.js"></script>
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body oncontextmenu="return false">
 
@@ -128,6 +128,7 @@
                 <div class="tabs">
                     <button class="tab active" onclick="switchTab('adduser')">Tambah User</button>
                     <button class="tab" onclick="switchTab('users')">Daftar User <span id="userCount" class="counter-badge">0</span></button>
+                    <button class="tab" onclick="switchTab('blocked')">IP Diblokir <span id="blockedCount" class="counter-badge">0</span></button>
                 </div>
                 <div id="adduser" class="tab-content active">
                     <div class="input-box">
@@ -181,6 +182,17 @@
                         <div style="text-align:center;padding:40px;color:#aabbcc;">Memuat data...</div>
                     </div>
                 </div>
+                <div id="blocked" class="tab-content">
+                    <div style="display:flex;gap:6px;margin-bottom:15px;">
+                        <button class="btn-small btn-blue" onclick="loadBlockedIPs()">Refresh</button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="searchBlocked" placeholder="Cari IP..." maxlength="50" onkeyup="searchBlocked()" autocomplete="off">
+                    </div>
+                    <div id="blockedListContainer" class="user-list">
+                        <div style="text-align:center;padding:40px;color:#aabbcc;">Memuat data...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -192,5 +204,6 @@
             });
         }
     </script>
+    <script src="main.js"></script>
 </body>
 </html>
