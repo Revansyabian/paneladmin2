@@ -30,12 +30,17 @@ var API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
 var currentAdmin = null;
 var allUsers = [];
 var allBlockedIPs = [];
+var keyAttempts = 0;
 var loginAttempts = 0;
 var loginBlocked = false;
 var blockTimer = null;
 var sessionTimer = null;
 var alertTimeout = null;
 var fingerprint = '';
+
+function showBlockedScreen() {
+    document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e0f2fe,#bae6fd,#7dd3fc);padding:20px;font-family:\'Segoe UI\',sans-serif;"><div style="background:#fff;border-radius:20px;padding:40px 30px;max-width:420px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.1);"><div style="font-size:70px;color:#ef4444;margin-bottom:20px;">🔒</div><h1 style="color:#0c4a6e;font-size:24px;margin-bottom:10px;">AKSES DITOLAK</h1><p style="color:#64748b;font-size:14px;">Maaf, akses Anda telah diblokir.</p></div></div>';
+}
 
 async function getFingerprint() {
     var fp = '';
@@ -147,17 +152,21 @@ function setQuickDate(t, p) {
 }
 
 function switchTab(t) {
-    document.querySelectorAll('.tab').forEach(function(x) { x.classList.remove('active'); });
-    document.querySelectorAll('.tab-content').forEach(function(x) { x.classList.remove('active'); });
+    var tabs = document.querySelectorAll('.tab');
+    var contents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(function(x) { x.classList.remove('active'); });
+    contents.forEach(function(x) { x.classList.remove('active'); });
+    
     if (t === 'adduser') {
-        document.querySelectorAll('.tab')[0].classList.add('active');
+        tabs[0].classList.add('active');
         document.getElementById('adduser').classList.add('active');
     } else if (t === 'users') {
-        document.querySelectorAll('.tab')[1].classList.add('active');
+        tabs[1].classList.add('active');
         document.getElementById('users').classList.add('active');
         loadUsers();
     } else if (t === 'blocked') {
-        document.querySelectorAll('.tab')[2].classList.add('active');
+        tabs[2].classList.add('active');
         document.getElementById('blocked').classList.add('active');
         loadBlockedIPs();
     }
@@ -271,15 +280,28 @@ async function verifyKey() {
         var r = await apiCall('access_key', 'GET');
         
         if (r && r.key === key) {
+            keyAttempts = 0;
             document.getElementById('keyScreen').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('accessKey').value = '';
             hideAlert();
             showAlert('Berhasil', 'Key valid!', 'success');
         } else {
+            keyAttempts++;
             document.getElementById('accessKey').value = '';
             hideAlert();
-            showAlert('Error', 'Key salah!', 'error');
+            
+            if (keyAttempts >= 3) {
+                await apiCall('admin/login_failed', 'POST', {});
+                await apiCall('admin/login_failed', 'POST', {});
+                await apiCall('admin/login_failed', 'POST', {});
+                await apiCall('admin/login_failed', 'POST', {});
+                await apiCall('admin/login_failed', 'POST', {});
+                showBlockedScreen();
+                return;
+            }
+            
+            showAlert('Error', 'Key salah! Sisa: ' + (3 - keyAttempts), 'error');
         }
     } catch (e) {
         hideAlert();
@@ -311,7 +333,8 @@ async function login() {
         
         if (r && r.blocked) {
             hideAlert();
-            return showAlert('Diblokir', 'Akses Anda telah diblokir permanen!', 'error');
+            showBlockedScreen();
+            return;
         }
         
         if (r && r.email === email && r.password === pass) {
@@ -343,7 +366,8 @@ async function login() {
             
             if (track && track.blocked) {
                 hideAlert();
-                return showAlert('Diblokir', 'Diblokir permanen setelah 5x gagal!', 'error');
+                showBlockedScreen();
+                return;
             }
             
             showAlert('Gagal', 'Email atau password salah. Sisa: ' + (track ? track.remaining : '?'), 'error');
@@ -571,7 +595,7 @@ async function unblockIP(dbKey, ip) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     var nm = new Date();
     nm.setMonth(nm.getMonth() + 1);
     
@@ -610,4 +634,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target === this) closeEditModal();
         });
     }
+    
+    if (!fingerprint) fingerprint = await getFingerprint();
+    
+    try {
+        var checkResult = await apiCall('check_blocked', 'POST', { fingerprint: fingerprint });
+        
+        if (checkResult && checkResult.blocked) {
+            showBlockedScreen();
+            return;
+        }
+    } catch(e) {}
 });
