@@ -467,10 +467,11 @@ body {
     display: flex;
     margin-bottom: 20px;
     border-bottom: 2px solid #e8eef4;
+    overflow-x: auto;
 }
 
 .tab {
-    padding: 10px 20px;
+    padding: 10px 16px;
     background: none;
     border: none;
     cursor: pointer;
@@ -480,6 +481,7 @@ body {
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .tab.active {
@@ -637,5 +639,12 @@ body {
     }
     .modal-box {
         padding: 20px;
+    }
+    .tabs {
+        flex-wrap: nowrap;
+    }
+    .tab {
+        font-size: 11px;
+        padding: 8px 10px;
     }
 }
