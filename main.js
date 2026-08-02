@@ -158,7 +158,6 @@ function login() {
                 showAlert('Berhasil', 'Login berhasil!', 'success');
                 startBg();
                 loadUsers();
-                loadAllActivities();
                 updateStats();
                 loadActivity();
                 if (sessionTimer) clearTimeout(sessionTimer);
@@ -186,9 +185,9 @@ function logout() {
 
 // ==================== BACKGROUND ====================
 function startBg() {
-    updateClock(); clockInterval = setInterval(updateClock, 30000);
-    statsInterval = setInterval(function() { if (currentAdmin) { loadUsers(); loadAllActivities(); updateStats(); } }, 15000);
-    activityInterval = setInterval(function() { if (currentAdmin) loadActivity(); }, 8000);
+    updateClock(); clockInterval = setInterval(updateClock, 60000);
+    statsInterval = setInterval(function() { if (currentAdmin) { loadUsers(); updateStats(); } }, 30000);
+    activityInterval = setInterval(function() { if (currentAdmin) loadActivity(); }, 15000);
 }
 function stopBg() {
     if (clockInterval) clearInterval(clockInterval);
@@ -207,7 +206,6 @@ function loadUsers() {
         for (var key in data) {
             if (data[key] && data[key].username) {
                 data[key].id = key;
-                // Normalize fields
                 data[key].banned = data[key].banned || false;
                 data[key].banAkses = data[key].banAkses || false;
                 data[key].forceLogout = data[key].forceLogout || false;
@@ -233,24 +231,29 @@ function updateStats() {
 }
 
 // ==================== ACTIVITIES ====================
-function loadAllActivities() {
-    apiCall('activity_logs', 'GET').then(function(data) {
-        allActivities = [];
-        for (var key in data) { if (data[key] && data[key].username) { data[key].id = key; allActivities.push(data[key]); } }
-    }).catch(function() {});
-}
 function loadActivity() {
     apiCall('activity_logs', 'GET').then(function(data) {
+        allActivities = [];
         var logs = [];
-        for (var key in data) { if (data[key] && data[key].username) logs.push(data[key]); }
+        for (var key in data) { 
+            if (data[key] && data[key].username) {
+                data[key].id = key;
+                allActivities.push(data[key]);
+                logs.push(data[key]);
+            }
+        }
         logs.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
-        logs = logs.slice(0, 30);
+        logs = logs.slice(0, 50);
         var c = document.getElementById('activityListContainer');
         if (!c) return;
         if (!logs.length) { c.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
         var actionLabels = {
             login_success: '<i class="fas fa-sign-in-alt"></i> Login Sukses',
             login_failed: '<i class="fas fa-times-circle"></i> Gagal Login',
+            login_blocked_banned: '<i class="fas fa-ban"></i> Login Ditolak (Banned)',
+            login_blocked_banakses: '<i class="fas fa-shield-haltered"></i> Login Ditolak (Ban Akses)',
+            login_blocked_force: '<i class="fas fa-eject"></i> Login Ditolak (Ditangguhkan)',
+            login_blocked_expired: '<i class="fas fa-clock"></i> Login Ditolak (Expired)',
             topup: '<i class="fas fa-arrow-up"></i> Top Up',
             kuras: '<i class="fas fa-arrow-down"></i> Kuras',
             gantinama: '<i class="fas fa-edit"></i> Ganti Nama',
@@ -262,16 +265,51 @@ function loadActivity() {
             unforce_logout: '<i class="fas fa-unlock-alt"></i> Lepas Tangguh',
             ip_changed: '<i class="fas fa-globe"></i> IP Berubah',
             fp_changed: '<i class="fas fa-fingerprint"></i> FP Berubah',
-            sharing_detected: '<i class="fas fa-exclamation-triangle"></i> Sharing Terdeteksi'
+            sharing_detected: '<i class="fas fa-exclamation-triangle"></i> 🔴 SHARING TERDETEKSI',
+            user_created: '<i class="fas fa-user-plus"></i> User Dibuat',
+            user_updated: '<i class="fas fa-edit"></i> User Diupdate',
+            user_deleted: '<i class="fas fa-trash"></i> User Dihapus',
+            auto_block: '<i class="fas fa-robot"></i> Auto Block'
         };
-        var h = '';
+        var h = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:11px;color:var(--sub);">' + logs.length + ' aktivitas terbaru</span><button class="btn btn-sm btn-danger" onclick="clearAllLogs()" style="padding:4px 10px;font-size:10px;"><i class="fas fa-trash"></i> Clear Log</button></div>';
         logs.forEach(function(l) {
             var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
             var lb = actionLabels[l.action] || l.action;
-            h += '<div class="activity-item"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user"><i class="fas fa-user"></i> ' + esc(l.username || '-') + '</span> <span class="activity-desc">' + lb + (l.details ? ' — ' + l.details : '') + '</span></div><div class="activity-time"><i class="fas fa-clock"></i> ' + time + '</div></div>';
+            var sharingClass = l.action === 'sharing_detected' ? ' style="background:#fef2f2;border-color:#fecaca;"' : '';
+            h += '<div class="activity-item"' + sharingClass + '><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user"><i class="fas fa-user"></i> ' + esc(l.username || '-') + '</span> <span class="activity-desc">' + lb + (l.details ? ' — ' + l.details : '') + '</span></div><div class="activity-time"><i class="fas fa-clock"></i> ' + time + '</div></div>';
         });
         c.innerHTML = h;
     }).catch(function() {});
+}
+
+// ==================== CLEAR LOG ====================
+function clearAllLogs() {
+    showConfirm('<i class="fas fa-trash"></i> HAPUS SEMUA LOG?', function() {
+        showAlert('Proses', 'Menghapus semua log...', 'loading');
+        apiCall('activity_logs', 'GET').then(function(data) {
+            if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+                hideAlert();
+                showAlert('Info', 'Log sudah kosong!', 'info');
+                return;
+            }
+            var keys = Object.keys(data);
+            var count = 0;
+            var promises = [];
+            keys.forEach(function(key) {
+                promises.push(
+                    apiCall('activity_logs/' + key, 'DELETE').then(function() { count++; }).catch(function() {})
+                );
+            });
+            Promise.all(promises).then(function() {
+                hideAlert();
+                showAlert('Berhasil', count + ' log berhasil dihapus!', 'success');
+                loadActivity();
+            });
+        }).catch(function(e) {
+            hideAlert();
+            showAlert('Error', e.message, 'error');
+        });
+    });
 }
 
 // ==================== ADD USER MODAL ====================
@@ -330,15 +368,76 @@ function addUserNow() {
         showAlert('Berhasil', 'User "' + u + '" berhasil ditambahkan!', 'success');
         closeAddUserModal();
         loadUsers();
-        loadAllActivities();
         updateStats();
         loadActivity();
-        // Log aktivitas
         apiCall('activity_logs', 'POST', {
             username: u,
             action: 'user_created',
             timestamp: Date.now(),
-            details: 'Role: ' + r + ', Banned: ' + banned + ', BanAkses: ' + banAkses + ', Force: ' + forceLogout
+            details: 'Role: ' + r
+        }).catch(function() {});
+    }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+}
+
+// ==================== EDIT USER MODAL ====================
+function openEditUserModal(id) {
+    var u = allUsers.find(function(x) { return x.id === id; });
+    if (!u) return;
+    
+    document.getElementById('editUserId').value = u.id;
+    document.getElementById('editUsername').value = u.username;
+    document.getElementById('editPassword').value = u.password || '';
+    document.getElementById('editPhone').value = u.phone || '';
+    document.getElementById('editRole').value = u.role || 'Operator';
+    document.getElementById('editExpiryDate').value = u.expiry_date || '';
+    document.getElementById('editBanned').checked = u.banned || false;
+    document.getElementById('editBanAkses').checked = u.banAkses || false;
+    document.getElementById('editForceLogout').checked = u.forceLogout || false;
+    document.getElementById('editIP').value = u.ip || '-';
+    document.getElementById('editFP').value = u.fingerprint ? u.fingerprint.substring(0, 20) + '...' : '-';
+    
+    document.getElementById('editUserModal').classList.add('show');
+}
+function closeEditUserModal() {
+    document.getElementById('editUserModal').classList.remove('show');
+}
+function saveUserEdit() {
+    var id = document.getElementById('editUserId').value;
+    var u = document.getElementById('editUsername').value.trim();
+    var p = document.getElementById('editPassword').value.trim();
+    var ph = document.getElementById('editPhone').value.trim();
+    var r = document.getElementById('editRole').value;
+    var e = document.getElementById('editExpiryDate').value.trim();
+    var banned = document.getElementById('editBanned').checked;
+    var banAkses = document.getElementById('editBanAkses').checked;
+    var forceLogout = document.getElementById('editForceLogout').checked;
+
+    if (!u) { showAlert('Error', 'Username wajib diisi!', 'error'); return; }
+
+    showAlert('Proses', 'Menyimpan perubahan...', 'loading');
+
+    var updateData = {
+        username: u,
+        role: r,
+        expiry_date: e,
+        banned: banned,
+        banAkses: banAkses,
+        forceLogout: forceLogout
+    };
+    if (p) updateData.password = p;
+    if (ph) updateData.phone = ph;
+
+    apiCall('users/' + id, 'PATCH', updateData).then(function() {
+        showAlert('Berhasil', 'User "' + u + '" berhasil diupdate!', 'success');
+        closeEditUserModal();
+        loadUsers();
+        updateStats();
+        loadActivity();
+        apiCall('activity_logs', 'POST', {
+            username: u,
+            action: 'user_updated',
+            timestamp: Date.now(),
+            details: 'Data user diperbarui'
         }).catch(function() {});
     }).catch(function(e) { showAlert('Error', e.message, 'error'); });
 }
@@ -355,32 +454,48 @@ function openActionModal(action) {
         unban: '<i class="fas fa-user-check"></i> Unban User',
         banakses: '<i class="fas fa-shield-haltered"></i> Ban Akses',
         unbanakses: '<i class="fas fa-shield-check"></i> Unban Akses',
-        force: '<i class="fas fa-eject"></i> Tangguhkan User (Force Logout)',
+        force: '<i class="fas fa-eject"></i> Tangguhkan User',
         unforce: '<i class="fas fa-unlock-alt"></i> Lepas Tangguhan'
     };
     title.innerHTML = titles[action] || 'Aksi';
     selectedActionUser = null;
 
-    if (action === 'ban' || action === 'banakses' || action === 'force') {
+    if (action === 'ban') {
         body.innerHTML = `
             <div class="input-box">
                 <label><i class="fas fa-search"></i> Cari User</label>
                 <input type="text" id="actionSearch" placeholder="Ketik username..." maxlength="30" oninput="searchUserList('${action}')">
             </div>
             <div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:4px"></div>
-            <div id="actionDurationRow" style="display:${action === 'banakses' ? 'block' : 'none'};margin-bottom:12px">
-                <label style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;display:block"><i class="fas fa-clock"></i> Durasi</label>
+            <div style="margin-bottom:12px">
+                <label style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;display:block"><i class="fas fa-clock"></i> Durasi Ban</label>
                 <select id="actionDuration" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fafbfc;font-family:inherit">
                     <option value="3600000">1 Jam</option>
-                    <option value="7200000">2 Jam</option>
-                    <option value="21600000">6 Jam</option>
-                    <option value="43200000">12 Jam</option>
+                    <option value="10800000">3 Jam</option>
                     <option value="86400000">24 Jam</option>
                     <option value="0">Permanen</option>
                 </select>
             </div>
             <div id="actionSelectedUser" style="margin-bottom:12px;font-size:12px;color:var(--sub)"></div>
-            <button class="btn btn-primary btn-block" onclick="executeAction('${action}')"><i class="fas fa-check"></i> ${titles[action]}</button>`;
+            <button class="btn btn-danger btn-block" onclick="executeAction('${action}')"><i class="fas fa-check"></i> Ban User</button>`;
+    } else if (action === 'banakses') {
+        body.innerHTML = `
+            <div class="input-box">
+                <label><i class="fas fa-search"></i> Cari User</label>
+                <input type="text" id="actionSearch" placeholder="Ketik username..." maxlength="30" oninput="searchUserList('${action}')">
+            </div>
+            <div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:4px"></div>
+            <div style="margin-bottom:12px">
+                <label style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;display:block"><i class="fas fa-clock"></i> Durasi Ban Akses</label>
+                <select id="actionDuration" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fafbfc;font-family:inherit">
+                    <option value="3600000">1 Jam</option>
+                    <option value="10800000">3 Jam</option>
+                    <option value="86400000">24 Jam</option>
+                    <option value="0">Permanen</option>
+                </select>
+            </div>
+            <div id="actionSelectedUser" style="margin-bottom:12px;font-size:12px;color:var(--sub)"></div>
+            <button class="btn btn-danger btn-block" onclick="executeAction('${action}')"><i class="fas fa-check"></i> Ban Akses</button>`;
     } else {
         body.innerHTML = `
             <div class="input-box">
@@ -434,7 +549,7 @@ function executeAction(action) {
         unban: '<i class="fas fa-user-check"></i> Unban user "' + name + '"?',
         banakses: '<i class="fas fa-shield-haltered"></i> Ban akses "' + name + '"?',
         unbanakses: '<i class="fas fa-shield-check"></i> Unban akses "' + name + '"?',
-        force: '<i class="fas fa-eject"></i> Tangguhkan "' + name + '"? (User tidak bisa login)',
+        force: '<i class="fas fa-eject"></i> Tangguhkan "' + name + '"?',
         unforce: '<i class="fas fa-unlock-alt"></i> Lepas tangguhan "' + name + '"?'
     };
     showConfirm(msgs[action], function() {
@@ -448,21 +563,25 @@ function doAction(action, target) {
     var logAction = '';
     var logDetails = '';
 
-    if (action === 'ban') { patchData = { banned: true, bannedUntil: 0 }; logAction = 'banned'; logDetails = 'User dibanned'; }
+    if (action === 'ban') {
+        var dur = parseInt(document.getElementById('actionDuration').value);
+        patchData = { banned: true, bannedUntil: dur === 0 ? 0 : Date.now() + dur };
+        logAction = 'banned';
+        logDetails = 'Durasi: ' + (dur === 0 ? 'Permanen' : document.getElementById('actionDuration').options[document.getElementById('actionDuration').selectedIndex].text);
+    }
     else if (action === 'unban') { patchData = { banned: false, bannedUntil: 0 }; logAction = 'unbanned'; logDetails = 'User di-unban'; }
     else if (action === 'banakses') {
-        var dur = parseInt(document.getElementById('actionDuration').value);
-        patchData = { banAkses: true, banAksesUntil: dur === 0 ? 0 : Date.now() + dur };
-        logAction = 'ban_akses'; logDetails = 'Durasi: ' + (dur === 0 ? 'Permanen' : document.getElementById('actionDuration').options[document.getElementById('actionDuration').selectedIndex].text);
+        var dur2 = parseInt(document.getElementById('actionDuration').value);
+        patchData = { banAkses: true, banAksesUntil: dur2 === 0 ? 0 : Date.now() + dur2 };
+        logAction = 'ban_akses';
+        logDetails = 'Durasi: ' + (dur2 === 0 ? 'Permanen' : document.getElementById('actionDuration').options[document.getElementById('actionDuration').selectedIndex].text);
     }
     else if (action === 'unbanakses') { patchData = { banAkses: false, banAksesUntil: 0 }; logAction = 'unban_akses'; logDetails = 'Ban akses dilepas'; }
-    else if (action === 'force') { patchData = { forceLogout: true }; logAction = 'force_logout'; logDetails = 'User ditangguhkan (sharing akun)'; }
+    else if (action === 'force') { patchData = { forceLogout: true }; logAction = 'force_logout'; logDetails = 'User ditangguhkan'; }
     else if (action === 'unforce') { patchData = { forceLogout: false }; logAction = 'unforce_logout'; logDetails = 'Tangguhan dilepas'; }
 
     apiCall('users/' + target.id, 'PATCH', patchData).then(function() {
-        // Log aktivitas
         apiCall('activity_logs', 'POST', { username: target.username, action: logAction, timestamp: Date.now(), details: logDetails }).catch(function() {});
-        // Block IP & FP jika ban akses
         if (action === 'banakses' && target.ip) apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function() {});
         if (action === 'banakses' && target.fingerprint) apiCall('block_fp_manual', 'POST', { fp: target.fingerprint }).catch(function() {});
         if (action === 'unbanakses' && target.ip) apiCall('blocked_ips/' + target.ip.replace(/\./g, '_'), 'DELETE').catch(function() {});
@@ -477,7 +596,7 @@ function doAction(action, target) {
             unforce: '<i class="fas fa-unlock-alt"></i> Tangguhan dilepas!'
         };
         showAlert('Berhasil', ok[action], 'success');
-        loadUsers(); loadAllActivities(); updateStats(); loadActivity();
+        loadUsers(); updateStats(); loadActivity();
     }).catch(function(e) { showAlert('Error', e.message, 'error'); });
 }
 
@@ -494,6 +613,7 @@ function navigateTo(tab) {
     document.getElementById('subPanel').style.display = 'block';
     if (tab === 'users') renderUserList();
     else if (tab === 'bannedlist') renderBannedList();
+    else if (tab === 'banakseslist') renderBanAksesList();
     else if (tab === 'suspicious') renderSuspiciousList();
 }
 function closeSubPanel() {
@@ -514,22 +634,30 @@ function renderUserList() {
             if (u.banAkses) badges += '<span class="badge badge-yellow">BAN AKSES</span> ';
             if (u.forceLogout) badges += '<span class="badge badge-orange">DITANGGUHKAN</span> ';
             if (d > 0 && !u.banned && !u.banAkses && !u.forceLogout) badges += '<span class="badge badge-green">AKTIF</span> ';
-            h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openDetailModal(\'' + u.id + '\')"><b><i class="fas fa-user"></i> ' + esc(u.username) + '</b> · <i class="fas fa-user-tag"></i> ' + esc(u.role) + ' · <i class="fas fa-calendar-alt"></i> ' + dt + '<br>' + badges + '<span style="font-size:10px;color:#94a3b8;"><i class="fas fa-globe"></i> ' + (u.ip || '-') + ' · <i class="fas fa-fingerprint"></i> ' + (u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-') + '</span></div>';
+            h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openEditUserModal(\'' + u.id + '\')"><b><i class="fas fa-user"></i> ' + esc(u.username) + '</b> · <i class="fas fa-user-tag"></i> ' + esc(u.role) + ' · <i class="fas fa-calendar-alt"></i> ' + dt + '<br>' + badges + '<span style="font-size:10px;color:#94a3b8;"><i class="fas fa-globe"></i> ' + (u.ip || '-') + ' · <i class="fas fa-fingerprint"></i> ' + (u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-') + '</span></div>';
         });
     }
     h += '</div>';
     document.getElementById('subPanelContent').innerHTML = h;
 }
 function renderBannedList() {
-    var banned = allUsers.filter(function(u) { return u.banned || u.banAkses || u.forceLogout; });
-    var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-user-slash"></i> User Bermasalah (' + banned.length + ')</div>';
-    if (!banned.length) h += '<div class="empty-state"><i class="fas fa-check-circle"></i> Semua aman</div>';
+    var banned = allUsers.filter(function(u) { return u.banned; });
+    var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-ban"></i> User Dibanned (' + banned.length + ')</div>';
+    if (!banned.length) h += '<div class="empty-state"><i class="fas fa-check-circle"></i> Tidak ada user dibanned</div>';
     else banned.forEach(function(u) {
-        var badges = '';
-        if (u.banned) badges += '<span class="badge badge-red">BANNED</span> ';
-        if (u.banAkses) badges += '<span class="badge badge-yellow">BAN AKSES</span> ';
-        if (u.forceLogout) badges += '<span class="badge badge-orange">DITANGGUHKAN</span> ';
-        h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openDetailModal(\'' + u.id + '\')"><b><i class="fas fa-user"></i> ' + esc(u.username) + '</b> · ' + badges + '</div>';
+        var untilText = u.bannedUntil ? (u.bannedUntil === 0 ? 'PERMANEN' : new Date(u.bannedUntil).toLocaleString('id-ID')) : 'PERMANEN';
+        h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openEditUserModal(\'' + u.id + '\')"><b>' + esc(u.username) + '</b> · <span class="badge badge-red">BANNED</span> · ⏰ ' + untilText + '</div>';
+    });
+    h += '</div>';
+    document.getElementById('subPanelContent').innerHTML = h;
+}
+function renderBanAksesList() {
+    var ba = allUsers.filter(function(u) { return u.banAkses; });
+    var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-shield-haltered"></i> User Ban Akses (' + ba.length + ')</div>';
+    if (!ba.length) h += '<div class="empty-state"><i class="fas fa-check-circle"></i> Tidak ada user kena ban akses</div>';
+    else ba.forEach(function(u) {
+        var untilText = u.banAksesUntil ? (u.banAksesUntil === 0 ? 'PERMANEN' : new Date(u.banAksesUntil).toLocaleString('id-ID')) : 'PERMANEN';
+        h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openEditUserModal(\'' + u.id + '\')"><b>' + esc(u.username) + '</b> · <span class="badge badge-yellow">BAN AKSES</span> · ⏰ ' + untilText + '</div>';
     });
     h += '</div>';
     document.getElementById('subPanelContent').innerHTML = h;
@@ -539,44 +667,10 @@ function renderSuspiciousList() {
     var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-exclamation-triangle"></i> User Ditangguhkan (' + suspicious.length + ')</div>';
     if (!suspicious.length) h += '<div class="empty-state"><i class="fas fa-check-circle"></i> Tidak ada user ditangguhkan</div>';
     else suspicious.forEach(function(u) {
-        h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openDetailModal(\'' + u.id + '\')"><b><i class="fas fa-user"></i> ' + esc(u.username) + '</b> · <span class="badge badge-orange">DITANGGUHKAN</span><br><span style="font-size:10px;"><i class="fas fa-globe"></i> IP: ' + (u.ip || '-') + ' · <i class="fas fa-fingerprint"></i> FP: ' + (u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-') + '</span></div>';
+        h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openEditUserModal(\'' + u.id + '\')"><b>' + esc(u.username) + '</b> · <span class="badge badge-orange">DITANGGUHKAN</span><br><span style="font-size:10px;">IP: ' + (u.ip || '-') + ' · FP: ' + (u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-') + '</span></div>';
     });
     h += '</div>';
     document.getElementById('subPanelContent').innerHTML = h;
-}
-
-function openDetailModal(id) {
-    var u = allUsers.find(function(x) { return x.id === id; });
-    if (!u) return;
-    document.getElementById('detailModalTitle').innerHTML = '<i class="fas fa-user"></i> ' + esc(u.username);
-    var d = calculateDaysLeft(u.expiry_date);
-    var dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari');
-    var statusHtml = '';
-    if (u.banned) statusHtml += '<span class="badge badge-red">BANNED</span> ';
-    if (u.banAkses) statusHtml += '<span class="badge badge-yellow">BAN AKSES</span> ';
-    if (u.forceLogout) statusHtml += '<span class="badge badge-orange">DITANGGUHKAN</span> ';
-    if (!u.banned && !u.banAkses && !u.forceLogout) statusHtml += '<span class="badge badge-green">AKTIF</span> ';
-
-    var ipHistoryHtml = '';
-    if (u.ipHistory && u.ipHistory.length > 0) {
-        ipHistoryHtml = '<div style="margin-top:8px;"><b>IP History:</b><br>';
-        u.ipHistory.slice(-5).forEach(function(ip) { ipHistoryHtml += '<span style="font-size:10px;">' + esc(ip) + '</span><br>'; });
-        ipHistoryHtml += '</div>';
-    }
-
-    document.getElementById('detailModalBody').innerHTML =
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-user"></i> Username</span><span class="detail-value">' + esc(u.username) + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-lock"></i> Password</span><span class="detail-value">' + esc(u.password || '-') + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-phone"></i> Nomor</span><span class="detail-value">' + esc(u.phone || '-') + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-user-tag"></i> Role</span><span class="detail-value">' + esc(u.role) + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-calendar-alt"></i> Masa Aktif</span><span class="detail-value">' + esc(u.expiry_date) + ' (' + dt + ')</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-globe"></i> IP</span><span class="detail-value">' + esc(u.ip || '-') + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-fingerprint"></i> Fingerprint</span><span class="detail-value">' + esc((u.fingerprint || '-').substring(0, 24)) + '...</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-ban"></i> Banned</span><span class="detail-value">' + (u.banned ? '<span style="color:#ef4444;">TRUE</span>' : '<span style="color:#10b981;">FALSE</span>') + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-shield-haltered"></i> Ban Akses</span><span class="detail-value">' + (u.banAkses ? '<span style="color:#ef4444;">TRUE</span>' : '<span style="color:#10b981;">FALSE</span>') + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label"><i class="fas fa-eject"></i> Ditangguhkan</span><span class="detail-value">' + (u.forceLogout ? '<span style="color:#f97316;">TRUE</span>' : '<span style="color:#10b981;">FALSE</span>') + '</span></div>' +
-        ipHistoryHtml;
-    document.getElementById('detailModal').classList.add('show');
 }
 
 // ==================== CONFIRM ====================
@@ -599,10 +693,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (closeActionBtn) closeActionBtn.addEventListener('click', closeActionModal);
     var closeDetailBtn = document.getElementById('closeDetailModalBtn');
     if (closeDetailBtn) closeDetailBtn.addEventListener('click', function() { document.getElementById('detailModal').classList.remove('show'); });
+    var closeEditBtn = document.getElementById('closeEditModalBtn');
+    if (closeEditBtn) closeEditBtn.addEventListener('click', closeEditUserModal);
     var actionModal = document.getElementById('actionModal');
     if (actionModal) actionModal.addEventListener('click', function(e) { if (e.target === this) closeActionModal(); });
     var detailModal = document.getElementById('detailModal');
     if (detailModal) detailModal.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    var editUserModal = document.getElementById('editUserModal');
+    if (editUserModal) editUserModal.addEventListener('click', function(e) { if (e.target === this) closeEditUserModal(); });
     var addUserModal = document.getElementById('addUserModal');
     if (addUserModal) addUserModal.addEventListener('click', function(e) { if (e.target === this) closeAddUserModal(); });
     var loginPass = document.getElementById('loginPassword');
