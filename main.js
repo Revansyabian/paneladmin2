@@ -17,7 +17,7 @@ setInterval(function() {
     if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
         if (!devtoolsOpen) {
             devtoolsOpen = true;
-            document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:#fff;font-size:18px;font-family:sans-serif">DevTools terdeteksi! Tutup untuk melanjutkan.</div>';
+            document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:#fff;font-size:18px;font-family:sans-serif"><i class="fas fa-shield-haltered" style="font-size:40px;margin-right:15px;"></i> DevTools terdeteksi! Tutup untuk melanjutkan.</div>';
         }
     } else {
         devtoolsOpen = false;
@@ -139,15 +139,7 @@ function getUserActivities(username) {
         return a.username === username;
     }).sort(function(a, b) {
         return (b.timestamp || 0) - (a.timestamp || 0);
-    }).slice(0, 10);
-}
-
-function getSuspiciousActivities(username) {
-    return allActivities.filter(function(a) {
-        return a.username === username && ['login_failed', 'force_logout', 'banned', 'ban_akses'].includes(a.action);
-    }).sort(function(a, b) {
-        return (b.timestamp || 0) - (a.timestamp || 0);
-    }).slice(0, 5);
+    });
 }
 
 // ==================== API CALL ====================
@@ -456,11 +448,11 @@ function openActionModal(action) {
     if (action === 'ban') {
         filteredUsers = allUsers.filter(function(u) { return !u.banned; });
     } else if (action === 'unban') {
-        filteredUsers = allUsers.filter(function(u) { return u.banned; });
+        filteredUsers = allUsers.filter(function(u) { return u.banned === true; });
     } else if (action === 'banakses') {
         filteredUsers = allUsers.filter(function(u) { return !u.banAkses; });
     } else if (action === 'unbanakses') {
-        filteredUsers = allUsers.filter(function(u) { return u.banAkses; });
+        filteredUsers = allUsers.filter(function(u) { return u.banAkses === true; });
     }
 
     // Store for search
@@ -695,7 +687,7 @@ function renderUserList() {
 
 function renderBannedList() {
     var banned = allUsers.filter(function(u) { return u.banned === true; });
-    var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-user-slash"></i> List Banned (' + banned.length + ')</div>';
+    var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-user-slash"></i> <i class="fas fa-ban"></i> List Banned (' + banned.length + ')</div>';
     if (!banned.length) {
         h += '<div class="empty-state"><i class="fas fa-check-circle"></i> Tidak ada user dibanned</div>';
     } else {
@@ -744,27 +736,28 @@ function openDetailModal(id) {
     var dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa');
     var statusHtml = u.banned ? '<span style="color:#ef4444"><i class="fas fa-ban"></i> BANNED</span>' : (u.banAkses ? '<span style="color:#f59e0b"><i class="fas fa-shield-haltered"></i> BAN AKSES</span>' : (d > 0 ? '<span style="color:#10b981"><i class="fas fa-check-circle"></i> AKTIF</span>' : '<span style="color:#64748b"><i class="fas fa-clock"></i> EXPIRED</span>'));
 
-    var activityHtml = '';
+    // Get user activities
     var userActivities = getUserActivities(u.username);
+    var activityHtml = '';
     if (userActivities.length) {
-        activityHtml = '<div class="detail-row" style="flex-direction:column;align-items:stretch;padding:8px 0;"><span class="detail-label" style="margin-bottom:4px;"><i class="fas fa-history"></i> Aktivitas User</span>';
+        activityHtml = '<div class="detail-row" style="flex-direction:column;align-items:stretch;padding:8px 0;border-bottom:1px solid var(--border);"><span class="detail-label" style="margin-bottom:6px;"><i class="fas fa-history"></i> <b>Riwayat Aktivitas User</b></span>';
         userActivities.forEach(function(a) {
             var time = a.timestamp ? new Date(a.timestamp).toLocaleString('id-ID') : '-';
             var lb = {
-                login: 'Login',
-                login_failed: 'Gagal Login',
-                topup: 'Top Up',
-                kuras: 'Kuras',
-                gantinama: 'Ganti Nama',
-                banned: 'Dibanned',
-                unbanned: 'Di-unban',
-                ban_akses: 'Ban Akses',
-                unban_akses: 'Unban Akses',
-                force_logout: 'Force Logout',
-                unforce_logout: 'Izinkan Login',
-                deleted: 'Dihapus'
+                login: '<i class="fas fa-sign-in-alt"></i> Login',
+                login_failed: '<i class="fas fa-times-circle"></i> Gagal Login',
+                topup: '<i class="fas fa-arrow-up"></i> Top Up',
+                kuras: '<i class="fas fa-arrow-down"></i> Kuras',
+                gantinama: '<i class="fas fa-edit"></i> Ganti Nama',
+                banned: '<i class="fas fa-ban"></i> Dibanned',
+                unbanned: '<i class="fas fa-check"></i> Di-unban',
+                ban_akses: '<i class="fas fa-shield-haltered"></i> Ban Akses',
+                unban_akses: '<i class="fas fa-shield-check"></i> Unban Akses',
+                force_logout: '<i class="fas fa-eject"></i> Force Logout',
+                unforce_logout: '<i class="fas fa-unlock-alt"></i> Izinkan Login',
+                deleted: '<i class="fas fa-trash"></i> Dihapus'
             }[a.action] || a.action;
-            activityHtml += '<div style="font-size:11px;color:var(--sub);padding:2px 0;">' + lb + (a.details ? ' — ' + a.details : '') + ' <span style="font-size:10px;color:#94a3b8;">(' + time + ')</span></div>';
+            activityHtml += '<div style="font-size:11px;color:var(--text);padding:3px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;"><span>' + lb + (a.details ? ' — ' + a.details : '') + '</span><span style="font-size:10px;color:#94a3b8;"><i class="fas fa-clock"></i> ' + time + '</span></div>';
         });
         activityHtml += '</div>';
     }
