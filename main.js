@@ -33,6 +33,7 @@ var selectedActionUser = null;
 var activityInterval = null;
 var clockInterval = null;
 var statsInterval = null;
+var activityLoaded = false; // ANTI SPAM LOG
 
 // ==================== FINGERPRINT ====================
 async function getFingerprint() {
@@ -173,7 +174,7 @@ function login() {
     }).catch(function(e) { hideAlert(); showAlert('Error', 'Gagal: ' + e.message, 'error'); });
 }
 function logout() {
-    currentAdmin = null; stopBg();
+    currentAdmin = null; stopBg(); activityLoaded = false;
     if (sessionTimer) clearTimeout(sessionTimer);
     document.getElementById('adminPanel').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'block';
@@ -230,8 +231,11 @@ function updateStats() {
     if (elSuspicious) elSuspicious.textContent = allUsers.filter(function(u) { return u.forceLogout; }).length;
 }
 
-// ==================== ACTIVITIES ====================
+// ==================== ACTIVITIES (LOAD 1X, NO SPAM) ====================
 function loadActivity() {
+    if (activityLoaded) return;
+    activityLoaded = true;
+    
     apiCall('activity_logs', 'GET').then(function(data) {
         allActivities = [];
         var logs = [];
@@ -245,7 +249,7 @@ function loadActivity() {
         logs.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
         logs = logs.slice(0, 50);
         var c = document.getElementById('activityListContainer');
-        if (!c) return;
+        if (!c) { activityLoaded = false; return; }
         if (!logs.length) { c.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
         var actionLabels = {
             login_success: '<i class="fas fa-sign-in-alt"></i> Login Sukses',
@@ -253,7 +257,6 @@ function loadActivity() {
             login_blocked_banned: '<i class="fas fa-ban"></i> Login Ditolak (Banned)',
             login_blocked_banakses: '<i class="fas fa-shield-haltered"></i> Login Ditolak (Ban Akses)',
             login_blocked_force: '<i class="fas fa-eject"></i> Login Ditolak (Ditangguhkan)',
-            login_blocked_expired: '<i class="fas fa-clock"></i> Login Ditolak (Expired)',
             topup: '<i class="fas fa-arrow-up"></i> Top Up',
             kuras: '<i class="fas fa-arrow-down"></i> Kuras',
             gantinama: '<i class="fas fa-edit"></i> Ganti Nama',
@@ -267,9 +270,7 @@ function loadActivity() {
             fp_changed: '<i class="fas fa-fingerprint"></i> FP Berubah',
             sharing_detected: '<i class="fas fa-exclamation-triangle"></i> 🔴 SHARING TERDETEKSI',
             user_created: '<i class="fas fa-user-plus"></i> User Dibuat',
-            user_updated: '<i class="fas fa-edit"></i> User Diupdate',
-            user_deleted: '<i class="fas fa-trash"></i> User Dihapus',
-            auto_block: '<i class="fas fa-robot"></i> Auto Block'
+            user_updated: '<i class="fas fa-edit"></i> User Diupdate'
         };
         var h = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:11px;color:var(--sub);">' + logs.length + ' aktivitas terbaru</span><button class="btn btn-sm btn-danger" onclick="clearAllLogs()" style="padding:4px 10px;font-size:10px;"><i class="fas fa-trash"></i> Clear Log</button></div>';
         logs.forEach(function(l) {
@@ -279,7 +280,13 @@ function loadActivity() {
             h += '<div class="activity-item"' + sharingClass + '><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user"><i class="fas fa-user"></i> ' + esc(l.username || '-') + '</span> <span class="activity-desc">' + lb + (l.details ? ' — ' + l.details : '') + '</span></div><div class="activity-time"><i class="fas fa-clock"></i> ' + time + '</div></div>';
         });
         c.innerHTML = h;
-    }).catch(function() {});
+    }).catch(function() { activityLoaded = false; });
+}
+
+// ==================== REFRESH LOG (MANUAL) ====================
+function refreshLog() {
+    activityLoaded = false;
+    loadActivity();
 }
 
 // ==================== CLEAR LOG ====================
@@ -303,6 +310,7 @@ function clearAllLogs() {
             Promise.all(promises).then(function() {
                 hideAlert();
                 showAlert('Berhasil', count + ' log berhasil dihapus!', 'success');
+                activityLoaded = false;
                 loadActivity();
             });
         }).catch(function(e) {
@@ -369,13 +377,8 @@ function addUserNow() {
         closeAddUserModal();
         loadUsers();
         updateStats();
+        activityLoaded = false;
         loadActivity();
-        apiCall('activity_logs', 'POST', {
-            username: u,
-            action: 'user_created',
-            timestamp: Date.now(),
-            details: 'Role: ' + r
-        }).catch(function() {});
     }).catch(function(e) { showAlert('Error', e.message, 'error'); });
 }
 
@@ -432,13 +435,8 @@ function saveUserEdit() {
         closeEditUserModal();
         loadUsers();
         updateStats();
+        activityLoaded = false;
         loadActivity();
-        apiCall('activity_logs', 'POST', {
-            username: u,
-            action: 'user_updated',
-            timestamp: Date.now(),
-            details: 'Data user diperbarui'
-        }).catch(function() {});
     }).catch(function(e) { showAlert('Error', e.message, 'error'); });
 }
 
@@ -560,28 +558,21 @@ function doAction(action, target) {
     closeActionModal();
     showAlert('Proses', 'Memproses...', 'loading');
     var patchData = {};
-    var logAction = '';
-    var logDetails = '';
 
     if (action === 'ban') {
         var dur = parseInt(document.getElementById('actionDuration').value);
         patchData = { banned: true, bannedUntil: dur === 0 ? 0 : Date.now() + dur };
-        logAction = 'banned';
-        logDetails = 'Durasi: ' + (dur === 0 ? 'Permanen' : document.getElementById('actionDuration').options[document.getElementById('actionDuration').selectedIndex].text);
     }
-    else if (action === 'unban') { patchData = { banned: false, bannedUntil: 0 }; logAction = 'unbanned'; logDetails = 'User di-unban'; }
+    else if (action === 'unban') { patchData = { banned: false, bannedUntil: 0 }; }
     else if (action === 'banakses') {
         var dur2 = parseInt(document.getElementById('actionDuration').value);
         patchData = { banAkses: true, banAksesUntil: dur2 === 0 ? 0 : Date.now() + dur2 };
-        logAction = 'ban_akses';
-        logDetails = 'Durasi: ' + (dur2 === 0 ? 'Permanen' : document.getElementById('actionDuration').options[document.getElementById('actionDuration').selectedIndex].text);
     }
-    else if (action === 'unbanakses') { patchData = { banAkses: false, banAksesUntil: 0 }; logAction = 'unban_akses'; logDetails = 'Ban akses dilepas'; }
-    else if (action === 'force') { patchData = { forceLogout: true }; logAction = 'force_logout'; logDetails = 'User ditangguhkan'; }
-    else if (action === 'unforce') { patchData = { forceLogout: false }; logAction = 'unforce_logout'; logDetails = 'Tangguhan dilepas'; }
+    else if (action === 'unbanakses') { patchData = { banAkses: false, banAksesUntil: 0 }; }
+    else if (action === 'force') { patchData = { forceLogout: true }; }
+    else if (action === 'unforce') { patchData = { forceLogout: false }; }
 
     apiCall('users/' + target.id, 'PATCH', patchData).then(function() {
-        apiCall('activity_logs', 'POST', { username: target.username, action: logAction, timestamp: Date.now(), details: logDetails }).catch(function() {});
         if (action === 'banakses' && target.ip) apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function() {});
         if (action === 'banakses' && target.fingerprint) apiCall('block_fp_manual', 'POST', { fp: target.fingerprint }).catch(function() {});
         if (action === 'unbanakses' && target.ip) apiCall('blocked_ips/' + target.ip.replace(/\./g, '_'), 'DELETE').catch(function() {});
@@ -596,7 +587,9 @@ function doAction(action, target) {
             unforce: '<i class="fas fa-unlock-alt"></i> Tangguhan dilepas!'
         };
         showAlert('Berhasil', ok[action], 'success');
-        loadUsers(); updateStats(); loadActivity();
+        loadUsers(); updateStats();
+        activityLoaded = false;
+        loadActivity();
     }).catch(function(e) { showAlert('Error', e.message, 'error'); });
 }
 
@@ -619,6 +612,7 @@ function navigateTo(tab) {
 function closeSubPanel() {
     document.getElementById('subPanel').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
+    activityLoaded = false;
     loadActivity();
 }
 
