@@ -67,7 +67,7 @@
                 <label><i class="fas fa-key"></i> Key Akses</label>
                 <input type="password" id="accessKey" placeholder="Masukkan key..." maxlength="50">
             </div>
-            <button class="btn btn-primary btn-block" id="verifyKeyBtn"><i class="fas fa-unlock-alt"></i> Verifikasi</button>
+            <button class="btn btn-primary btn-block" onclick="verifyKey()"><i class="fas fa-unlock-alt"></i> Verifikasi</button>
         </div>
     </div>
 
@@ -87,7 +87,7 @@
                 <label><i class="fas fa-lock"></i> Password</label>
                 <input type="password" id="loginPassword" placeholder="Masukkan password" maxlength="50">
             </div>
-            <button class="btn btn-primary btn-block" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+            <button class="btn btn-primary btn-block" onclick="login()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
         </div>
     </div>
 
@@ -102,7 +102,7 @@
                     <i class="fas fa-clock"></i> <span id="clockDisplay"></span>
                 </div>
             </div>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
         </div>
         <div class="stats-row">
             <div class="stat-card blue">
@@ -129,35 +129,35 @@
         <div class="content">
             <div class="section-title" style="margin-bottom:12px"><i class="fas fa-bolt"></i> Aksi Cepat</div>
             <div class="action-grid">
-                <div class="action-card" data-action="ban">
+                <div class="action-card" onclick="openActionModal('ban')">
                     <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div>
                     <div class="action-label"><i class="fas fa-user-slash"></i> Ban User</div>
                 </div>
-                <div class="action-card" data-action="unban">
+                <div class="action-card" onclick="openActionModal('unban')">
                     <div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-user-check"></i></div>
                     <div class="action-label"><i class="fas fa-user-check"></i> Unban User</div>
                 </div>
-                <div class="action-card" data-action="banakses">
+                <div class="action-card" onclick="openActionModal('banakses')">
                     <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div>
                     <div class="action-label"><i class="fas fa-shield-haltered"></i> Ban Akses</div>
                 </div>
-                <div class="action-card" data-action="unbanakses">
+                <div class="action-card" onclick="openActionModal('unbanakses')">
                     <div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-shield-check"></i></div>
                     <div class="action-label"><i class="fas fa-shield-check"></i> Unban Akses</div>
                 </div>
-                <div class="action-card" data-action="adduser">
+                <div class="action-card" onclick="navigateTo('adduser')">
                     <div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-user-plus"></i></div>
                     <div class="action-label"><i class="fas fa-user-plus"></i> Tambah</div>
                 </div>
-                <div class="action-card" data-action="users">
+                <div class="action-card" onclick="navigateTo('users')">
                     <div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-list"></i></div>
                     <div class="action-label"><i class="fas fa-list"></i> List User</div>
                 </div>
-                <div class="action-card" data-action="bannedlist">
+                <div class="action-card" onclick="navigateTo('bannedlist')">
                     <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div>
                     <div class="action-label"><i class="fas fa-user-slash"></i> List Banned</div>
                 </div>
-                <div class="action-card" data-action="banakseslist">
+                <div class="action-card" onclick="navigateTo('banakseslist')">
                     <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div>
                     <div class="action-label"><i class="fas fa-shield-haltered"></i> List Ban Akses</div>
                 </div>
