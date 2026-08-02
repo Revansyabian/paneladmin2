@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -16,16 +15,20 @@
 <body>
 
 <div class="alert-overlay" id="alertOverlay">
-    <div class="alert-box"><div id="alertIcon"></div><div id="alertTitle"></div><div id="alertMessage"></div></div>
+    <div class="alert-box">
+        <div id="alertIcon"></div>
+        <div id="alertTitle"></div>
+        <div id="alertMessage"></div>
+    </div>
 </div>
 
 <div class="confirm-overlay" id="confirmOverlay">
     <div class="confirm-box">
-        <div class="confirm-icon">⚠️</div>
+        <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
         <p class="confirm-message" id="confirmMessage"></p>
         <div class="confirm-buttons">
-            <button class="confirm-btn confirm-no" id="confirmNo">Batal</button>
-            <button class="confirm-btn confirm-yes" id="confirmYes">Ya, Lanjutkan</button>
+            <button class="confirm-btn confirm-no" id="confirmNo"><i class="fas fa-times"></i> Batal</button>
+            <button class="confirm-btn confirm-yes" id="confirmYes"><i class="fas fa-check"></i> Ya, Lanjutkan</button>
         </div>
     </div>
 </div>
@@ -34,7 +37,7 @@
     <div class="modal-box">
         <div class="modal-header">
             <div class="modal-title" id="actionModalTitle">Aksi</div>
-            <button class="close-modal" id="closeActionModalBtn">&times;</button>
+            <button class="close-modal" id="closeActionModalBtn"><i class="fas fa-times"></i></button>
         </div>
         <div id="actionModalBody"></div>
     </div>
@@ -43,8 +46,8 @@
 <div class="modal-overlay" id="detailModal">
     <div class="modal-box">
         <div class="modal-header">
-            <div class="modal-title" id="detailModalTitle">Detail User</div>
-            <button class="close-modal" id="closeDetailModalBtn">&times;</button>
+            <div class="modal-title" id="detailModalTitle"><i class="fas fa-user"></i> Detail User</div>
+            <button class="close-modal" id="closeDetailModalBtn"><i class="fas fa-times"></i></button>
         </div>
         <div id="detailModalBody"></div>
     </div>
@@ -53,47 +56,119 @@
 <div class="container" id="mainContainer" style="max-width:440px">
 
     <div id="keyScreen">
-        <div class="header"><div class="header-left"><h1>Panel Admin</h1><div class="subtitle">Verifikasi Akses</div></div></div>
+        <div class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-shield-haltered"></i> Panel Admin</h1>
+                <div class="subtitle">Verifikasi Akses</div>
+            </div>
+        </div>
         <div class="content">
-            <div class="input-box"><label>Key Akses</label><input type="password" id="accessKey" placeholder="Masukkan key..." maxlength="50"></div>
-            <button class="btn btn-primary btn-block" id="verifyKeyBtn">Verifikasi</button>
+            <div class="input-box">
+                <label><i class="fas fa-key"></i> Key Akses</label>
+                <input type="password" id="accessKey" placeholder="Masukkan key..." maxlength="50">
+            </div>
+            <button class="btn btn-primary btn-block" id="verifyKeyBtn"><i class="fas fa-unlock-alt"></i> Verifikasi</button>
         </div>
     </div>
 
     <div id="loginScreen" style="display:none">
-        <div class="header"><div class="header-left"><h1>Panel Admin</h1><div class="subtitle">Login</div></div></div>
+        <div class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-shield-haltered"></i> Panel Admin</h1>
+                <div class="subtitle">Login</div>
+            </div>
+        </div>
         <div class="content">
-            <div class="input-box"><label>Email</label><input type="email" id="loginEmail" placeholder="Masukkan email" maxlength="50"></div>
-            <div class="input-box"><label>Password</label><input type="password" id="loginPassword" placeholder="Masukkan password" maxlength="50"></div>
-            <button class="btn btn-primary btn-block" id="loginBtn">Masuk</button>
+            <div class="input-box">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="loginEmail" placeholder="Masukkan email" maxlength="50">
+            </div>
+            <div class="input-box">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="loginPassword" placeholder="Masukkan password" maxlength="50">
+            </div>
+            <button class="btn btn-primary btn-block" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Masuk</button>
         </div>
     </div>
 
     <div id="adminPanel" style="display:none">
         <div class="header">
-            <div class="header-left"><h1>⚡ Panel Admin</h1><div class="subtitle"><span class="dot"></span> <span id="loggedUser">-</span> · <span id="clockDisplay"></span></div></div>
-            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="header-left">
+                <h1><i class="fas fa-bolt"></i> Panel Admin</h1>
+                <div class="subtitle">
+                    <span class="dot"></span>
+                    <span id="loggedUser">-</span>
+                    <span style="margin:0 6px">·</span>
+                    <i class="fas fa-clock"></i> <span id="clockDisplay"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
         </div>
         <div class="stats-row">
-            <div class="stat-card blue"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total User</div></div>
-            <div class="stat-card green"><div class="stat-num" id="statActive">0</div><div class="stat-lbl">Aktif</div></div>
-            <div class="stat-card red"><div class="stat-num" id="statBanned">0</div><div class="stat-lbl">Banned</div></div>
-            <div class="stat-card orange"><div class="stat-num" id="statExpired">0</div><div class="stat-lbl">Expired</div></div>
+            <div class="stat-card blue">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-num" id="statTotal">0</div>
+                <div class="stat-lbl">Total User</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-num" id="statActive">0</div>
+                <div class="stat-lbl">Aktif</div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-icon"><i class="fas fa-ban"></i></div>
+                <div class="stat-num" id="statBanned">0</div>
+                <div class="stat-lbl">Banned</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-num" id="statExpired">0</div>
+                <div class="stat-lbl">Expired</div>
+            </div>
         </div>
         <div class="content">
             <div class="section-title" style="margin-bottom:12px"><i class="fas fa-bolt"></i> Aksi Cepat</div>
             <div class="action-grid">
-                <div class="action-card" data-action="ban"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div><div class="action-label">Ban User</div></div>
-                <div class="action-card" data-action="unban"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-user-check"></i></div><div class="action-label">Unban User</div></div>
-                <div class="action-card" data-action="banakses"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">Ban Akses</div></div>
-                <div class="action-card" data-action="unbanakses"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-shield-check"></i></div><div class="action-label">Unban Akses</div></div>
-                <div class="action-card" data-action="adduser"><div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-plus"></i></div><div class="action-label">Tambah</div></div>
-                <div class="action-card" data-action="users"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-list"></i></div><div class="action-label">List User</div></div>
-                <div class="action-card" data-action="bannedlist"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div><div class="action-label">List Banned</div></div>
-                <div class="action-card" data-action="banakseslist"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">List Ban Akses</div></div>
+                <div class="action-card" data-action="ban">
+                    <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div>
+                    <div class="action-label"><i class="fas fa-user-slash"></i> Ban User</div>
+                </div>
+                <div class="action-card" data-action="unban">
+                    <div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-user-check"></i></div>
+                    <div class="action-label"><i class="fas fa-user-check"></i> Unban User</div>
+                </div>
+                <div class="action-card" data-action="banakses">
+                    <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div>
+                    <div class="action-label"><i class="fas fa-shield-haltered"></i> Ban Akses</div>
+                </div>
+                <div class="action-card" data-action="unbanakses">
+                    <div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-shield-check"></i></div>
+                    <div class="action-label"><i class="fas fa-shield-check"></i> Unban Akses</div>
+                </div>
+                <div class="action-card" data-action="adduser">
+                    <div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-user-plus"></i></div>
+                    <div class="action-label"><i class="fas fa-user-plus"></i> Tambah</div>
+                </div>
+                <div class="action-card" data-action="users">
+                    <div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-list"></i></div>
+                    <div class="action-label"><i class="fas fa-list"></i> List User</div>
+                </div>
+                <div class="action-card" data-action="bannedlist">
+                    <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div>
+                    <div class="action-label"><i class="fas fa-user-slash"></i> List Banned</div>
+                </div>
+                <div class="action-card" data-action="banakseslist">
+                    <div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div>
+                    <div class="action-label"><i class="fas fa-shield-haltered"></i> List Ban Akses</div>
+                </div>
             </div>
-            <div class="section-title" style="margin-top:20px;margin-bottom:12px"><i class="fas fa-chart-line"></i> Log Aktivitas User <span style="font-size:10px;color:var(--sub);font-weight:400">(10 detik)</span></div>
-            <div class="activity-list" id="activityListContainer" style="max-height:300px"><div class="empty-state">Memuat...</div></div>
+            <div class="section-title" style="margin-top:20px;margin-bottom:12px">
+                <i class="fas fa-chart-line"></i> Log Aktivitas User
+                <span style="font-size:10px;color:var(--sub);font-weight:400"><i class="fas fa-sync-alt fa-spin"></i> 10 detik</span>
+            </div>
+            <div class="activity-list" id="activityListContainer" style="max-height:300px">
+                <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
+            </div>
         </div>
     </div>
 </div>
