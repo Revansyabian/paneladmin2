@@ -34,7 +34,24 @@ const requestTimestamps = new Map();
 const MIN_REQUEST_DELAY = 800;
 
 function checkRequestDelay(ip, path) {
-    if (path === 'login_success' || path === 'login_failed' || path === 'check_blocked' || path === 'admin/login_success' || path === 'admin/login_failed' || path === 'users' || path === 'activity_logs' || path === 'blocked_ips' || path === 'blocked_fp') return true;
+    if (
+        path === 'login_success' ||
+        path === 'login_failed' ||
+        path === 'check_blocked' ||
+        path === 'admin/login_success' ||
+        path === 'admin/login_failed' ||
+        path === 'users' ||
+        path === 'activity_logs' ||
+        path === 'blocked_ips' ||
+        path === 'blocked_fp' ||
+        path === 'admin/auth' ||
+        path === 'access_key' ||
+        path.startsWith('users/') ||
+        path === 'block_ip_manual' ||
+        path === 'block_fp_manual' ||
+        path.startsWith('blocked_ips/') ||
+        path.startsWith('blocked_fp/')
+    ) return true;
     const now = Date.now();
     const last = requestTimestamps.get(ip) || 0;
     if (now - last < MIN_REQUEST_DELAY) return false;
@@ -141,33 +158,37 @@ async function resetLoginAttempt(ip, fp) {
 }
 
 async function cleanupOldAttempts() {
-    const snap = await db.ref('login_attempts').once('value');
-    const data = snap.val();
-    if (!data) return;
-    const now = Date.now();
-    for (const key in data) {
-        if (data[key] && data[key].data) {
-            try {
-                const parsed = JSON.parse(CryptoJS.AES.decrypt(data[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8));
-                if (now - (parsed.last_attempt || 0) > 86400000) {
-                    await db.ref('login_attempts/' + key).remove();
-                }
-            } catch (e) {}
+    try {
+        const snap = await db.ref('login_attempts').once('value');
+        const data = snap.val();
+        if (!data) return;
+        const now = Date.now();
+        for (const key in data) {
+            if (data[key] && data[key].data) {
+                try {
+                    const parsed = JSON.parse(CryptoJS.AES.decrypt(data[key].data, ADMIN_KEY).toString(CryptoJS.enc.Utf8));
+                    if (now - (parsed.last_attempt || 0) > 86400000) {
+                        await db.ref('login_attempts/' + key).remove();
+                    }
+                } catch (e) {}
+            }
         }
-    }
+    } catch (e) {}
 }
 
 async function logActivity(username, action, details, ip, fp) {
-    const enc = CryptoJS.AES.encrypt(JSON.stringify({
-        username: username,
-        action: action,
-        details: details || '',
-        ip: ip,
-        fingerprint: fp,
-        timestamp: Date.now()
-    }), ADMIN_KEY).toString();
-    const newRef = db.ref('activity_logs').push();
-    await newRef.set({ data: enc });
+    try {
+        const enc = CryptoJS.AES.encrypt(JSON.stringify({
+            username: username,
+            action: action,
+            details: details || '',
+            ip: ip,
+            fingerprint: fp,
+            timestamp: Date.now()
+        }), ADMIN_KEY).toString();
+        const newRef = db.ref('activity_logs').push();
+        await newRef.set({ data: enc });
+    } catch (e) {}
 }
 
 export default async function handler(req, res) {
@@ -239,7 +260,7 @@ export default async function handler(req, res) {
 
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
             const attempts = await trackLoginAttempt(ip, fp);
-            await new Promise(r => setTimeout(r, attempts * 500));
+            await new Promise(r => setTimeout(r, Math.min(attempts * 500, 3000)));
             if (attempts >= 5) {
                 await blockIP(ip);
                 if (fp) await blockFP(fp);
@@ -260,28 +281,72 @@ export default async function handler(req, res) {
         }
 
         if (parsed.path === 'login' && parsed.method === 'POST') {
-            const ipBlocked = await isIPBlocked(ip);
-            const fpBlocked = fp ? await isFPBlocked(fp) : false;
-            if (ipBlocked || fpBlocked) {
-                const result = { blocked: true };
-                const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
-                return res.status(200).json({ encrypted: true, data: encrypted });
+            if (await isIPBlocked(ip) || (fp && await isFPBlocked(fp))) {
+                const result = { blocked: true, message: 'IP atau Fingerprint diblokir.' };
+                return res.status(200).json(result);
             }
             const snap = await db.ref('users').once('value');
             const users = snap.val();
+            if (!users) return res.status(200).json({ success: false });
+
             for (const key in users) {
-                const decryptedUser = await decryptData({ ...users[key], id: key });
-                if (decryptedUser.username === parsed.data.username && decryptedUser.password === parsed.data.password) {
+                const decryptedUser = await decryptData(users[key]);
+                if (decryptedUser && decryptedUser.username === parsed.data.username && decryptedUser.password === parsed.data.password) {
+
+                    if (decryptedUser.banned) {
+                        return res.status(200).json({
+                            success: false,
+                            banned: true,
+                            bannedUntil: decryptedUser.bannedUntil || 0,
+                            message: 'Akun dibanned.'
+                        });
+                    }
+
+                    if (decryptedUser.banAkses) {
+                        if (decryptedUser.banAksesUntil === 0 || decryptedUser.banAksesUntil > Date.now()) {
+                            return res.status(200).json({
+                                success: false,
+                                banAkses: true,
+                                banAksesUntil: decryptedUser.banAksesUntil || 0,
+                                message: 'Akses diblokir.'
+                            });
+                        } else {
+                            const updatedData = { ...decryptedUser, banAkses: false, banAksesUntil: 0 };
+                            await db.ref('users/' + key).update({
+                                data: CryptoJS.AES.encrypt(JSON.stringify(updatedData), ADMIN_KEY).toString()
+                            });
+                        }
+                    }
+
                     if (decryptedUser.forceLogout) {
-                        return res.status(200).json({ success: false, blocked: true, message: 'Akun dikunci oleh admin.' });
+                        return res.status(200).json({
+                            success: false,
+                            forceLogout: true,
+                            message: 'Akun dikunci admin karena indikasi sharing akun.'
+                        });
                     }
-                    if (decryptedUser.banned || decryptedUser.banAkses) {
-                        return res.status(200).json({ success: false, blocked: true, message: 'Akun dibanned / akses diblokir.' });
-                    }
+
+                    const updatedData = {
+                        ...decryptedUser,
+                        ip: ip,
+                        fingerprint: fp,
+                        lastLogin: { ip, fingerprint: fp, timestamp: Date.now() }
+                    };
+                    await db.ref('users/' + key).update({
+                        data: CryptoJS.AES.encrypt(JSON.stringify(updatedData), ADMIN_KEY).toString()
+                    });
+
                     await logActivity(decryptedUser.username, 'login', 'Login berhasil', ip, fp);
+
                     return res.status(200).json({
                         success: true,
-                        data: { id: key, username: decryptedUser.username, role: decryptedUser.role || 'User', full_name: decryptedUser.full_name || '', expiry_date: decryptedUser.expiry_date || '' }
+                        data: {
+                            id: key,
+                            username: decryptedUser.username,
+                            role: decryptedUser.role || 'Operator',
+                            full_name: decryptedUser.full_name || '',
+                            expiry_date: decryptedUser.expiry_date || ''
+                        }
                     });
                 }
             }
@@ -326,7 +391,12 @@ export default async function handler(req, res) {
             const newRef = ref.push();
             await newRef.set({ data: enc });
             if (parsed.path === 'transactions') {
-                await logActivity(parsed.data.operator || 'unknown', parsed.data.type || 'topup', (parsed.data.type === 'topup' ? 'Top Up' : 'Kuras') + ' Rp ' + (parsed.data.amount || 0).toLocaleString(), ip, fp);
+                await logActivity(
+                    parsed.data.operator || 'unknown',
+                    parsed.data.type || 'topup',
+                    (parsed.data.type === 'topup' ? 'Top Up' : 'Kuras') + ' Rp ' + (parsed.data.amount || 0).toLocaleString(),
+                    ip, fp
+                );
             }
             const result = { success: true, id: newRef.key };
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
@@ -354,12 +424,15 @@ export default async function handler(req, res) {
             const merged = Object.assign({}, existingData, parsed.data);
             const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
             await ref.update({ data: enc });
-            if (parsed.data.banned === true) await logActivity(existingData.username || 'unknown', 'banned', 'User dibanned', ip, fp);
-            if (parsed.data.banned === false) await logActivity(existingData.username || 'unknown', 'unbanned', 'User di-unban', ip, fp);
-            if (parsed.data.banAkses === true) await logActivity(existingData.username || 'unknown', 'ban_akses', 'Akses user dibanned', ip, fp);
-            if (parsed.data.banAkses === false) await logActivity(existingData.username || 'unknown', 'unban_akses', 'Akses user di-unban', ip, fp);
-            if (parsed.data.forceLogout === true) await logActivity(existingData.username || 'unknown', 'force_logout', 'Force logout', ip, fp);
-            if (parsed.data.forceLogout === false) await logActivity(existingData.username || 'unknown', 'unforce_logout', 'Izinkan login', ip, fp);
+
+            const username = existingData.username || 'unknown';
+            if (parsed.data.banned === true) await logActivity(username, 'banned', 'User dibanned', ip, fp);
+            if (parsed.data.banned === false) await logActivity(username, 'unbanned', 'User di-unban', ip, fp);
+            if (parsed.data.banAkses === true) await logActivity(username, 'ban_akses', 'Akses user dibanned', ip, fp);
+            if (parsed.data.banAkses === false) await logActivity(username, 'unban_akses', 'Akses user di-unban', ip, fp);
+            if (parsed.data.forceLogout === true) await logActivity(username, 'force_logout', 'Force logout', ip, fp);
+            if (parsed.data.forceLogout === false) await logActivity(username, 'unforce_logout', 'Izinkan login', ip, fp);
+
             const result = { success: true };
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
             return res.status(200).json({ encrypted: true, data: encrypted });
@@ -383,6 +456,6 @@ export default async function handler(req, res) {
 
         return res.status(400).json({ error: 'Invalid method' });
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 }
