@@ -90,7 +90,7 @@ function hideAlert() {
 function parseDate(d) { if (!d) return null; var p = d.split('/'); if (p.length !== 3) return null; return new Date(parseInt(p[2]), parseInt(p[0]) - 1, parseInt(p[1])); }
 function formatDate(d) { return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + '/' + d.getFullYear(); }
 function calculateDaysLeft(e) { var ex = parseDate(e); if (!ex) return -9999; if (ex.getFullYear() === 9999) return 999999; var n = new Date(); n.setHours(0, 0, 0, 0); return Math.floor((ex - n) / (1000 * 60 * 60 * 24)); }
-function getStatus(d) { if (d === 999999) return { text: 'PERMANENT', class: 'status-permanent' }; if (d <= 0) return { text: 'EXPIRED', class: 'status-expired' }; if (d <= 3) return { text: 'SEGERA HABIS', class: 'status-warning' }; return { text: 'AKTIF', class: 'status-active' }; }
+function getStatus(d) { if (d === 999999) return { text: 'PERMANENT', class: 'badge-permanent' }; if (d <= 0) return { text: 'EXPIRED', class: 'badge-expired' }; if (d <= 3) return { text: 'SEGERA HABIS', class: 'badge-warning' }; return { text: 'AKTIF', class: 'badge-active' }; }
 function esc(s) { if (!s) return ''; return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
 function setQuickDate(t, p) {
@@ -174,7 +174,7 @@ async function login() {
             document.getElementById('loggedUser').textContent = email;
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('mainContainer').style.maxWidth = '900px';
+            document.getElementById('mainContainer').style.maxWidth = '920px';
             hideAlert(); showAlert('Berhasil', 'Login berhasil!', 'success');
             if (sessionTimer) clearTimeout(sessionTimer);
             sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', 'Tidak ada aktivitas selama 30 menit.', 'info'); } }, 30 * 60 * 1000);
@@ -225,18 +225,27 @@ function displayUsers(users) {
     var c = document.getElementById('userListContainer');
     document.getElementById('totalUsers').textContent = users.length;
     document.getElementById('userCount').textContent = users.length;
-    if (!users.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b">Tidak ada user</div>'; return; }
+    if (!users.length) { c.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">Tidak ada user</div></div>'; return; }
     users.sort(function(a, b) { return a.username.localeCompare(b.username); });
     var h = '';
     users.forEach(function(u) {
         var d = calculateDaysLeft(u.expiry_date);
         var s = getStatus(d);
         var dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa');
-        h += '<div class="user-item">';
-        h += '<div class="user-name"><span>' + esc(u.username) + '</span><span class="user-status ' + s.class + '">' + s.text + '</span></div>';
-        h += '<div class="user-details">📱 ' + esc(u.phone || '-') + ' | 🔑 ' + esc(u.password) + ' | 🎭 ' + esc(u.role) + '</div>';
-        h += '<div class="user-details">📅 Aktif: ' + esc(u.expiry_date) + ' | ⏰ ' + dt + '</div>';
-        h += '<div class="action-row">';
+        var initial = u.username.charAt(0).toUpperCase();
+        h += '<div class="user-card">';
+        h += '<div class="user-card-top">';
+        h += '<div class="user-card-name"><div class="avatar">' + initial + '</div>' + esc(u.username) + '</div>';
+        h += '<span class="user-badge ' + s.class + '">' + s.text + '</span>';
+        h += '</div>';
+        h += '<div class="user-card-info">';
+        h += '<span><i class="fas fa-phone"></i> ' + esc(u.phone || '-') + '</span>';
+        h += '<span><i class="fas fa-key"></i> ' + esc(u.password) + '</span>';
+        h += '<span><i class="fas fa-user-tag"></i> ' + esc(u.role) + '</span>';
+        h += '<span><i class="fas fa-calendar"></i> ' + esc(u.expiry_date) + '</span>';
+        h += '<span><i class="fas fa-clock"></i> ' + dt + '</span>';
+        h += '</div>';
+        h += '<div class="user-card-actions">';
         h += '<button class="btn-sm btn-primary" onclick="openEditModal(\'' + u.id + '\')"><i class="fas fa-edit"></i> Edit</button>';
         h += '<button class="btn-sm btn-purple" onclick="setSingleUserPermanent(\'' + u.id + '\',\'' + esc(u.username) + '\')"><i class="fas fa-infinity"></i> Permanent</button>';
         h += '<button class="btn-sm btn-orange" onclick="banUserConfirm(\'' + u.id + '\',\'' + esc(u.username) + '\')"><i class="fas fa-ban"></i> Ban</button>';
@@ -249,13 +258,20 @@ function displayUsers(users) {
 function displayBannedUsers(users) {
     var c = document.getElementById('bannedListContainer');
     document.getElementById('bannedCount').textContent = users.length;
-    if (!users.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b">Tidak ada user dibanned</div>'; return; }
+    if (!users.length) { c.innerHTML = '<div class="empty-state"><div class="empty-icon">🚫</div><div class="empty-text">Tidak ada user dibanned</div></div>'; return; }
     var h = '';
     users.forEach(function(u) {
-        h += '<div class="user-item banned">';
-        h += '<div class="user-name"><span>' + esc(u.username) + '</span><span class="user-status status-banned">BANNED</span></div>';
-        h += '<div class="user-details">📱 ' + esc(u.phone || '-') + ' | 🎭 ' + esc(u.role) + '</div>';
-        h += '<div class="action-row">';
+        var initial = u.username.charAt(0).toUpperCase();
+        h += '<div class="user-card banned">';
+        h += '<div class="user-card-top">';
+        h += '<div class="user-card-name"><div class="avatar banned-av">' + initial + '</div>' + esc(u.username) + '</div>';
+        h += '<span class="user-badge badge-banned">BANNED</span>';
+        h += '</div>';
+        h += '<div class="user-card-info">';
+        h += '<span><i class="fas fa-phone"></i> ' + esc(u.phone || '-') + '</span>';
+        h += '<span><i class="fas fa-user-tag"></i> ' + esc(u.role) + '</span>';
+        h += '</div>';
+        h += '<div class="user-card-actions">';
         h += '<button class="btn-sm btn-green" onclick="unbanUserConfirm(\'' + u.id + '\',\'' + esc(u.username) + '\')"><i class="fas fa-check"></i> Unban</button>';
         h += '<button class="btn-sm btn-red" onclick="deleteUserConfirm(\'' + u.id + '\',\'' + esc(u.username) + '\')"><i class="fas fa-trash"></i> Hapus</button>';
         h += '</div></div>';
@@ -355,7 +371,7 @@ async function saveUserChanges() {
 
 // ==================== DELETE ====================
 function deleteUserConfirm(id, name) {
-    showConfirm('Yakin hapus user "' + name + '"?', function() { deleteUser(id); });
+    showConfirm('Yakin hapus user "' + name + '"? Data tidak bisa dikembalikan.', function() { deleteUser(id); });
 }
 
 async function deleteUser(id) {
@@ -366,21 +382,23 @@ async function deleteUser(id) {
 
 // ==================== PERMANENT ====================
 async function setSingleUserPermanent(id, name) {
-    if (!confirm('Jadikan "' + name + '" PERMANENT?')) return;
-    showAlert('Proses', 'Mengubah...', 'loading');
-    try { await apiCall('users/' + id, 'PATCH', { expiry_date: '12/31/9999' }); showAlert('Berhasil', name + ' sekarang PERMANENT!', 'success'); await loadUsers(); }
-    catch (e) { showAlert('Error', 'Gagal.', 'error'); }
+    showConfirm('Jadikan "' + name + '" PERMANENT?', async function() {
+        showAlert('Proses', 'Mengubah...', 'loading');
+        try { await apiCall('users/' + id, 'PATCH', { expiry_date: '12/31/9999' }); showAlert('Berhasil', name + ' sekarang PERMANENT!', 'success'); await loadUsers(); }
+        catch (e) { showAlert('Error', 'Gagal.', 'error'); }
+    });
 }
 
 async function setAllUsersPermanent() {
-    if (!confirm('Jadikan SEMUA user PERMANENT?')) return;
-    showAlert('Proses', 'Mengubah semua...', 'loading');
-    try {
-        var count = 0;
-        for (var i = 0; i < allUsers.length; i++) { await apiCall('users/' + allUsers[i].id, 'PATCH', { expiry_date: '12/31/9999' }); count++; }
-        showAlert('Berhasil', count + ' user jadi PERMANENT!', 'success');
-        await loadUsers();
-    } catch (e) { showAlert('Error', 'Gagal.', 'error'); }
+    showConfirm('Jadikan SEMUA user PERMANENT?', async function() {
+        showAlert('Proses', 'Mengubah semua...', 'loading');
+        try {
+            var count = 0;
+            for (var i = 0; i < allUsers.length; i++) { await apiCall('users/' + allUsers[i].id, 'PATCH', { expiry_date: '12/31/9999' }); count++; }
+            showAlert('Berhasil', count + ' user jadi PERMANENT!', 'success');
+            await loadUsers();
+        } catch (e) { showAlert('Error', 'Gagal.', 'error'); }
+    });
 }
 
 // ==================== BLOCKED IPs ====================
@@ -396,13 +414,13 @@ async function loadBlockedIPs() {
 function displayBlockedIPs(ips) {
     var c = document.getElementById('blockedListContainer');
     document.getElementById('blockedCount').textContent = ips.length;
-    if (!ips.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b">Tidak ada IP diblokir</div>'; return; }
+    if (!ips.length) { c.innerHTML = '<div class="empty-state"><div class="empty-icon">🌐</div><div class="empty-text">Tidak ada IP diblokir</div></div>'; return; }
     var h = '';
     ips.forEach(function(item) {
-        h += '<div class="user-item">';
-        h += '<div class="user-name"><span>' + esc(item.ip || 'Unknown') + '</span><span class="user-status status-banned">DIBLOKIR</span></div>';
-        h += '<div class="user-details">📅 Sejak: ' + (item.blocked_at ? new Date(item.blocked_at).toLocaleString('id-ID') : '-') + '</div>';
-        h += '<div class="action-row"><button class="btn-sm btn-green" onclick="unblockIP(\'' + item.dbKey + '\',\'' + esc(item.ip || 'Unknown') + '\')"><i class="fas fa-check"></i> Unblock</button></div>';
+        h += '<div class="user-card">';
+        h += '<div class="user-card-top"><div class="user-card-name"><div class="avatar banned-av"><i class="fas fa-globe"></i></div>' + esc(item.ip || 'Unknown') + '</div><span class="user-badge badge-banned">DIBLOKIR</span></div>';
+        h += '<div class="user-card-info"><span><i class="fas fa-calendar"></i> Sejak: ' + (item.blocked_at ? new Date(item.blocked_at).toLocaleString('id-ID') : '-') + '</span></div>';
+        h += '<div class="user-card-actions"><button class="btn-sm btn-green" onclick="unblockIP(\'' + item.dbKey + '\',\'' + esc(item.ip || 'Unknown') + '\')"><i class="fas fa-check"></i> Unblock</button></div>';
         h += '</div>';
     });
     c.innerHTML = h;
@@ -415,10 +433,11 @@ function searchBlocked() {
 }
 
 async function unblockIP(dbKey, ip) {
-    if (!confirm('Unblock IP "' + ip + '"?')) return;
-    showAlert('Proses', 'Membuka blokir...', 'loading');
-    try { await apiCall('blocked_ips/' + dbKey, 'DELETE'); showAlert('Berhasil', 'IP berhasil di-unblock!', 'success'); await loadBlockedIPs(); }
-    catch (e) { showAlert('Error', 'Gagal unblock', 'error'); }
+    showConfirm('Unblock IP "' + ip + '"?', async function() {
+        showAlert('Proses', 'Membuka blokir...', 'loading');
+        try { await apiCall('blocked_ips/' + dbKey, 'DELETE'); showAlert('Berhasil', 'IP berhasil di-unblock!', 'success'); await loadBlockedIPs(); }
+        catch (e) { showAlert('Error', 'Gagal unblock', 'error'); }
+    });
 }
 
 // ==================== CONFIRM MODAL ====================
