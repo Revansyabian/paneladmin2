@@ -39,6 +39,16 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title" id="detailModalTitle">Detail User</div>
+            <button class="close-modal" onclick="closeDetailModal()">&times;</button>
+        </div>
+        <div id="detailModalBody"></div>
+    </div>
+</div>
+
 <div class="container" id="mainContainer" style="max-width:440px">
 
     <div id="keyScreen">
@@ -76,7 +86,7 @@
                 <div class="action-card" onclick="openActionModal('unban')"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-user-check"></i></div><div class="action-label">Unban User</div></div>
                 <div class="action-card" onclick="openActionModal('banakses')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">Ban Akses</div></div>
                 <div class="action-card" onclick="openActionModal('unbanakses')"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-shield-check"></i></div><div class="action-label">Unban Akses</div></div>
-                <div class="action-card" onclick="navigateTo('adduser')"><div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-plus"></i></div><div class="action-label">Tambah User</div></div>
+                <div class="action-card" onclick="navigateTo('adduser')"><div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-plus"></i></div><div class="action-label">Tambah</div></div>
                 <div class="action-card" onclick="navigateTo('users')"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-list"></i></div><div class="action-label">List User</div></div>
                 <div class="action-card" onclick="navigateTo('bannedlist')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div><div class="action-label">List Banned</div></div>
                 <div class="action-card" onclick="navigateTo('banakseslist')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">List Ban Akses</div></div>
