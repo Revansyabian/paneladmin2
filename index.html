@@ -17,6 +17,8 @@
             --red: #ef4444;
             --green: #10b981;
             --yellow: #f59e0b;
+            --orange: #f97316;
+            --purple: #8b5cf6;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -37,6 +39,7 @@
             max-width: 440px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             border: 1px solid var(--border);
+            transition: max-width 0.3s;
         }
         .input-box { margin-bottom: 14px; }
         .input-box label {
@@ -73,6 +76,7 @@
             font-family: inherit;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             transition: 0.2s;
         }
@@ -82,6 +86,10 @@
         .btn-green:hover { background: #059669; }
         .btn-red { background: var(--red); color: #fff; }
         .btn-red:hover { background: #dc2626; }
+        .btn-yellow { background: var(--yellow); color: #000; }
+        .btn-yellow:hover { background: #d97706; }
+        .btn-orange { background: var(--orange); color: #fff; }
+        .btn-orange:hover { background: #ea580c; }
         .btn-outline {
             background: #fff;
             border: 1px solid var(--border);
@@ -91,25 +99,13 @@
         .btn-sm { padding: 7px 14px; font-size: 11px; }
         .btn-block { width: 100%; justify-content: center; }
         .btn-danger { background: var(--red); color: #fff; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-warning { background: var(--yellow); color: #000; }
 
-        .logo {
-            text-align: center;
-            font-size: 44px;
-            margin-bottom: 8px;
-        }
+        .logo { text-align: center; font-size: 44px; margin-bottom: 8px; }
         .logo i { color: var(--blue); }
-        .title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 12px;
-            color: var(--sub);
-            margin-bottom: 20px;
-        }
+        .title { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .subtitle { text-align: center; font-size: 12px; color: var(--sub); margin-bottom: 20px; }
         .section-title {
             font-size: 15px;
             font-weight: 700;
@@ -131,35 +127,32 @@
             border: 1px solid var(--border);
             text-align: center;
         }
-        .stat-number {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--blue);
-        }
-        .stat-label {
-            font-size: 10px;
-            color: var(--sub);
-            margin-top: 2px;
-        }
+        .stat-number { font-size: 22px; font-weight: 800; color: var(--blue); }
+        .stat-label { font-size: 10px; color: var(--sub); margin-top: 2px; }
+        
         .action-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin-bottom: 16px;
         }
         .action-card {
-            padding: 12px;
+            padding: 14px 8px;
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             transition: 0.2s;
             background: #fff;
         }
-        .action-card:hover { background: #f0f9ff; border-color: var(--blue); }
-        .action-card i { font-size: 22px; display: block; margin-bottom: 5px; color: var(--blue); }
+        .action-card:hover { background: #f0f9ff; border-color: var(--blue); transform: translateY(-2px); }
+        .action-card i { font-size: 24px; display: block; margin-bottom: 6px; }
+        .action-card.ban-card i { color: var(--red); }
+        .action-card.akses-card i { color: var(--yellow); }
+        .action-card.force-card i { color: var(--orange); }
+        
         .nav-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -184,18 +177,20 @@
             border: 1px solid var(--border);
         }
         .activity-dot {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .activity-dot.login, .activity-dot.login_success { background: var(--green); }
+        .activity-dot.login_success { background: var(--green); }
         .activity-dot.login_failed { background: var(--red); }
         .activity-dot.topup { background: var(--blue); }
         .activity-dot.kuras { background: var(--yellow); }
-        .activity-dot.gantinama { background: #8b5cf6; }
+        .activity-dot.gantinama { background: var(--purple); }
         .activity-dot.banned, .activity-dot.ban_akses { background: var(--red); }
         .activity-dot.unbanned, .activity-dot.unban_akses { background: var(--green); }
+        .activity-dot.force_logout { background: var(--orange); }
+        .activity-dot.unforce_logout { background: var(--green); }
+        .activity-dot.sharing_detected { background: var(--red); }
         .activity-info { flex: 1; }
         .activity-user { font-weight: 600; }
         .activity-time { color: var(--sub); font-size: 10px; }
@@ -206,6 +201,18 @@
             font-size: 13px;
         }
         .empty-state i { font-size: 36px; display: block; margin-bottom: 8px; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .badge-red { background: #fee2e2; color: #dc2626; }
+        .badge-yellow { background: #fef3c7; color: #d97706; }
+        .badge-orange { background: #ffedd5; color: #ea580c; }
+        .badge-green { background: #dcfce7; color: #16a34a; }
 
         /* Modal */
         .modal-overlay {
@@ -227,8 +234,8 @@
             border-radius: 16px;
             padding: 24px;
             width: 90%;
-            max-width: 420px;
-            max-height: 80vh;
+            max-width: 500px;
+            max-height: 85vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
@@ -323,6 +330,39 @@
             max-width: 360px;
             text-align: center;
         }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .toggle-row label { font-size: 13px; font-weight: 600; }
+        .toggle-switch {
+            position: relative;
+            width: 48px; height: 26px;
+        }
+        .toggle-switch input { display: none; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #cbd5e1;
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--blue); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(22px); }
     </style>
 </head>
 <body>
@@ -376,27 +416,33 @@
 
         <!-- STATS -->
         <div class="stats-grid">
-            <div class="stat-card"><div class="stat-number" id="statTotal">0</div><div class="stat-label"><i class="fas fa-users"></i> Total User</div></div>
+            <div class="stat-card"><div class="stat-number" id="statTotal">0</div><div class="stat-label"><i class="fas fa-users"></i> Total</div></div>
             <div class="stat-card"><div class="stat-number" id="statActive">0</div><div class="stat-label"><i class="fas fa-check-circle"></i> Aktif</div></div>
             <div class="stat-card"><div class="stat-number" id="statBanned">0</div><div class="stat-label"><i class="fas fa-ban"></i> Banned</div></div>
-            <div class="stat-card"><div class="stat-number" id="statExpired">0</div><div class="stat-label"><i class="fas fa-clock"></i> Expired</div></div>
+            <div class="stat-card"><div class="stat-number" id="statForce">0</div><div class="stat-label"><i class="fas fa-eject"></i> Force</div></div>
         </div>
 
-        <!-- ACTION BUTTONS -->
+        <!-- ACTION BUTTONS (3 FITUR UTAMA) -->
         <div class="section-title"><i class="fas fa-bolt"></i> Quick Actions</div>
         <div class="action-grid">
-            <div class="action-card" onclick="openActionModal('ban')"><i class="fas fa-user-slash"></i> Ban User</div>
-            <div class="action-card" onclick="openActionModal('unban')"><i class="fas fa-user-check"></i> Unban User</div>
-            <div class="action-card" onclick="openActionModal('banakses')"><i class="fas fa-shield-haltered"></i> Ban Akses</div>
-            <div class="action-card" onclick="openActionModal('unbanakses')"><i class="fas fa-shield-check"></i> Unban Akses</div>
+            <div class="action-card ban-card" onclick="openActionModal('ban')">
+                <i class="fas fa-ban"></i> Ban / Unban
+            </div>
+            <div class="action-card akses-card" onclick="openActionModal('banakses')">
+                <i class="fas fa-shield-haltered"></i> Ban Akses
+            </div>
+            <div class="action-card force-card" onclick="openActionModal('force')">
+                <i class="fas fa-eject"></i> Force
+            </div>
         </div>
 
         <!-- NAVIGATION -->
         <div class="nav-grid">
-            <button class="btn btn-outline btn-block" onclick="navigateTo('adduser')"><i class="fas fa-user-plus"></i> Tambah User</button>
+            <button class="btn btn-green btn-block" onclick="openAddUserModal()"><i class="fas fa-user-plus"></i> Tambah User</button>
             <button class="btn btn-outline btn-block" onclick="navigateTo('users')"><i class="fas fa-users"></i> List User</button>
-            <button class="btn btn-outline btn-block" onclick="navigateTo('bannedlist')"><i class="fas fa-user-slash"></i> Banned</button>
-            <button class="btn btn-outline btn-block" onclick="navigateTo('banakseslist')"><i class="fas fa-shield"></i> Ban Akses</button>
+            <button class="btn btn-outline btn-block" onclick="navigateTo('bannedlist')"><i class="fas fa-ban"></i> List Banned</button>
+            <button class="btn btn-outline btn-block" onclick="navigateTo('banakseslist')"><i class="fas fa-shield"></i> List Ban Akses</button>
+            <button class="btn btn-outline btn-block" onclick="navigateTo('suspicious')"><i class="fas fa-exclamation-triangle"></i> List Force</button>
         </div>
 
         <!-- ACTIVITY -->
@@ -438,20 +484,44 @@
     </div>
 </div>
 
-<!-- DETAIL MODAL -->
-<div class="modal-overlay" id="detailModal">
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addUserModal">
     <div class="modal-box">
         <div class="modal-header">
-            <span id="detailModalTitle"></span>
-            <button class="modal-close" id="closeDetailModalBtn"><i class="fas fa-times"></i></button>
+            <span><i class="fas fa-user-plus"></i> Tambah User</span>
+            <button class="modal-close" onclick="closeAddUserModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div id="detailModalBody"></div>
+        <div class="input-box"><label>Username *</label><input type="text" id="newUsername" placeholder="Username..." maxlength="30"></div>
+        <div class="input-box"><label>Password * (min 6)</label><input type="password" id="newPassword" placeholder="Password..." maxlength="50"></div>
+        <div class="input-box"><label>Nomor</label><input type="text" id="newPhone" placeholder="Nomor HP..." maxlength="20"></div>
+        <div class="input-box"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+        <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" maxlength="10"></div>
+        <button class="btn btn-green btn-block" onclick="addUserNow()"><i class="fas fa-user-plus"></i> Tambah</button>
+    </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" id="editUserModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span><i class="fas fa-edit"></i> Edit User</span>
+            <button class="modal-close" id="closeEditModalBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <input type="hidden" id="editUserId">
+        <div class="input-box"><label>Username</label><input type="text" id="editUsername" maxlength="30"></div>
+        <div class="input-box"><label>Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="••••••" maxlength="50"></div>
+        <div class="input-box"><label>Nomor</label><input type="text" id="editPhone" maxlength="20"></div>
+        <div class="input-box"><label>Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+        <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate" maxlength="10"></div>
+        <div class="input-box"><label>IP</label><input type="text" id="editIP" readonly style="background:#f1f5f9;"></div>
+        <div class="input-box"><label>Fingerprint</label><input type="text" id="editFP" readonly style="background:#f1f5f9;"></div>
+        <button class="btn btn-primary btn-block" onclick="saveUserEdit()"><i class="fas fa-save"></i> Simpan</button>
     </div>
 </div>
 
 <!-- SUB PANEL -->
 <div id="subPanel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f8fafc;z-index:50;overflow-y:auto;padding:20px;">
-    <div style="max-width:500px;margin:0 auto;">
+    <div style="max-width:600px;margin:0 auto;">
         <button class="btn btn-sm btn-outline" onclick="closeSubPanel()" style="margin-bottom:14px;">
             <i class="fas fa-arrow-left"></i> Kembali ke Beranda
         </button>
