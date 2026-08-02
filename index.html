@@ -2,647 +2,757 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - RevanStore</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>RevanStore • Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --sub: #64748b;
-            --border: #e2e8f0;
-            --blue: #3b82f6;
-            --blue-light: #eff6ff;
-            --red: #ef4444;
-            --red-light: #fef2f2;
-            --green: #10b981;
-            --green-light: #ecfdf5;
-            --yellow: #f59e0b;
-            --yellow-light: #fffbeb;
-            --orange: #f97316;
-            --orange-light: #fff7ed;
-            --purple: #8b5cf6;
-            --purple-light: #f5f3ff;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
-            --shadow-xl: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
-            --radius: 16px;
-            --radius-sm: 10px;
-            --radius-xs: 8px;
+            --white: #FFFFFF;
+            --sky: #00BFFF;
+            --sky-hover: #0099CC;
+            --bg-section: #F8F9FA;
+            --text-primary: #1E293B;
+            --text-secondary: #6C757D;
+            --border-light: #E2E8F0;
+            --border-input: #CBD5E1;
+            --red: #EF4444;
+            --red-soft: #FEE2E2;
+            --red-text: #B91C1C;
+            --green: #10B981;
+            --green-soft: #DCFCE7;
+            --green-text: #065F46;
+            --orange: #F97316;
+            --orange-soft: #FFEDD5;
+            --orange-text: #C2410C;
+            --yellow: #F59E0B;
+            --yellow-soft: #FEF3C7;
+            --yellow-text: #92400E;
+            --sky-soft: #F0F9FF;
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.08);
+            --radius-2xl: 24px;
+            --radius-xl: 16px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 6px;
+            --radius-xs: 4px;
+            --radius-full: 9999px;
+            --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-heading: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+            --transition-fast: 0.2s ease;
+            --transition-smooth: 0.25s ease-in-out;
+            --space-xs: 0.4rem;
+            --space-sm: 0.6rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 2.5rem;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
-            color: var(--text);
+            font-family: var(--font-body);
+            background: var(--bg-section);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: var(--space-lg);
+            line-height: 1.5;
+            transition: background var(--transition-fast);
         }
+
         #mainContainer {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 32px;
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-xl) var(--space-2xl);
             width: 100%;
             max-width: 460px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255,255,255,0.8);
-            transition: max-width 0.4s ease;
+            transition: max-width 0.35s ease, padding var(--transition-smooth);
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid var(--border-light);
+            position: relative;
         }
-        
-        /* INPUT */
-        .input-group { margin-bottom: 16px; }
-        .input-group label {
-            display: block;
-            font-size: 11px;
+
+        #mainContainer.panel-expanded {
+            max-width: 1120px;
+            padding: var(--space-2xl);
+        }
+
+        .heading-xl {
+            font-family: var(--font-heading);
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--text-primary);
+        }
+
+        .heading-lg {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
             font-weight: 700;
-            color: var(--sub);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: -0.02em;
         }
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            background: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-            color: var(--text);
+
+        .heading-md {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 700;
         }
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: var(--blue);
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
-            background: #fff;
-        }
-        .input-group input::placeholder { color: #cbd5e1; }
-        
-        /* BUTTONS */
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: var(--radius-sm);
+
+        .heading-sm {
+            font-family: var(--font-heading);
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 13px;
+        }
+
+        .text-body {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .text-caption {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+
+        .text-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.85rem 0 0.65rem 0;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border-input);
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            transition: border-color var(--transition-smooth);
+            border-radius: 0;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-bottom: 1.5px solid var(--sky);
+        }
+
+        .input-field::placeholder {
+            color: #B0BEC5;
+            font-weight: 300;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
+            gap: 0.5rem;
+            transition: all var(--transition-fast);
+            letter-spacing: 0.01em;
+            white-space: nowrap;
         }
-        .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
-        .btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
-        .btn-green { background: var(--green); color: #fff; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
-        .btn-green:hover { background: #059669; transform: translateY(-1px); }
-        .btn-red { background: var(--red); color: #fff; box-shadow: 0 2px 8px rgba(239,68,68,0.3); }
-        .btn-red:hover { background: #dc2626; transform: translateY(-1px); }
-        .btn-yellow { background: var(--yellow); color: #000; box-shadow: 0 2px 8px rgba(245,158,11,0.3); }
-        .btn-yellow:hover { background: #d97706; transform: translateY(-1px); }
-        .btn-orange { background: var(--orange); color: #fff; box-shadow: 0 2px 8px rgba(249,115,22,0.3); }
-        .btn-orange:hover { background: #ea580c; transform: translateY(-1px); }
+
+        .btn-primary {
+            background: var(--sky);
+            color: var(--white);
+            border-radius: var(--radius-lg);
+        }
+
+        .btn-primary:hover {
+            background: var(--sky-hover);
+            transform: translateY(-1px);
+        }
+
         .btn-outline {
-            background: #fff;
-            border: 1.5px solid var(--border);
-            color: var(--text);
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
         }
-        .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
-        .btn-sm { padding: 8px 14px; font-size: 11px; border-radius: var(--radius-xs); }
-        .btn-block { width: 100%; }
-        .btn-xs { padding: 5px 10px; font-size: 10px; border-radius: 6px; }
-        
-        /* HEADER */
-        .logo-section { text-align: center; margin-bottom: 24px; }
-        .logo-icon {
-            width: 64px; height: 64px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            border-radius: 18px;
-            display: inline-flex;
-            align-items: center;
+
+        .btn-outline:hover {
+            background: #F1F5F9;
+        }
+
+        .btn-danger {
+            background: var(--red-soft);
+            color: var(--red-text);
+            border-radius: var(--radius-md);
+        }
+
+        .btn-danger:hover {
+            background: #FECACA;
+        }
+
+        .btn-success {
+            background: var(--green-soft);
+            color: var(--green-text);
+            border-radius: var(--radius-md);
+        }
+
+        .btn-success:hover {
+            background: #A7F3D0;
+        }
+
+        .btn-warning {
+            background: var(--yellow-soft);
+            color: var(--yellow-text);
+            border-radius: var(--radius-md);
+        }
+
+        .btn-warning:hover {
+            background: #FDE68A;
+        }
+
+        .btn-orange {
+            background: var(--orange-soft);
+            color: var(--orange-text);
+            border-radius: var(--radius-md);
+        }
+
+        .btn-orange:hover {
+            background: #FED7AA;
+        }
+
+        .btn-block {
+            width: 100%;
             justify-content: center;
-            font-size: 28px;
-            color: #fff;
-            margin-bottom: 12px;
-            box-shadow: 0 8px 24px rgba(59,130,246,0.3);
         }
-        .logo-title { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
-        .logo-subtitle { font-size: 12px; color: var(--sub); margin-top: 4px; font-weight: 500; }
-        
-        /* SECTION */
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text);
+
+        .btn-sm {
+            padding: 0.45rem 1rem;
+            font-size: 0.75rem;
+            border-radius: var(--radius-sm);
         }
-        .section-header i { color: var(--blue); font-size: 16px; }
-        
-        /* STATS */
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 0.75rem;
+            margin: 1.8rem 0 2rem 0;
         }
+
         .stat-card {
-            background: #fff;
-            padding: 14px 8px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: 1.1rem 0.4rem;
             text-align: center;
-            transition: all 0.2s;
-            cursor: default;
+            box-shadow: none;
+            transition: all var(--transition-fast);
         }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .stat-card .stat-icon { font-size: 18px; margin-bottom: 4px; }
-        .stat-card .stat-number { font-size: 20px; font-weight: 800; }
-        .stat-card .stat-label { font-size: 9px; color: var(--sub); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-total .stat-number { color: var(--blue); }
-        .stat-active .stat-number { color: var(--green); }
-        .stat-banned .stat-number { color: var(--red); }
-        .stat-force .stat-number { color: var(--orange); }
-        
-        /* ACTION CARDS */
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+
+        .stat-card:hover {
+            border-color: #CBD5E1;
+            background: #FAFBFC;
         }
-        .action-card {
-            padding: 18px 10px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 700;
-            transition: all 0.25s;
-            border: 1.5px solid transparent;
-            position: relative;
-            overflow: hidden;
+
+        .stat-number {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--sky);
+            line-height: 1.2;
         }
-        .action-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            opacity: 0;
-            transition: opacity 0.25s;
-        }
-        .action-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-        .action-card i { font-size: 26px; display: block; margin-bottom: 8px; position: relative; z-index: 1; }
-        .action-card span { position: relative; z-index: 1; }
-        
-        .card-ban { background: var(--red-light); border-color: #fecaca; }
-        .card-ban i { color: var(--red); }
-        .card-ban:hover { background: #fee2e2; }
-        
-        .card-akses { background: var(--yellow-light); border-color: #fde68a; }
-        .card-akses i { color: var(--yellow); }
-        .card-akses:hover { background: #fef3c7; }
-        
-        .card-force { background: var(--orange-light); border-color: #fed7aa; }
-        .card-force i { color: var(--orange); }
-        .card-force:hover { background: #ffedd5; }
-        
-        /* NAV */
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .nav-btn {
-            padding: 11px 14px;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1.5px solid var(--border);
-            background: #fff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-        }
-        .nav-btn:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-        .nav-btn i { font-size: 14px; }
-        
-        /* ACTIVITY */
-        .activity-list {
-            max-height: 320px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .activity-list::-webkit-scrollbar { width: 4px; }
-        .activity-list::-webkit-scrollbar-track { background: transparent; }
-        .activity-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        
-        .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            background: #fff;
-            border-radius: var(--radius-xs);
-            font-size: 11px;
-            border: 1px solid var(--border);
-            transition: all 0.15s;
-        }
-        .activity-item:hover { background: #f8fafc; }
-        .activity-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .activity-dot.login_success { background: var(--green); }
-        .activity-dot.login_failed { background: var(--red); }
-        .activity-dot.topup { background: var(--blue); }
-        .activity-dot.kuras { background: var(--yellow); }
-        .activity-dot.gantinama { background: var(--purple); }
-        .activity-dot.banned, .activity-dot.ban_akses { background: var(--red); }
-        .activity-dot.unbanned, .activity-dot.unban_akses { background: var(--green); }
-        .activity-dot.force_logout { background: var(--orange); }
-        .activity-dot.unforce_logout { background: var(--green); }
-        .activity-dot.sharing_detected { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.5); }
-        .activity-info { flex: 1; min-width: 0; }
-        .activity-user { font-weight: 700; color: var(--text); }
-        .activity-desc { color: var(--sub); }
-        .activity-time { color: #94a3b8; font-size: 10px; white-space: nowrap; }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: var(--sub);
-            font-size: 13px;
-        }
-        .empty-state i { font-size: 40px; display: block; margin-bottom: 10px; color: #cbd5e1; }
-        
-        /* BADGES */
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-        .badge-red { background: var(--red-light); color: #dc2626; }
-        .badge-yellow { background: var(--yellow-light); color: #d97706; }
-        .badge-orange { background: var(--orange-light); color: #ea580c; }
-        .badge-green { background: var(--green-light); color: #059669; }
-        .badge-blue { background: var(--blue-light); color: #2563eb; }
-        
-        /* MODAL */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15,23,42,0.6);
-            backdrop-filter: blur(4px);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.25s;
-        }
-        .modal-overlay.show { visibility: visible; opacity: 1; }
-        .modal-box {
-            background: #fff;
-            border-radius: 20px;
-            padding: 28px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-        }
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 17px;
-            font-weight: 700;
-        }
-        .modal-close {
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            border: none;
-            background: #f1f5f9;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--sub);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .modal-close:hover { background: #e2e8f0; color: var(--text); }
-        
-        .user-check-card {
-            padding: 10px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-xs);
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #fff;
-            transition: all 0.15s;
+
+        .stat-label {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 0.25rem;
             font-weight: 500;
         }
-        .user-check-card:hover { background: #f8fafc; border-color: #cbd5e1; }
-        .user-check-card.selected { border-color: var(--blue); background: var(--blue-light); }
-        
-        /* ALERT */
-        .alert-overlay {
+
+        .action-row {
+            display: flex;
+            gap: 0.7rem;
+            margin: 1rem 0 1.8rem;
+            flex-wrap: wrap;
+        }
+
+        .action-pill {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            padding: 0.65rem 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            color: var(--text-primary);
+        }
+
+        .action-pill i {
+            font-size: 1.1rem;
+            color: var(--sky);
+        }
+
+        .action-pill:hover {
+            background: var(--sky-soft);
+            border-color: var(--sky);
+            transform: translateX(3px);
+        }
+
+        .nav-row {
+            display: flex;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+            margin: 1.6rem 0 1.2rem;
+        }
+
+        .user-list-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 0.2rem;
+            border-bottom: 1px solid var(--border-light);
+            transition: background var(--transition-fast);
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .user-list-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-list-row:hover {
+            background: var(--sky-soft);
+        }
+
+        .badge {
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-full);
+            display: inline-block;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-red {
+            background: var(--red-soft);
+            color: var(--red-text);
+        }
+
+        .badge-yellow {
+            background: var(--yellow-soft);
+            color: var(--yellow-text);
+        }
+
+        .badge-orange {
+            background: var(--orange-soft);
+            color: var(--orange-text);
+        }
+
+        .badge-green {
+            background: var(--green-soft);
+            color: var(--green-text);
+        }
+
+        .modal-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15,23,42,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 200;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
             display: flex;
             align-items: center;
             justify-content: center;
             visibility: hidden;
             opacity: 0;
-            transition: all 0.25s;
+            transition: all var(--transition-fast);
+            z-index: 100;
         }
-        .alert-overlay.show { visibility: visible; opacity: 1; }
-        .alert-popup {
-            background: #fff;
-            border-radius: 20px;
-            padding: 32px 24px;
-            text-align: center;
-            width: 90%;
-            max-width: 380px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
         }
-        .spinner {
-            width: 44px; height: 44px;
-            border: 3px solid #e2e8f0;
-            border-top-color: var(--blue);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+
+        .modal-dialog {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-xl);
+            max-width: 440px;
+            width: 92%;
+            box-shadow: var(--shadow-modal);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.2rem;
+            transition: color var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .sub-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-section);
+            z-index: 90;
+            overflow-y: auto;
+            padding: var(--space-lg);
+        }
+
+        .sub-panel.active {
+            display: block;
+        }
+
+        .sub-panel-inner {
+            max-width: 640px;
             margin: 0 auto;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* CONFIRM */
-        .confirm-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15,23,42,0.6);
-            backdrop-filter: blur(4px);
-            z-index: 150;
-            display: none;
+
+        .activity-container {
+            max-height: 280px;
+            overflow-y: auto;
+            margin-top: 0.6rem;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 2.5rem 1rem;
+            color: var(--text-secondary);
+            gap: 0.8rem;
         }
-        .confirm-box {
-            background: #fff;
-            border-radius: 20px;
-            padding: 28px;
-            width: 90%;
-            max-width: 380px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+
+        .geo-abstract {
+            width: 56px;
+            height: 56px;
+            border: 2px dashed var(--sky);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            opacity: 0.4;
         }
-        
-        .divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 16px 0;
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .admin-bar {
+
+        .flex-center {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
         }
-        .admin-info .admin-name { font-weight: 700; font-size: 14px; }
-        .admin-info .admin-email { font-size: 11px; color: var(--sub); }
-        .clock { font-size: 13px; font-weight: 600; color: var(--sub); }
+
+        .gap-sm {
+            gap: 0.5rem;
+        }
+
+        .gap-md {
+            gap: 1rem;
+        }
+
+        .mt-sm {
+            margin-top: 0.6rem;
+        }
+
+        .mt-md {
+            margin-top: 1rem;
+        }
+
+        .mt-lg {
+            margin-top: 1.5rem;
+        }
+
+        .mt-xl {
+            margin-top: 2rem;
+        }
+
+        .mb-sm {
+            margin-bottom: 0.6rem;
+        }
+
+        .mb-md {
+            margin-bottom: 1rem;
+        }
+
+        .mb-lg {
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .action-row {
+                flex-direction: column;
+            }
+
+            .action-pill {
+                justify-content: center;
+            }
+
+            #mainContainer {
+                padding: var(--space-lg);
+                border-radius: var(--radius-xl);
+            }
+
+            #mainContainer.panel-expanded {
+                padding: var(--space-lg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0.6rem;
+            }
+
+            .heading-xl {
+                font-size: 2rem;
+            }
+
+            .heading-lg {
+                font-size: 1.3rem;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div id="mainContainer">
+    <div id="mainContainer">
 
-    <!-- KEY SCREEN -->
-    <div id="keyScreen">
-        <div class="logo-section">
-            <div class="logo-icon"><i class="fas fa-shield-haltered"></i></div>
-            <div class="logo-title">Admin Access</div>
-            <div class="logo-subtitle">Masukkan access key untuk melanjutkan</div>
+        <div id="keyScreen">
+            <div class="mb-lg">
+                <div class="heading-xl">RevanStore</div>
+                <div class="text-body mt-sm">Masukkan access key untuk melanjutkan</div>
+            </div>
+            <div class="input-group mt-xl">
+                <label class="input-label">Access Key</label>
+                <input type="password" id="accessKey" class="input-field" placeholder="············" autocomplete="off" maxlength="50">
+            </div>
+            <button class="btn btn-primary btn-block mt-lg" onclick="Auth.verifyKey()">
+                Verifikasi <i class="fa-regular fa-arrow-right"></i>
+            </button>
         </div>
-        <div class="input-group">
-            <label>🔑 Access Key</label>
-            <input type="password" id="accessKey" placeholder="Masukkan access key..." maxlength="50">
+
+        <div id="loginScreen" style="display: none;">
+            <div class="mb-lg">
+                <div class="heading-lg">Admin Login</div>
+                <div class="text-body mt-sm">Masukkan kredensial admin</div>
+            </div>
+            <div class="input-group mt-lg">
+                <label class="input-label">Email</label>
+                <input type="email" id="loginEmail" class="input-field" placeholder="admin@revanstore.id">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <input type="password" id="loginPassword" class="input-field" placeholder="············">
+            </div>
+            <button class="btn btn-primary btn-block mt-lg" onclick="Auth.login()">
+                Masuk <i class="fa-regular fa-arrow-right-to-bracket"></i>
+            </button>
         </div>
-        <button class="btn btn-primary btn-block" onclick="verifyKey()">
-            Verifikasi <i class="fas fa-arrow-right"></i>
-        </button>
+
+        <div id="adminPanel" style="display: none;">
+            <div class="flex-between mb-lg">
+                <div>
+                    <span class="heading-lg" style="font-size: 1.5rem;">Dashboard</span>
+                    <div class="text-caption" id="loggedUserDisplay">Admin</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="Auth.logout()">
+                    <i class="fa-regular fa-arrow-right-from-bracket"></i> Keluar
+                </button>
+            </div>
+
+            <div class="stats-grid" id="statsContainer">
+                <div class="stat-card">
+                    <div class="stat-number" id="statTotal">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statActive">0</div>
+                    <div class="stat-label">Aktif</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statBanned">0</div>
+                    <div class="stat-label">Banned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statForce">0</div>
+                    <div class="stat-label">Force</div>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <div class="action-pill" onclick="Modal.openAction('ban')">
+                    <i class="fa-regular fa-ban"></i> Ban / Unban
+                </div>
+                <div class="action-pill" onclick="Modal.openAction('banakses')">
+                    <i class="fa-regular fa-shield"></i> Ban Akses
+                </div>
+                <div class="action-pill" onclick="Modal.openAction('force')">
+                    <i class="fa-regular fa-circle-stop"></i> Force
+                </div>
+            </div>
+
+            <div class="nav-row">
+                <button class="btn btn-outline btn-sm" onclick="Modal.openAddUser()">
+                    <i class="fa-regular fa-user-plus"></i> Tambah User
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="Navigation.goTo('users')">
+                    <i class="fa-regular fa-users"></i> List User
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="Navigation.goTo('bannedlist')">
+                    <i class="fa-regular fa-ban"></i> Banned
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="Navigation.goTo('banakseslist')">
+                    <i class="fa-regular fa-shield-haltered"></i> Ban Akses
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="Navigation.goTo('suspicious')">
+                    <i class="fa-regular fa-triangle-exclamation"></i> Force
+                </button>
+            </div>
+
+            <div class="mt-xl">
+                <div class="heading-sm mb-sm">Aktivitas Terbaru</div>
+                <div class="activity-container" id="activityList">
+                    <div class="empty-state">
+                        <div class="geo-abstract"></div>
+                        <span class="text-caption">Memuat data...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- LOGIN SCREEN -->
-    <div id="loginScreen" style="display:none;">
-        <div class="logo-section">
-            <div class="logo-icon"><i class="fas fa-user-shield"></i></div>
-            <div class="logo-title">Admin Login</div>
-            <div class="logo-subtitle">Masukkan email & password</div>
+    <div class="modal-overlay" id="actionModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <span class="heading-md" id="actionModalTitle"></span>
+                <button class="modal-close" onclick="Modal.closeAction()">
+                    <i class="fa-regular fa-xmark"></i>
+                </button>
+            </div>
+            <div id="actionModalBody"></div>
         </div>
-        <div class="input-group">
-            <label>📧 Email</label>
-            <input type="email" id="loginEmail" placeholder="admin@revanstore.com">
-        </div>
-        <div class="input-group">
-            <label>🔒 Password</label>
-            <input type="password" id="loginPassword" placeholder="••••••">
-        </div>
-        <button class="btn btn-primary btn-block" onclick="login()">
-            <i class="fas fa-sign-in-alt"></i> Login
-        </button>
     </div>
 
-    <!-- ADMIN PANEL -->
-    <div id="adminPanel" style="display:none;">
-        <!-- TOP BAR -->
-        <div class="admin-bar">
-            <div class="admin-info">
-                <div class="admin-name"><i class="fas fa-circle" style="color:#10b981;font-size:8px;"></i> <span id="loggedUser">-</span></div>
-                <div class="admin-email">Administrator</div>
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <span class="heading-md">Tambah User Baru</span>
+                <button class="modal-close" onclick="Modal.closeAddUser()">
+                    <i class="fa-regular fa-xmark"></i>
+                </button>
             </div>
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div class="clock" id="clockDisplay">--:--</div>
-                <button class="btn btn-sm btn-outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="input-group">
+                <label class="input-label">Username</label>
+                <input type="text" id="newUsername" class="input-field" placeholder="username" maxlength="30">
             </div>
-        </div>
-
-        <!-- STATS -->
-        <div class="stats-grid">
-            <div class="stat-card stat-total">
-                <div class="stat-icon">👥</div>
-                <div class="stat-number" id="statTotal">0</div>
-                <div class="stat-label">Total</div>
+            <div class="input-group">
+                <label class="input-label">Password (min 6 karakter)</label>
+                <input type="password" id="newPassword" class="input-field" placeholder="············" maxlength="50">
             </div>
-            <div class="stat-card stat-active">
-                <div class="stat-icon">✅</div>
-                <div class="stat-number" id="statActive">0</div>
-                <div class="stat-label">Aktif</div>
+            <div class="input-group">
+                <label class="input-label">Nomor HP</label>
+                <input type="text" id="newPhone" class="input-field" placeholder="08xxxxxxxxxx" maxlength="20">
             </div>
-            <div class="stat-card stat-banned">
-                <div class="stat-icon">🚫</div>
-                <div class="stat-number" id="statBanned">0</div>
-                <div class="stat-label">Banned</div>
+            <div class="input-group">
+                <label class="input-label">Role</label>
+                <select id="newRole" class="input-field" style="padding: 0.85rem 0 0.65rem 0; background: transparent; cursor: pointer;">
+                    <option>Admin</option>
+                    <option selected>Operator</option>
+                    <option>User</option>
+                    <option>VIP</option>
+                    <option>Premium</option>
+                    <option>Trial</option>
+                </select>
             </div>
-            <div class="stat-card stat-force">
-                <div class="stat-icon">⚠️</div>
-                <div class="stat-number" id="statForce">0</div>
-                <div class="stat-label">Force</div>
+            <div class="input-group">
+                <label class="input-label">Masa Aktif (MM/DD/YYYY)</label>
+                <input type="text" id="newExpiryDate" class="input-field" placeholder="12/31/2099" maxlength="10">
             </div>
-        </div>
-
-        <!-- QUICK ACTIONS -->
-        <div class="section-header"><i class="fas fa-bolt"></i> Quick Actions</div>
-        <div class="action-grid">
-            <div class="action-card card-ban" onclick="openActionModal('ban')">
-                <i class="fas fa-ban"></i>
-                <span>Ban / Unban</span>
-            </div>
-            <div class="action-card card-akses" onclick="openActionModal('banakses')">
-                <i class="fas fa-shield-haltered"></i>
-                <span>Ban Akses</span>
-            </div>
-            <div class="action-card card-force" onclick="openActionModal('force')">
-                <i class="fas fa-eject"></i>
-                <span>Force</span>
-            </div>
-        </div>
-
-        <!-- NAVIGATION -->
-        <div class="section-header"><i class="fas fa-compass"></i> Navigasi</div>
-        <div class="nav-grid">
-            <button class="nav-btn" onclick="openAddUserModal()"><i class="fas fa-user-plus" style="color:#10b981;"></i> Tambah User</button>
-            <button class="nav-btn" onclick="navigateTo('users')"><i class="fas fa-users" style="color:#3b82f6;"></i> List User</button>
-            <button class="nav-btn" onclick="navigateTo('bannedlist')"><i class="fas fa-ban" style="color:#ef4444;"></i> List Banned</button>
-            <button class="nav-btn" onclick="navigateTo('banakseslist')"><i class="fas fa-shield" style="color:#f59e0b;"></i> List Ban Akses</button>
-            <button class="nav-btn" onclick="navigateTo('suspicious')"><i class="fas fa-exclamation-triangle" style="color:#f97316;"></i> List Force</button>
-        </div>
-
-        <!-- ACTIVITY -->
-        <div class="section-header"><i class="fas fa-history"></i> Aktivitas Terbaru</div>
-        <div class="activity-list" id="activityListContainer">
-            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat data...</div>
+            <button class="btn btn-primary btn-block mt-lg" onclick="User.add()">
+                <i class="fa-regular fa-user-plus"></i> Tambah User
+            </button>
         </div>
     </div>
-</div>
 
-<!-- ALERT OVERLAY -->
-<div class="alert-overlay" id="alertOverlay">
-    <div class="alert-popup">
-        <div id="alertIcon" style="margin-bottom:14px;"></div>
-        <div id="alertTitle" style="font-size:16px;font-weight:700;margin-bottom:6px;"></div>
-        <div id="alertMessage" style="font-size:13px;color:var(--sub);line-height:1.5;"></div>
-    </div>
-</div>
-
-<!-- CONFIRM OVERLAY -->
-<div class="confirm-overlay" id="confirmOverlay">
-    <div class="confirm-box">
-        <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
-        <div id="confirmMessage" style="margin-bottom:20px;font-size:14px;font-weight:600;"></div>
-        <div style="display:flex;gap:10px;justify-content:center;">
-            <button class="btn btn-red" id="confirmYes" style="flex:1;"><i class="fas fa-check"></i> Ya</button>
-            <button class="btn btn-outline" id="confirmNo" style="flex:1;">Batal</button>
+    <div class="sub-panel" id="subPanel">
+        <div class="sub-panel-inner">
+            <button class="btn btn-outline btn-sm mb-lg" onclick="Navigation.close()">
+                <i class="fa-regular fa-arrow-left"></i> Kembali ke Dashboard
+            </button>
+            <div id="subPanelContent"></div>
         </div>
     </div>
-</div>
 
-<!-- ACTION MODAL -->
-<div class="modal-overlay" id="actionModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span id="actionModalTitle"></span>
-            <button class="modal-close" id="closeActionModalBtn"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="actionModalBody"></div>
-    </div>
-</div>
-
-<!-- ADD USER MODAL -->
-<div class="modal-overlay" id="addUserModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span><i class="fas fa-user-plus" style="color:#10b981;"></i> Tambah User Baru</span>
-            <button class="modal-close" onclick="closeAddUserModal()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="input-group"><label>👤 Username *</label><input type="text" id="newUsername" placeholder="Masukkan username..." maxlength="30"></div>
-        <div class="input-group"><label>🔒 Password * (min 6)</label><input type="password" id="newPassword" placeholder="Masukkan password..." maxlength="50"></div>
-        <div class="input-group"><label>📱 Nomor HP</label><input type="text" id="newPhone" placeholder="08xxxxxxxxxx" maxlength="20"></div>
-        <div class="input-group"><label>🏷️ Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-group"><label>📅 Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" maxlength="10"></div>
-        <button class="btn btn-green btn-block" onclick="addUserNow()"><i class="fas fa-plus-circle"></i> Tambah User</button>
-    </div>
-</div>
-
-<!-- EDIT USER MODAL -->
-<div class="modal-overlay" id="editUserModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span><i class="fas fa-edit" style="color:#3b82f6;"></i> Edit User</span>
-            <button class="modal-close" id="closeEditModalBtn"><i class="fas fa-times"></i></button>
-        </div>
-        <input type="hidden" id="editUserId">
-        <div class="input-group"><label>👤 Username</label><input type="text" id="editUsername" maxlength="30"></div>
-        <div class="input-group"><label>🔒 Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="••••••" maxlength="50"></div>
-        <div class="input-group"><label>📱 Nomor HP</label><input type="text" id="editPhone" maxlength="20"></div>
-        <div class="input-group"><label>🏷️ Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-group"><label>📅 Masa Aktif</label><input type="text" id="editExpiryDate" maxlength="10"></div>
-        <div class="input-group"><label>🌐 IP Address</label><input type="text" id="editIP" readonly style="background:#f1f5f9;color:#94a3b8;"></div>
-        <div class="input-group"><label>🔍 Fingerprint</label><input type="text" id="editFP" readonly style="background:#f1f5f9;color:#94a3b8;font-size:12px;"></div>
-        <button class="btn btn-primary btn-block" onclick="saveUserEdit()"><i class="fas fa-save"></i> Simpan Perubahan</button>
-    </div>
-</div>
-
-<!-- SUB PANEL -->
-<div id="subPanel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f8fafc;z-index:50;overflow-y:auto;padding:20px;">
-    <div style="max-width:650px;margin:0 auto;">
-        <button class="btn btn-outline" onclick="closeSubPanel()" style="margin-bottom:16px;">
-            <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
-        </button>
-        <div id="subPanelContent"></div>
-    </div>
-</div>
-
-<script src="main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
