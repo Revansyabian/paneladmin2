@@ -414,12 +414,12 @@ function openActionModal(action) {
     if (action === 'ban' || action === 'banakses') {
         body.innerHTML = `
             <div class="input-box">
-                <label>Cari User</label>
+                <label><i class="fas fa-search"></i> Cari User</label>
                 <input type="text" id="actionSearch" placeholder="Ketik username..." maxlength="30" oninput="searchUserList('${action}')">
             </div>
             <div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:4px"></div>
             <div id="actionDurationRow" style="display:${action === 'banakses' ? 'block' : 'none'};margin-bottom:12px">
-                <label style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;display:block">Durasi Ban</label>
+                <label style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;display:block"><i class="fas fa-clock"></i> Durasi Ban</label>
                 <select id="actionDuration" style="width:100%;padding:10px 13px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fafbfc;font-family:inherit">
                     <option value="3600000">1 Jam</option>
                     <option value="7200000">2 Jam</option>
@@ -430,16 +430,16 @@ function openActionModal(action) {
                 </select>
             </div>
             <div id="actionSelectedUser" style="margin-bottom:12px;font-size:12px;color:var(--sub)"></div>
-            <button class="btn btn-primary btn-block" onclick="executeAction('${action}')">${titles[action]}</button>`;
+            <button class="btn btn-primary btn-block" onclick="executeAction('${action}')"><i class="fas fa-check"></i> ${titles[action]}</button>`;
     } else {
         body.innerHTML = `
             <div class="input-box">
-                <label>Cari User</label>
+                <label><i class="fas fa-search"></i> Cari User</label>
                 <input type="text" id="actionSearch" placeholder="Ketik username..." maxlength="30" oninput="searchUserList('${action}')">
             </div>
             <div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:4px"></div>
             <div id="actionSelectedUser" style="margin-bottom:12px;font-size:12px;color:var(--sub)"></div>
-            <button class="btn btn-primary btn-block" onclick="executeAction('${action}')">${titles[action]}</button>`;
+            <button class="btn btn-primary btn-block" onclick="executeAction('${action}')"><i class="fas fa-check"></i> ${titles[action]}</button>`;
     }
     modal.classList.add('show');
     setTimeout(function() {
@@ -487,8 +487,8 @@ function searchUserList(action) {
     list.innerHTML = filtered.map(function(u) {
         var isSel = selectedActionUser && selectedActionUser.id === u.id;
         var badgeIcon = '';
-        if (action === 'unban') badgeIcon = ' 🔴';
-        else if (action === 'unbanakses') badgeIcon = ' 🛡️';
+        if (u.banned) badgeIcon = ' <span style="color:#ef4444">🔴</span>';
+        if (u.banAkses) badgeIcon = ' <span style="color:#f59e0b">🛡️</span>';
         return '<div class="user-check-card' + (isSel ? ' selected' : '') + '" onclick="selectActionUser(\'' + u.id + '\')" style="padding:8px 10px;border:1px solid ' + (isSel ? 'var(--blue)' : 'var(--border)') + ';border-radius:6px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:8px;background:' + (isSel ? '#e0f2fe' : '#fff') + '"><span style="width:16px;height:16px;border-radius:4px;border:2px solid ' + (isSel ? 'var(--blue)' : '#cbd5e1') + ';display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;background:' + (isSel ? 'var(--blue)' : 'transparent') + '">' + (isSel ? '✓' : '') + '</span>' + esc(u.username) + ' · ' + esc(u.role) + badgeIcon + '</div>';
     }).join('');
 }
@@ -498,7 +498,6 @@ function selectActionUser(id) {
         return u.id === id;
     });
     document.getElementById('actionSelectedUser').innerHTML = selectedActionUser ? '✅ Dipilih: <b>' + esc(selectedActionUser.username) + '</b>' : '';
-    searchUserList(document.getElementById('actionSearch') ? document.getElementById('actionSearch').value : '');
 }
 
 function executeAction(action) {
@@ -669,7 +668,7 @@ function renderBannedList() {
         h += '<div class="empty-state">Tidak ada user dibanned</div>';
     } else {
         banned.forEach(function(u) {
-            h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openDetailModal(\'' + u.id + '\')"><b>' + esc(u.username) + '</b> · ' + esc(u.role) + ' · 🔴 BANNED</div>';
+            h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openDetailModal(\'' + u.id + '\')"><b>' + esc(u.username) + '</b> · ' + esc(u.role) + ' · <span style="color:#ef4444">🔴 BANNED</span></div>';
         });
     }
     h += '</div>';
@@ -686,7 +685,7 @@ function renderBanAksesList() {
     } else {
         ba.forEach(function(u) {
             var until = u.banAksesUntil ? (u.banAksesUntil === 0 ? 'PERMANEN' : 'Sampai ' + new Date(u.banAksesUntil).toLocaleString('id-ID')) : 'PERMANEN';
-            h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openDetailModal(\'' + u.id + '\')"><b>' + esc(u.username) + '</b> · ' + esc(u.role) + ' · ⏱️ ' + until + '</div>';
+            h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openDetailModal(\'' + u.id + '\')"><b>' + esc(u.username) + '</b> · ' + esc(u.role) + ' · <span style="color:#f59e0b">🛡️ BAN AKSES</span> · ⏱️ ' + until + '</div>';
         });
     }
     h += '</div>';
