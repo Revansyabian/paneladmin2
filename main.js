@@ -1,4 +1,4 @@
-// main.js
+
 (function() {
     'use strict';
 
@@ -340,7 +340,7 @@
             return !u.banned && !u.banAkses && calculateDaysLeft(u.expiry_date) > 0;
         }).length;
         statBanned.textContent = allUsers.filter(function(u) {
-            return u.banned || u.banAkses;
+            return u.banned === true || u.banAkses === true;
         }).length;
         statExpired.textContent = allUsers.filter(function(u) {
             return !u.banned && !u.banAkses && calculateDaysLeft(u.expiry_date) <= 0 && calculateDaysLeft(u.expiry_date) !== 999999;
@@ -394,8 +394,24 @@
         };
         actionModalTitle.textContent = titles[action] || 'Aksi';
         if (['ban', 'unban', 'banakses', 'unbanakses'].includes(action)) {
+            // Filter users based on action
+            var filteredUsers = allUsers;
+            if (action === 'ban') {
+                filteredUsers = allUsers.filter(function(u) { return u.banned !== true; });
+            } else if (action === 'unban') {
+                filteredUsers = allUsers.filter(function(u) { return u.banned === true; });
+            } else if (action === 'banakses') {
+                filteredUsers = allUsers.filter(function(u) { return u.banAkses !== true; });
+            } else if (action === 'unbanakses') {
+                filteredUsers = allUsers.filter(function(u) { return u.banAkses === true; });
+            }
+            
             actionModalBody.innerHTML = '<div class="input-box"><label>Cari User</label><input type="text" id="actionSearch" placeholder="Ketik username..." maxlength="30"></div><div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:4px"></div><div id="actionDurationRow" style="display:' + (action === 'banakses' ? 'block' : 'none') + ';margin-bottom:12px"><label style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;display:block">Durasi Ban</label><select id="actionDuration" style="width:100%;padding:10px 13px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fafbfc;font-family:inherit"><option value="3600000">1 Jam</option><option value="7200000">2 Jam</option><option value="21600000">6 Jam</option><option value="43200000">12 Jam</option><option value="86400000">24 Jam</option><option value="0">Permanen</option></select></div><div id="actionSelectedUser" style="margin-bottom:12px;font-size:12px;color:var(--sub)"></div><button class="btn btn-primary btn-block" id="executeActionBtn">' + titles[action] + '</button>';
             actionModal.classList.add('show');
+            
+            // Store filtered users for search
+            actionModal._filteredUsers = filteredUsers;
+            
             var searchInput = document.getElementById('actionSearch');
             if (searchInput) {
                 searchInput.addEventListener('input', function() { searchUserList(action); });
@@ -417,11 +433,16 @@
         var q = document.getElementById('actionSearch') ? document.getElementById('actionSearch').value : '';
         var list = document.getElementById('actionUserList');
         if (!list) return;
-        var filtered = allUsers.filter(function(u) {
-            return u.username.toLowerCase().includes(q.toLowerCase());
-        });
+        
+        var filtered = actionModal._filteredUsers || allUsers;
+        if (q) {
+            filtered = filtered.filter(function(u) {
+                return u.username.toLowerCase().includes(q.toLowerCase());
+            });
+        }
+        
         if (!filtered.length) {
-            list.innerHTML = '<div style="padding:8px;color:var(--sub);font-size:11px">Tidak ada user</div>';
+            list.innerHTML = '<div style="padding:8px;color:var(--sub);font-size:11px">Tidak ada user yang tersedia</div>';
             return;
         }
         list.innerHTML = filtered.map(function(u) {
@@ -442,7 +463,7 @@
         if (selDiv) {
             selDiv.innerHTML = selectedActionUser ? '✅ Dipilih: <b>' + esc(selectedActionUser.username) + '</b>' : '';
         }
-        searchUserList('');
+        searchUserList(document.querySelector('#actionModalTitle').textContent.includes('Ban') ? 'ban' : 'unban');
     }
 
     function executeAction(action) {
@@ -590,7 +611,7 @@
         var banned = allUsers.filter(function(u) { return u.banned === true; });
         var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-user-slash"></i> List Banned (' + banned.length + ')</div>';
         if (!banned.length) {
-            h += '<div class="empty-state">Tidak ada user dibanned</div>';
+            h += '<div class="empty-state">Tidak ada user yang dibanned</div>';
         } else {
             banned.forEach(function(u) {
                 h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer" data-userid="' + u.id + '"><b>' + esc(u.username) + '</b> · ' + esc(u.role) + ' · 🔴 BANNED<br><span style="color:var(--sub);font-size:10px">🌐 ' + esc(u.ip || '-') + ' | 🔒 ' + esc((u.fingerprint || '-').substring(0,12)) + '...</span></div>';
@@ -612,7 +633,7 @@
         var ba = allUsers.filter(function(u) { return u.banAkses === true; });
         var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-shield-haltered"></i> List Ban Akses (' + ba.length + ')</div>';
         if (!ba.length) {
-            h += '<div class="empty-state">Tidak ada user kena ban akses</div>';
+            h += '<div class="empty-state">Tidak ada user yang kena ban akses</div>';
         } else {
             ba.forEach(function(u) {
                 var until = u.banAksesUntil ? (u.banAksesUntil === 0 ? 'PERMANEN' : 'Sampai ' + new Date(u.banAksesUntil).toLocaleString('id-ID')) : 'PERMANEN';
