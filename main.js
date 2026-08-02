@@ -5,7 +5,7 @@ var devtoolsOpen = false;
 setInterval(function() { if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) { if (!devtoolsOpen) { devtoolsOpen = true; document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:#fff;font-size:18px;font-family:sans-serif">DevTools terdeteksi! Tutup untuk melanjutkan.</div>'; } } else { devtoolsOpen = false; } }, 1000);
 
 var API_URL = '/api/revanstore', ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b', API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
-var currentAdmin = null, allUsers = [], allBlockedIPs = [], fingerprint = '';
+var currentAdmin = null, allUsers = [], allBlockedIPs = [], allBlockedFPs = [], fingerprint = '';
 var keyAttempts = 0, loginBlocked = false, blockTimer = null, sessionTimer = null, alertTimeout = null;
 var activityInterval = null, clockInterval = null, statsInterval = null, pendingRequests = {};
 
@@ -40,7 +40,7 @@ async function login() {
     var email = document.getElementById('loginEmail').value.trim(), pass = document.getElementById('loginPassword').value.trim();
     if (!email || !pass) return showAlert('Error', 'Email dan password wajib diisi', 'error');
     showAlert('Memverifikasi', 'Tunggu...', 'loading');
-    try { var r = await apiCall('admin/auth', 'GET'); if (r && r.blocked) { hideAlert(); showBlockedScreen(); return; } if (r && r.email === email && r.password === pass) { await apiCall('admin/login_success', 'POST', {}); loginBlocked = false; blockTimer = null; currentAdmin = email; document.getElementById('loggedUser').textContent = email; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('mainContainer').style.maxWidth = '800px'; hideAlert(); showAlert('Berhasil', 'Login berhasil!', 'success'); startBg(); if (sessionTimer) clearTimeout(sessionTimer); sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); } }, 1800000); await loadUsers(); updateStats(); loadActivity(); } else { var t = await apiCall('admin/login_failed', 'POST', {}); if (t && t.blocked) { hideAlert(); showBlockedScreen(); return; } showAlert('Gagal', 'Email/password salah. Sisa ' + (t ? t.remaining : '?'), 'error'); } } catch (e) { showAlert('Error', e.message, 'error'); }
+    try { var r = await apiCall('admin/auth', 'GET'); if (r && r.blocked) { hideAlert(); showBlockedScreen(); return; } if (r && r.email === email && r.password === pass) { await apiCall('admin/login_success', 'POST', {}); loginBlocked = false; blockTimer = null; currentAdmin = email; document.getElementById('loggedUser').textContent = email; document.getElementById('loginScreen').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('mainContainer').style.maxWidth = '840px'; hideAlert(); showAlert('Berhasil', 'Login berhasil!', 'success'); startBg(); if (sessionTimer) clearTimeout(sessionTimer); sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); } }, 1800000); await loadUsers(); updateStats(); loadActivity(); } else { var t = await apiCall('admin/login_failed', 'POST', {}); if (t && t.blocked) { hideAlert(); showBlockedScreen(); return; } showAlert('Gagal', 'Email/password salah. Sisa ' + (t ? t.remaining : '?'), 'error'); } } catch (e) { showAlert('Error', e.message, 'error'); }
 }
 function logout() { currentAdmin = null; stopBg(); if (sessionTimer) clearTimeout(sessionTimer); document.getElementById('adminPanel').style.display = 'none'; document.getElementById('loginScreen').style.display = 'block'; document.getElementById('keyScreen').style.display = 'none'; document.getElementById('loginPassword').value = ''; document.getElementById('mainContainer').style.maxWidth = '440px'; showAlert('Logout', 'Anda telah logout.', 'info'); }
 
@@ -51,27 +51,60 @@ function updateClock() { document.getElementById('clockDisplay').textContent = n
 async function loadUsers() { try { var data = await apiCall('users', 'GET'); allUsers = []; for (var key in data) { if (data[key] && data[key].username) { data[key].id = key; allUsers.push(data[key]); } } updateStats(); } catch (e) {} }
 function updateStats() { document.getElementById('statTotal').textContent = allUsers.length; document.getElementById('statActive').textContent = allUsers.filter(function(u) { return !u.banned && calculateDaysLeft(u.expiry_date) > 0; }).length; document.getElementById('statBanned').textContent = allUsers.filter(function(u) { return u.banned; }).length; document.getElementById('statExpired').textContent = allUsers.filter(function(u) { return !u.banned && calculateDaysLeft(u.expiry_date) <= 0 && calculateDaysLeft(u.expiry_date) !== 999999; }).length; }
 
-async function loadActivity() { try { var data = await apiCall('activity_logs', 'GET'); var logs = []; for (var key in data) { if (data[key] && data[key].username) { logs.push(data[key]); } } logs.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); }); logs = logs.slice(0, 20); var c = document.getElementById('activityListContainer'); if (!logs.length) { c.innerHTML = '<div class="empty-state">Belum ada aktivitas</div>'; return; } var h = ''; logs.forEach(function(l) { var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'; var lb = { login: 'Login', topup: 'Top Up', kuras: 'Kuras', banned: 'Ban', unbanned: 'Unban', force_logout: 'Force Logout', unforce_logout: 'Izinkan Login', deleted: 'Hapus' }[l.action] || l.action; h += '<div class="activity-item"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + lb + (l.details ? ' — ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>'; }); c.innerHTML = h; } catch (e) {} }
+async function loadActivity() { try { var data = await apiCall('activity_logs', 'GET'); var logs = []; for (var key in data) { if (data[key] && data[key].username) { logs.push(data[key]); } } logs.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); }); logs = logs.slice(0, 20); var c = document.getElementById('activityListContainer'); if (!logs.length) { c.innerHTML = '<div class="empty-state">Belum ada aktivitas</div>'; return; } var h = ''; logs.forEach(function(l) { var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'; var lb = { login: 'Login', topup: 'Top Up', kuras: 'Kuras', banned: 'Ban User', unbanned: 'Unban User', force_logout: 'Force Logout', unforce_logout: 'Izinkan Login', deleted: 'Hapus User', ban_ip: 'Ban IP', unban_ip: 'Unban IP', ban_fp: 'Ban FP', unban_fp: 'Unban FP' }[l.action] || l.action; h += '<div class="activity-item"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username || l.target || '-') + '</span> <span class="activity-desc">' + lb + (l.details ? ' — ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>'; }); c.innerHTML = h; } catch (e) {} }
 
-function openActionModal(action) { var modal = document.getElementById('actionModal'), title = document.getElementById('actionModalTitle'), body = document.getElementById('actionModalBody'); var titles = { ban: '🚫 Ban User', unban: '✅ Unban User', force: '⏏️ Force Logout', unforce: '🔓 Izinkan Login' }; title.textContent = titles[action] || 'Aksi'; body.innerHTML = '<div class="input-box"><label>Username</label><input type="text" id="actionUsername" placeholder="Ketik username..." maxlength="30"></div><div id="actionUserPreview" style="margin-bottom:12px"></div><button class="btn btn-primary btn-block" onclick="executeAction(\'' + action + '\')">' + (titles[action] || 'OK') + '</button>'; modal.classList.add('show'); setTimeout(function() { var inp = document.getElementById('actionUsername'); if (inp) { inp.focus(); inp.addEventListener('input', function() { previewActionUser(action); }); } }, 200); }
+function openActionModal(action) {
+    var modal = document.getElementById('actionModal'), title = document.getElementById('actionModalTitle'), body = document.getElementById('actionModalBody');
+    var titles = { ban: '🚫 Ban User', unban: '✅ Unban User', force: '⏏️ Force Logout', unforce: '🔓 Izinkan Login', banip: '🌐 Ban IP', unbanip: '🌐 Unban IP', banfp: '🔒 Ban Fingerprint', unbanfp: '🔒 Unban Fingerprint' };
+    var placeholders = { banip: 'Masukkan IP (contoh: 182.253.x.x)', unbanip: 'Masukkan IP yang mau di-unban', banfp: 'Masukkan fingerprint', unbanfp: 'Masukkan fingerprint yang mau di-unban' };
+    title.textContent = titles[action] || 'Aksi';
+    var isIPorFP = ['banip', 'unbanip', 'banfp', 'unbanfp'].includes(action);
+    body.innerHTML = '<div class="input-box"><label>' + (isIPorFP ? 'Target' : 'Username') + '</label><input type="text" id="actionInput" placeholder="' + (placeholders[action] || 'Ketik username...') + '" maxlength="100"></div><div id="actionPreview" style="margin-bottom:12px"></div><button class="btn btn-primary btn-block" onclick="executeAction(\'' + action + '\')">' + (titles[action] || 'OK') + '</button>';
+    modal.classList.add('show');
+    setTimeout(function() {
+        var inp = document.getElementById('actionInput'); if (inp) { inp.focus(); if (!isIPorFP) inp.addEventListener('input', function() { previewActionUser(action); }); }
+    }, 200);
+}
 function closeActionModal() { document.getElementById('actionModal').classList.remove('show'); }
-function previewActionUser(action) { var name = document.getElementById('actionUsername').value.trim(), prev = document.getElementById('actionUserPreview'); if (!name) { prev.innerHTML = ''; return; } var u = findUser(name); if (!u) { prev.innerHTML = '<div style="padding:10px;background:#fef2f2;border-radius:8px;color:#991b1b;font-size:12px">❌ User tidak ditemukan</div>'; return; } var d = calculateDaysLeft(u.expiry_date), dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa'); prev.innerHTML = '<div style="padding:10px;background:#f0fdf4;border-radius:8px;font-size:12px"><b>✅ ' + esc(u.username) + '</b><br>📱 ' + esc(u.phone || '-') + ' | 🎭 ' + esc(u.role) + ' | 📅 ' + esc(u.expiry_date) + ' (' + dt + ')<br>' + (u.banned ? '<span style="color:#ef4444">⚠️ Sedang dibanned</span>' : '') + (u.forceLogout ? '<span style="color:#f59e0b">⚠️ Sedang di-force logout</span>' : '') + '</div>'; }
-function executeAction(action) { var name = document.getElementById('actionUsername').value.trim(); if (!name) return showAlert('Error', 'Masukkan username', 'error'); var u = findUser(name); if (!u) return showAlert('Error', 'User tidak ditemukan', 'error'); var msgs = { ban: 'Ban "' + name + '"?', unban: 'Unban "' + name + '"?', force: 'Force logout "' + name + '"?', unforce: 'Izinkan "' + name + '" login?' }; showConfirm(msgs[action], function() { debounce(action + u.id, function() { return doAction(action, u.id, name); }); }); }
-async function doAction(action, id, name) { closeActionModal(); showAlert('Proses', 'Memproses...', 'loading'); var patches = { ban: { banned: true }, unban: { banned: false }, force: { forceLogout: true, logoutTimestamp: Date.now() }, unforce: { forceLogout: false } }; var ok = { ban: 'User dibanned!', unban: 'User di-unban!', force: 'User di-force logout!', unforce: 'User bisa login lagi!' }; try { await apiCall('users/' + id, 'PATCH', patches[action]); showAlert('Berhasil', ok[action], 'success'); await loadUsers(); updateStats(); loadActivity(); } catch (e) { showAlert('Error', 'Gagal.', 'error'); } }
+function previewActionUser(action) { var name = document.getElementById('actionInput').value.trim(), prev = document.getElementById('actionPreview'); if (!name) { prev.innerHTML = ''; return; } var u = findUser(name); if (!u) { prev.innerHTML = '<div style="padding:10px;background:#fef2f2;border-radius:8px;color:#991b1b;font-size:12px">❌ User tidak ditemukan</div>'; return; } var d = calculateDaysLeft(u.expiry_date), dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa'); prev.innerHTML = '<div style="padding:10px;background:#f0fdf4;border-radius:8px;font-size:12px"><b>✅ ' + esc(u.username) + '</b><br>📱 ' + esc(u.phone || '-') + ' | 🎭 ' + esc(u.role) + ' | 📅 ' + esc(u.expiry_date) + ' (' + dt + ')<br>' + (u.banned ? '<span style="color:#ef4444">⚠️ Sedang dibanned</span>' : '') + (u.forceLogout ? '<span style="color:#f59e0b">⚠️ Sedang di-force logout</span>' : '') + '</div>'; }
+function executeAction(action) {
+    var val = document.getElementById('actionInput').value.trim();
+    if (!val) return showAlert('Error', 'Masukkan target', 'error');
+    var msgs = { ban: 'Ban user "' + val + '"?', unban: 'Unban user "' + val + '"?', force: 'Force logout "' + val + '"?', unforce: 'Izinkan "' + val + '" login?', banip: 'Ban IP "' + val + '"?', unbanip: 'Unban IP "' + val + '"?', banfp: 'Ban fingerprint "' + val + '"?', unbanfp: 'Unban fingerprint "' + val + '"?', edit: 'Edit user "' + val + '"?' };
+    showConfirm(msgs[action], function() { debounce(action + val, function() { return doAction(action, val); }); });
+}
+async function doAction(action, val) {
+    closeActionModal(); showAlert('Proses', 'Memproses...', 'loading');
+    try {
+        if (['ban', 'unban', 'force', 'unforce'].includes(action)) {
+            var u = findUser(val); if (!u) throw new Error('User tidak ditemukan');
+            var patches = { ban: { banned: true }, unban: { banned: false }, force: { forceLogout: true, logoutTimestamp: Date.now() }, unforce: { forceLogout: false } };
+            await apiCall('users/' + u.id, 'PATCH', patches[action]);
+        } else if (action === 'banip') {
+            var enc = CryptoJS.AES.encrypt(JSON.stringify({ ip: val, blocked: true, blocked_at: new Date().toISOString() }), ADMIN_KEY).toString();
+            // Kirim via API — tambahin handler di revanstore.js nanti
+            await apiCall('block_ip_manual', 'POST', { ip: val });
+        } else if (action === 'unbanip') {
+            var key = val.replace(/\./g, '_');
+            await apiCall('blocked_ips/' + key, 'DELETE');
+        } else if (action === 'banfp') {
+            await apiCall('block_fp_manual', 'POST', { fp: val });
+        } else if (action === 'unbanfp') {
+            await apiCall('blocked_fp/' + val, 'DELETE');
+        }
+        var ok = { ban: 'User dibanned!', unban: 'User di-unban!', force: 'User di-force logout!', unforce: 'User bisa login lagi!', banip: 'IP dibanned!', unbanip: 'IP di-unban!', banfp: 'FP dibanned!', unbanfp: 'FP di-unban!' };
+        showAlert('Berhasil', ok[action], 'success'); await loadUsers(); updateStats(); loadActivity();
+    } catch (e) { showAlert('Error', e.message, 'error'); }
+}
 
 function navigateTo(tab) {
     document.getElementById('adminPanel').style.display = 'none';
-    document.getElementById('subPanel') ? '' : createSubPanel();
+    if (!document.getElementById('subPanel')) { var el = document.createElement('div'); el.id = 'subPanel'; el.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f8fafc;z-index:50;overflow-y:auto;padding:20px'; el.innerHTML = '<div style="max-width:500px;margin:0 auto"><button class="btn btn-sm btn-outline" onclick="closeSubPanel()" style="margin-bottom:14px"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button><div id="subPanelContent"></div></div>'; document.body.appendChild(el); }
     document.getElementById('subPanel').style.display = 'block';
     if (tab === 'adduser') renderAddUser();
     else if (tab === 'users') renderUserList();
-    else if (tab === 'blocked') loadBlockedIPs();
-}
-function createSubPanel() {
-    var el = document.createElement('div'); el.id = 'subPanel';
-    el.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f8fafc;z-index:50;overflow-y:auto;padding:20px';
-    el.innerHTML = '<div style="max-width:500px;margin:0 auto"><button class="btn btn-sm btn-outline" onclick="closeSubPanel()" style="margin-bottom:14px"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button><div id="subPanelContent"></div></div>';
-    document.body.appendChild(el);
+    else if (tab === 'blockedips') loadBlockedIPs();
+    else if (tab === 'blockedfps') loadBlockedFPs();
 }
 function closeSubPanel() { document.getElementById('subPanel').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; loadActivity(); }
 
@@ -88,10 +121,10 @@ async function addUserNow() {
 }
 
 function renderUserList() {
-    var users = allUsers.filter(function(u) { return !u.banned; });
+    var users = allUsers;
     var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-users"></i> List User (' + users.length + ')</div>';
     if (!users.length) h += '<div class="empty-state">Tidak ada user</div>';
-    else users.forEach(function(u) { var d = calculateDaysLeft(u.expiry_date), dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa'); h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px"><b>' + esc(u.username) + '</b> · ' + esc(u.role) + ' · ' + dt + '</div>'; });
+    else users.forEach(function(u) { var d = calculateDaysLeft(u.expiry_date), dt = d === 999999 ? 'PERMANENT' : (d < 0 ? Math.abs(d) + ' hari lalu' : d + ' hari tersisa'); var status = u.banned ? '🔴 BANNED' : (u.forceLogout ? '🟡 FORCED' : (d > 0 ? '🟢 AKTIF' : '⚫ EXPIRED')); h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px"><b>' + esc(u.username) + '</b> · ' + esc(u.role) + ' · ' + dt + ' · ' + status + '</div>'; });
     h += '</div>'; document.getElementById('subPanelContent').innerHTML = h;
 }
 
@@ -99,6 +132,11 @@ async function loadBlockedIPs() {
     try { var data = await apiCall('blocked_ips', 'GET'); allBlockedIPs = []; for (var key in data) { if (data[key] && data[key].ip) { data[key].dbKey = key; allBlockedIPs.push(data[key]); } } var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-globe"></i> IP Diblokir (' + allBlockedIPs.length + ')</div>'; if (!allBlockedIPs.length) h += '<div class="empty-state">Tidak ada IP diblokir</div>'; else allBlockedIPs.forEach(function(item) { h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;display:flex;justify-content:space-between;align-items:center"><span><b>' + esc(item.ip || 'Unknown') + '</b><br><span style="color:#64748b">' + (item.blocked_at ? new Date(item.blocked_at).toLocaleString('id-ID') : '-') + '</span></span><button class="btn-sm btn-green" onclick="unblockIP(\'' + item.dbKey + '\',\'' + esc(item.ip || 'Unknown') + '\')">Unblock</button></div>'; }); h += '</div>'; document.getElementById('subPanelContent').innerHTML = h; } catch (e) {}
 }
 async function unblockIP(dbKey, ip) { showConfirm('Unblock IP "' + ip + '"?', async function() { try { await apiCall('blocked_ips/' + dbKey, 'DELETE'); showAlert('Berhasil', 'IP di-unblock!', 'success'); loadBlockedIPs(); } catch (e) { showAlert('Error', 'Gagal.', 'error'); } }); }
+
+async function loadBlockedFPs() {
+    try { var data = await apiCall('blocked_fp', 'GET'); allBlockedFPs = []; for (var key in data) { if (data[key] && data[key].fingerprint) { data[key].dbKey = key; allBlockedFPs.push(data[key]); } } var h = '<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0"><div class="section-title" style="margin-bottom:14px"><i class="fas fa-fingerprint"></i> FP Diblokir (' + allBlockedFPs.length + ')</div>'; if (!allBlockedFPs.length) h += '<div class="empty-state">Tidak ada FP diblokir</div>'; else allBlockedFPs.forEach(function(item) { h += '<div style="padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;display:flex;justify-content:space-between;align-items:center"><span><b>' + esc(item.fingerprint || 'Unknown').substring(0, 20) + '...</b><br><span style="color:#64748b">' + (item.blocked_at ? new Date(item.blocked_at).toLocaleString('id-ID') : '-') + '</span></span><button class="btn-sm btn-green" onclick="unblockFP(\'' + item.dbKey + '\',\'' + esc(item.fingerprint || '') + '\')">Unblock</button></div>'; }); h += '</div>'; document.getElementById('subPanelContent').innerHTML = h; } catch (e) {}
+}
+async function unblockFP(dbKey, fp) { showConfirm('Unblock FP?', async function() { try { await apiCall('blocked_fp/' + dbKey, 'DELETE'); showAlert('Berhasil', 'FP di-unblock!', 'success'); loadBlockedFPs(); } catch (e) { showAlert('Error', 'Gagal.', 'error'); } }); }
 
 function openEditModal() {
     var modal = document.getElementById('actionModal'), title = document.getElementById('actionModalTitle'), body = document.getElementById('actionModalBody');
