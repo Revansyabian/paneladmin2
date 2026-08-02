@@ -79,10 +79,14 @@
                 <div class="action-card" onclick="openActionModal('unban')"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-check"></i></div><div class="action-label">Unban User</div></div>
                 <div class="action-card" onclick="openActionModal('force')"><div class="action-icon" style="background:#fef3c7;color:#f59e0b"><i class="fas fa-eject"></i></div><div class="action-label">Force Logout</div></div>
                 <div class="action-card" onclick="openActionModal('unforce')"><div class="action-icon" style="background:#ede9fe;color:#8b5cf6"><i class="fas fa-unlock"></i></div><div class="action-label">Izinkan Login</div></div>
+                <div class="action-card" onclick="openActionModal('banip')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-globe"></i></div><div class="action-label">Ban IP</div></div>
+                <div class="action-card" onclick="openActionModal('unbanip')"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-globe"></i></div><div class="action-label">Unban IP</div></div>
+                <div class="action-card" onclick="openActionModal('banfp')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-fingerprint"></i></div><div class="action-label">Ban FP</div></div>
+                <div class="action-card" onclick="openActionModal('unbanfp')"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-fingerprint"></i></div><div class="action-label">Unban FP</div></div>
                 <div class="action-card" onclick="navigateTo('adduser')"><div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-plus"></i></div><div class="action-label">Tambah User</div></div>
                 <div class="action-card" onclick="navigateTo('users')"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-list"></i></div><div class="action-label">List User</div></div>
-                <div class="action-card" onclick="navigateTo('blocked')"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-globe"></i></div><div class="action-label">IP Diblokir</div></div>
-                <div class="action-card" onclick="openEditModal()"><div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-edit"></i></div><div class="action-label">Edit User</div></div>
+                <div class="action-card" onclick="navigateTo('blockedips')"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-globe"></i></div><div class="action-label">List IP</div></div>
+                <div class="action-card" onclick="navigateTo('blockedfps')"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-fingerprint"></i></div><div class="action-label">List FP</div></div>
             </div>
             <div class="section-title" style="margin-top:20px;margin-bottom:12px"><i class="fas fa-chart-line"></i> Aktivitas Live <span style="font-size:10px;color:var(--sub);font-weight:400">(10 detik)</span></div>
             <div class="activity-list" id="activityListContainer" style="max-height:300px"><div class="empty-state">Memuat...</div></div>
