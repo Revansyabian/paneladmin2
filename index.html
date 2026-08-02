@@ -9,8 +9,6 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta name="referrer" content="no-referrer">
     <meta name="theme-color" content="#00bfff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -43,7 +41,7 @@
         </div>
         <input type="hidden" id="editUserId">
         <div class="input-box"><label>Username</label><input type="text" id="editUsername" maxlength="30"></div>
-        <div class="input-box"><label>Nomor (WA/Telepon)</label><input type="text" id="editPhone" maxlength="20" placeholder="08123456789"></div>
+        <div class="input-box"><label>Nomor</label><input type="text" id="editPhone" maxlength="20" placeholder="08123456789"></div>
         <div class="input-box"><label>Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="min 6 karakter" maxlength="50"></div>
         <div class="input-box"><label>Role</label><select id="editRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
         <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate" placeholder="01/28/2026" maxlength="10">
@@ -63,21 +61,21 @@
 
 <div class="container" id="mainContainer" style="max-width:440px">
 
-    <!-- KEY SCREEN -->
+    <!-- KEY -->
     <div id="keyScreen">
         <div class="header">
-            <div><h1>Panel Admin</h1><div class="subtitle">Verifikasi Akses</div></div>
+            <div class="header-left"><h1>Panel Admin</h1><div class="subtitle">Verifikasi Akses</div></div>
         </div>
         <div class="content">
-            <div class="input-box"><label>Masukkan Key Akses</label><input type="password" id="accessKey" placeholder="Masukkan key..." maxlength="50"></div>
+            <div class="input-box"><label>Key Akses</label><input type="password" id="accessKey" placeholder="Masukkan key..." maxlength="50"></div>
             <button class="btn btn-primary btn-block" onclick="verifyKey()">Verifikasi</button>
         </div>
     </div>
 
-    <!-- LOGIN SCREEN -->
+    <!-- LOGIN -->
     <div id="loginScreen" style="display:none">
         <div class="header">
-            <div><h1>Panel Admin</h1><div class="subtitle">Login</div></div>
+            <div class="header-left"><h1>Panel Admin</h1><div class="subtitle">Login</div></div>
         </div>
         <div class="content">
             <div class="input-box"><label>Email</label><input type="email" id="loginEmail" placeholder="Masukkan email" maxlength="50"></div>
@@ -86,62 +84,109 @@
         </div>
     </div>
 
-    <!-- ADMIN PANEL -->
+    <!-- PANEL -->
     <div id="adminPanel" style="display:none">
         <div class="header">
-            <div><h1>Panel Admin</h1><div class="subtitle"><span id="loggedUser">-</span></div></div>
-            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+            <div class="header-left">
+                <h1>Panel Admin</h1>
+                <div class="subtitle"><span class="dot"></span> <span id="loggedUser">-</span></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <span style="font-size:11px;color:var(--sub)" id="clockDisplay"></span>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
         </div>
-        <div class="content">
+
+        <!-- STATS ROW -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card blue"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total User</div></div>
+            <div class="stat-card green"><div class="stat-num" id="statActive">0</div><div class="stat-lbl">Aktif</div></div>
+            <div class="stat-card red"><div class="stat-num" id="statBanned">0</div><div class="stat-lbl">Banned</div></div>
+            <div class="stat-card orange"><div class="stat-num" id="statExpired">0</div><div class="stat-lbl">Expired</div></div>
+        </div>
+
+        <div class="content" style="padding-top:0">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('adduser')">➕ Tambah</button>
-                <button class="tab" onclick="switchTab('users')">👥 User <span class="counter-badge" id="userCount">0</span></button>
-                <button class="tab" onclick="switchTab('banned')">🚫 Banned <span class="counter-badge" id="bannedCount" style="background:#ef4444">0</span></button>
-                <button class="tab" onclick="switchTab('blocked')">🌐 IP <span class="counter-badge" id="blockedCount">0</span></button>
+                <button class="tab active" onclick="switchTab('adduser')"><i class="fas fa-plus"></i> Tambah</button>
+                <button class="tab" onclick="switchTab('users')"><i class="fas fa-users"></i> User <span class="counter-badge" id="userCount">0</span></button>
+                <button class="tab" onclick="switchTab('banned')"><i class="fas fa-ban"></i> Banned <span class="counter-badge" id="bannedCount" style="background:#ef4444">0</span></button>
+                <button class="tab" onclick="switchTab('blocked')"><i class="fas fa-globe"></i> IP <span class="counter-badge" id="blockedCount">0</span></button>
+                <button class="tab" onclick="switchTab('activity')"><i class="fas fa-chart-line"></i> Aktivitas</button>
             </div>
 
             <div id="adduser" class="tab-content active">
-                <div class="input-box"><label>Username</label><input type="text" id="newUser" placeholder="operator1" maxlength="30"></div>
-                <div class="input-box"><label>Nomor (WA/Telepon)</label><input type="text" id="newPhone" placeholder="08123456789" maxlength="20"></div>
-                <div class="input-box"><label>Password (min 6 karakter)</label><input type="password" id="newPass" placeholder="min 6 karakter" maxlength="50"></div>
-                <div class="input-box"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-                <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="01/28/2026" maxlength="10">
-                    <div class="quick-dates">
-                        <span class="date-chip" onclick="setQuickDate('new','permanent')">Permanent</span>
-                        <span class="date-chip" onclick="setQuickDate('new','week')">+1 Minggu</span>
-                        <span class="date-chip" onclick="setQuickDate('new','month')">+1 Bulan</span>
-                        <span class="date-chip" onclick="setQuickDate('new','year')">+1 Tahun</span>
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-user-plus"></i> Tambah User Baru</div>
+                    <div class="input-box"><label>Username</label><input type="text" id="newUser" placeholder="operator1" maxlength="30"></div>
+                    <div class="input-box"><label>Nomor</label><input type="text" id="newPhone" placeholder="08123456789" maxlength="20"></div>
+                    <div class="input-box"><label>Password (min 6 karakter)</label><input type="password" id="newPass" placeholder="min 6 karakter" maxlength="50"></div>
+                    <div class="input-box"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+                    <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="01/28/2026" maxlength="10">
+                        <div class="quick-dates">
+                            <span class="date-chip" onclick="setQuickDate('new','permanent')">Permanent</span>
+                            <span class="date-chip" onclick="setQuickDate('new','week')">+1 Minggu</span>
+                            <span class="date-chip" onclick="setQuickDate('new','month')">+1 Bulan</span>
+                            <span class="date-chip" onclick="setQuickDate('new','year')">+1 Tahun</span>
+                        </div>
                     </div>
+                    <button class="btn btn-green btn-block" onclick="addUserNow()"><i class="fas fa-plus"></i> Tambah User</button>
                 </div>
-                <button class="btn btn-green btn-block" onclick="addUserNow()"><i class="fas fa-plus"></i> Tambah User</button>
             </div>
 
             <div id="users" class="tab-content">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px">
-                    <div style="display:flex;gap:5px;flex-wrap:wrap">
-                        <button class="btn-sm btn-primary" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                        <button class="btn-sm btn-green" onclick="switchTab('adduser')"><i class="fas fa-plus"></i> Tambah</button>
-                        <button class="btn-sm btn-purple" onclick="setAllUsersPermanent()"><i class="fas fa-infinity"></i> Set Permanent</button>
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-users"></i> Daftar User</div>
+                    <div class="toolbar">
+                        <div class="toolbar-actions">
+                            <button class="btn-sm btn-primary" onclick="loadUsers()"><i class="fas fa-sync-alt"></i></button>
+                            <button class="btn-sm btn-green" onclick="switchTab('adduser')"><i class="fas fa-plus"></i> Tambah</button>
+                            <button class="btn-sm btn-purple" onclick="setAllUsersPermanent()"><i class="fas fa-infinity"></i> Permanent Semua</button>
+                        </div>
+                        <div class="toolbar-info"><b id="totalUsers">0</b> user</div>
                     </div>
-                    <span style="font-size:11px;color:#64748b">Total: <b id="totalUsers" style="color:#0f172a">0</b></span>
+                    <div class="search-box"><input type="text" id="searchUser" placeholder="Cari user..." onkeyup="searchUsers()"></div>
+                    <div class="user-list" id="userListContainer"><div class="empty-state">Memuat...</div></div>
                 </div>
-                <div class="search-box"><input type="text" id="searchUser" placeholder="Cari user..." onkeyup="searchUsers()"></div>
-                <div class="user-list" id="userListContainer"><div style="text-align:center;padding:40px;color:#64748b">Memuat data...</div></div>
             </div>
 
             <div id="banned" class="tab-content">
-                <div style="display:flex;gap:5px;margin-bottom:12px"><button class="btn-sm btn-primary" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
-                <div class="user-list" id="bannedListContainer"><div style="text-align:center;padding:40px;color:#64748b">Memuat data...</div></div>
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-ban"></i> User Dibanned</div>
+                    <div class="toolbar"><div class="toolbar-actions"><button class="btn-sm btn-primary" onclick="loadUsers()"><i class="fas fa-sync-alt"></i></button></div></div>
+                    <div class="user-list" id="bannedListContainer"><div class="empty-state">Memuat...</div></div>
+                </div>
             </div>
 
             <div id="blocked" class="tab-content">
-                <div style="display:flex;gap:5px;margin-bottom:12px"><button class="btn-sm btn-primary" onclick="loadBlockedIPs()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
-                <div class="search-box"><input type="text" id="searchBlocked" placeholder="Cari IP..." onkeyup="searchBlocked()"></div>
-                <div class="user-list" id="blockedListContainer"><div style="text-align:center;padding:40px;color:#64748b">Memuat data...</div></div>
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-globe"></i> IP Diblokir</div>
+                    <div class="toolbar"><div class="toolbar-actions"><button class="btn-sm btn-primary" onclick="loadBlockedIPs()"><i class="fas fa-sync-alt"></i></button></div></div>
+                    <div class="search-box"><input type="text" id="searchBlocked" placeholder="Cari IP..." onkeyup="searchBlocked()"></div>
+                    <div class="user-list" id="blockedListContainer"><div class="empty-state">Memuat...</div></div>
+                </div>
+            </div>
+
+            <div id="activity" class="tab-content">
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-chart-line"></i> Log Aktivitas</div>
+                    <div class="toolbar">
+                        <div class="toolbar-actions">
+                            <button class="btn-sm btn-primary" onclick="loadActivity()"><i class="fas fa-sync-alt"></i></button>
+                            <select class="btn-sm" id="activityFilter" onchange="loadActivity()" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:11px;font-family:inherit;color:#64748b">
+                                <option value="all">Semua</option>
+                                <option value="login">Login</option>
+                                <option value="topup">Top Up</option>
+                                <option value="kuras">Kuras</option>
+                                <option value="gantinama">Ganti Nama</option>
+                                <option value="hapus_riwayat">Hapus Riwayat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="activity-list" id="activityListContainer"><div class="empty-state">Memuat...</div></div>
+                </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
