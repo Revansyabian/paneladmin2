@@ -35,7 +35,7 @@ const requestTimestamps = new Map();
 const MIN_REQUEST_DELAY = 800;
 
 function checkRequestDelay(ip, path) {
-  if (path === 'login_success' || path === 'login_failed' || path === 'check_blocked' || path === 'admin/login_success' || path === 'admin/login_failed') return true;
+  if (path === 'login_success' || path === 'login_failed' || path === 'check_blocked' || path === 'admin/login_success' || path === 'admin/login_failed' || path === 'users' || path === 'activity_logs' || path === 'blocked_ips') return true;
   const now = Date.now();
   const last = requestTimestamps.get(ip) || 0;
   if (now - last < MIN_REQUEST_DELAY) return false;
@@ -160,6 +160,19 @@ async function cleanupOldAttempts() {
   }
 }
 
+async function logActivity(username, action, details, ip, fp) {
+  const enc = CryptoJS.AES.encrypt(JSON.stringify({
+    username: username,
+    action: action,
+    details: details || '',
+    ip: ip,
+    fingerprint: fp,
+    timestamp: Date.now()
+  }), ADMIN_KEY).toString();
+  const newRef = db.ref('activity_logs').push();
+  await newRef.set({ data: enc });
+}
+
 export default async function handler(req, res) {
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || '*').split(',');
   const origin = req.headers.origin;
@@ -260,7 +273,6 @@ export default async function handler(req, res) {
 
     if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
       const attempts = await trackLoginAttempt(ip, fp);
-      
       await new Promise(r => setTimeout(r, attempts * 500));
       
       if (attempts >= 5) {
@@ -298,6 +310,23 @@ export default async function handler(req, res) {
       for (const key in users) {
         const decryptedUser = await decryptData({ ...users[key], id: key });
         if (decryptedUser.username === parsed.data.username && decryptedUser.password === parsed.data.password) {
+          // Check forceLogout
+          if (decryptedUser.forceLogout) {
+            return res.status(200).json({
+              success: false,
+              blocked: true,
+              message: 'Akun kamu sedang dikunci oleh admin. Hubungi admin untuk info lebih lanjut.'
+            });
+          }
+          
+          // Log activity
+          await logActivity(decryptedUser.username, 'login', 'Login berhasil', ip, fp);
+          
+          // Update last login
+          await db.ref('users/' + key).child('data').update({
+            lastLogin: { ip: ip, fingerprint: fp, timestamp: Date.now() }
+          });
+          
           return res.status(200).json({
             success: true,
             data: { id: key, username: decryptedUser.username, role: decryptedUser.role || 'User', full_name: decryptedUser.full_name || '', expiry_date: decryptedUser.expiry_date || '' }
@@ -332,6 +361,12 @@ export default async function handler(req, res) {
       const enc = CryptoJS.AES.encrypt(JSON.stringify(parsed.data), ADMIN_KEY).toString();
       const newRef = ref.push();
       await newRef.set({ data: enc });
+      
+      // Log activity for specific actions
+      if (parsed.path === 'transactions') {
+        await logActivity(parsed.data.operator || 'unknown', parsed.data.type || 'topup', (parsed.data.type === 'topup' ? 'Top Up' : 'Kuras') + ' Rp ' + (parsed.data.amount || 0).toLocaleString() + ' ke ' + (parsed.data.accountName || 'unknown'), ip, fp);
+      }
+      
       const result = { success: true, id: newRef.key };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
@@ -356,12 +391,30 @@ export default async function handler(req, res) {
       const merged = Object.assign({}, existingData, parsed.data);
       const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
       await ref.update({ data: enc });
+      
+      // Log activity for ban/unban/force
+      if (parsed.data.banned === true) await logActivity(existingData.username || 'unknown', 'banned', 'User dibanned oleh admin', ip, fp);
+      if (parsed.data.banned === false) await logActivity(existingData.username || 'unknown', 'unbanned', 'User di-unban oleh admin', ip, fp);
+      if (parsed.data.forceLogout === true) await logActivity(existingData.username || 'unknown', 'force_logout', 'User di-force logout oleh admin', ip, fp);
+      if (parsed.data.forceLogout === false) await logActivity(existingData.username || 'unknown', 'unforce_logout', 'User diizinkan login kembali', ip, fp);
+      
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
       return res.status(200).json({ encrypted: true, data: encrypted });
     }
 
     if (parsed.method === 'DELETE') {
+      const snap = await ref.once('value');
+      const raw = snap.val();
+      if (raw && raw.data) {
+        try {
+          const dec = CryptoJS.AES.decrypt(raw.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+          const userData = JSON.parse(dec);
+          if (userData.username) {
+            await logActivity(userData.username, 'deleted', 'User dihapus oleh admin', ip, fp);
+          }
+        } catch(e) {}
+      }
       await ref.remove();
       const result = { success: true };
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(result), ADMIN_KEY).toString();
