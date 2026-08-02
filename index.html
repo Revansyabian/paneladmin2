@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -12,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body oncontextmenu="return false">
+<body>
 
 <div class="alert-overlay" id="alertOverlay">
     <div class="alert-box"><div id="alertIcon"></div><div id="alertTitle"></div><div id="alertMessage"></div></div>
@@ -33,7 +34,7 @@
     <div class="modal-box">
         <div class="modal-header">
             <div class="modal-title" id="actionModalTitle">Aksi</div>
-            <button class="close-modal" onclick="closeActionModal()">&times;</button>
+            <button class="close-modal" id="closeActionModalBtn">&times;</button>
         </div>
         <div id="actionModalBody"></div>
     </div>
@@ -43,7 +44,7 @@
     <div class="modal-box">
         <div class="modal-header">
             <div class="modal-title" id="detailModalTitle">Detail User</div>
-            <button class="close-modal" onclick="closeDetailModal()">&times;</button>
+            <button class="close-modal" id="closeDetailModalBtn">&times;</button>
         </div>
         <div id="detailModalBody"></div>
     </div>
@@ -55,7 +56,7 @@
         <div class="header"><div class="header-left"><h1>Panel Admin</h1><div class="subtitle">Verifikasi Akses</div></div></div>
         <div class="content">
             <div class="input-box"><label>Key Akses</label><input type="password" id="accessKey" placeholder="Masukkan key..." maxlength="50"></div>
-            <button class="btn btn-primary btn-block" onclick="verifyKey()">Verifikasi</button>
+            <button class="btn btn-primary btn-block" id="verifyKeyBtn">Verifikasi</button>
         </div>
     </div>
 
@@ -64,14 +65,14 @@
         <div class="content">
             <div class="input-box"><label>Email</label><input type="email" id="loginEmail" placeholder="Masukkan email" maxlength="50"></div>
             <div class="input-box"><label>Password</label><input type="password" id="loginPassword" placeholder="Masukkan password" maxlength="50"></div>
-            <button class="btn btn-primary btn-block" onclick="login()">Masuk</button>
+            <button class="btn btn-primary btn-block" id="loginBtn">Masuk</button>
         </div>
     </div>
 
     <div id="adminPanel" style="display:none">
         <div class="header">
             <div class="header-left"><h1>⚡ Panel Admin</h1><div class="subtitle"><span class="dot"></span> <span id="loggedUser">-</span> · <span id="clockDisplay"></span></div></div>
-            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
         </div>
         <div class="stats-row">
             <div class="stat-card blue"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total User</div></div>
@@ -82,14 +83,14 @@
         <div class="content">
             <div class="section-title" style="margin-bottom:12px"><i class="fas fa-bolt"></i> Aksi Cepat</div>
             <div class="action-grid">
-                <div class="action-card" onclick="openActionModal('ban')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div><div class="action-label">Ban User</div></div>
-                <div class="action-card" onclick="openActionModal('unban')"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-user-check"></i></div><div class="action-label">Unban User</div></div>
-                <div class="action-card" onclick="openActionModal('banakses')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">Ban Akses</div></div>
-                <div class="action-card" onclick="openActionModal('unbanakses')"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-shield-check"></i></div><div class="action-label">Unban Akses</div></div>
-                <div class="action-card" onclick="navigateTo('adduser')"><div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-plus"></i></div><div class="action-label">Tambah</div></div>
-                <div class="action-card" onclick="navigateTo('users')"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-list"></i></div><div class="action-label">List User</div></div>
-                <div class="action-card" onclick="navigateTo('bannedlist')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div><div class="action-label">List Banned</div></div>
-                <div class="action-card" onclick="navigateTo('banakseslist')"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">List Ban Akses</div></div>
+                <div class="action-card" data-action="ban"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div><div class="action-label">Ban User</div></div>
+                <div class="action-card" data-action="unban"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-user-check"></i></div><div class="action-label">Unban User</div></div>
+                <div class="action-card" data-action="banakses"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">Ban Akses</div></div>
+                <div class="action-card" data-action="unbanakses"><div class="action-icon" style="background:#d1fae5;color:#10b981"><i class="fas fa-shield-check"></i></div><div class="action-label">Unban Akses</div></div>
+                <div class="action-card" data-action="adduser"><div class="action-icon" style="background:#e0f2fe;color:#00bfff"><i class="fas fa-plus"></i></div><div class="action-label">Tambah</div></div>
+                <div class="action-card" data-action="users"><div class="action-icon" style="background:#f1f5f9;color:#64748b"><i class="fas fa-list"></i></div><div class="action-label">List User</div></div>
+                <div class="action-card" data-action="bannedlist"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-user-slash"></i></div><div class="action-label">List Banned</div></div>
+                <div class="action-card" data-action="banakseslist"><div class="action-icon" style="background:#fee2e2;color:#ef4444"><i class="fas fa-shield-haltered"></i></div><div class="action-label">List Ban Akses</div></div>
             </div>
             <div class="section-title" style="margin-top:20px;margin-bottom:12px"><i class="fas fa-chart-line"></i> Log Aktivitas User <span style="font-size:10px;color:var(--sub);font-weight:400">(10 detik)</span></div>
             <div class="activity-list" id="activityListContainer" style="max-height:300px"><div class="empty-state">Memuat...</div></div>
