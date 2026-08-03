@@ -26,7 +26,6 @@
             --radius: 10px;
         }
 
-        /* LOGIN */
         #loginWrapper {
             min-height: 100vh;
             display: flex;
@@ -67,7 +66,7 @@
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
             padding: 10px 0;
             border: none;
@@ -78,8 +77,13 @@
             font-family: 'Inter', sans-serif;
             outline: none;
         }
-        .input-group input:focus {
+        .input-group input:focus, .input-group select:focus {
             border-bottom-color: var(--blue);
+        }
+        .input-group select {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
         }
         .btn {
             padding: 10px 20px;
@@ -100,9 +104,7 @@
             color: #fff;
             width: 100%;
         }
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
+        .btn-primary:hover { background: #1d4ed8; }
         .btn-success {
             background: #16a34a;
             color: #fff;
@@ -122,10 +124,8 @@
         .btn-sm { padding: 6px 14px; font-size: 12px; }
         .btn-xs { padding: 4px 10px; font-size: 11px; }
 
-        /* APP */
         #appContainer { display: none; min-height: 100vh; }
 
-        /* NAVBAR */
         .navbar {
             position: fixed;
             top: 0;
@@ -148,7 +148,9 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            cursor: pointer;
         }
+        .navbar-brand i { color: var(--blue); font-size: 20px; }
         .navbar-brand span { color: var(--blue); }
         .navbar-right {
             display: flex;
@@ -178,6 +180,7 @@
             font-weight: 600;
             color: var(--blue);
         }
+        .navbar-user .avatar i { font-size: 14px; }
         .navbar-toggle {
             display: none;
             background: none;
@@ -187,7 +190,6 @@
             color: var(--text);
         }
 
-        /* SIDEBAR */
         .sidebar {
             position: fixed;
             top: var(--nav-height);
@@ -265,7 +267,6 @@
             color: #dc2626;
         }
 
-        /* MAIN */
         .main-content {
             margin-left: var(--sidebar);
             padding-top: var(--nav-height);
@@ -292,7 +293,6 @@
             color: var(--sub);
         }
 
-        /* STATS */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -319,7 +319,6 @@
         }
         .stat .icon { font-size: 18px; margin-bottom: 6px; }
 
-        /* CARDS */
         .card {
             background: #fff;
             border-radius: var(--radius);
@@ -337,9 +336,9 @@
             flex-wrap: wrap;
             gap: 8px;
         }
+        .card-header i { margin-right: 6px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-        /* TABLE */
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th {
@@ -373,7 +372,6 @@
         .badge-green { background: #ecfdf5; color: #16a34a; }
         .badge-blue { background: var(--blue-light); color: var(--blue); }
 
-        /* ACTIVITY */
         .activity-list {
             max-height: 400px;
             overflow-y: auto;
@@ -418,7 +416,6 @@
         }
         .empty-state i { font-size: 32px; opacity: 0.3; display: block; margin-bottom: 8px; }
 
-        /* QUICK ACTIONS */
         .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .action-pill {
             padding: 8px 16px;
@@ -439,7 +436,6 @@
         }
         .action-pill i { font-size: 14px; }
 
-        /* WEB STATS */
         .web-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -471,7 +467,6 @@
         .dist-item .num { font-size: 20px; font-weight: 700; }
         .dist-item .label { font-size: 11px; color: var(--sub); }
 
-        /* MODAL */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -525,7 +520,6 @@
         .user-check:hover { background: var(--blue-light); border-color: var(--blue); }
         .user-check.selected { border-color: var(--blue); background: #dbeafe; }
 
-        /* ALERT */
         .alert-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -583,7 +577,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* RESPONSIVE */
         @media (max-width: 1024px) {
             .stats { grid-template-columns: repeat(2, 1fr); }
             .grid-2 { grid-template-columns: 1fr; }
@@ -621,62 +614,58 @@
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginWrapper">
     <div id="keyScreen">
-        <h2>Admin Access</h2>
+        <h2><i class="fas fa-key" style="color:var(--blue);margin-right:8px;"></i>Admin Access</h2>
         <p>Masukkan key untuk melanjutkan</p>
         <div class="input-group">
-            <label>Access Key</label>
+            <label><i class="fas fa-lock"></i> Access Key</label>
             <input type="password" id="accessKey" placeholder="Masukkan access key">
         </div>
-        <button class="btn btn-primary" onclick="verifyKey()">Verifikasi</button>
+        <button class="btn btn-primary" onclick="verifyKey()"><i class="fas fa-arrow-right"></i> Verifikasi</button>
     </div>
     <div id="loginScreen" style="display:none;">
-        <h2>Admin Login</h2>
+        <h2><i class="fas fa-user-shield" style="color:var(--blue);margin-right:8px;"></i>Admin Login</h2>
         <p>Masukkan email & password</p>
         <div class="input-group">
-            <label>Email</label>
+            <label><i class="fas fa-envelope"></i> Email</label>
             <input type="email" id="loginEmail" placeholder="admin@email.com">
         </div>
         <div class="input-group">
-            <label>Password</label>
+            <label><i class="fas fa-lock"></i> Password</label>
             <input type="password" id="loginPassword" placeholder="Password">
         </div>
-        <button class="btn btn-primary" onclick="login()">Login</button>
+        <button class="btn btn-primary" onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
 </div>
 
-<!-- APP -->
 <div id="appContainer">
 
-    <!-- NAVBAR -->
     <nav class="navbar">
-        <button class="navbar-toggle" onclick="toggleSidebar()">☰</button>
-        <a href="#" class="navbar-brand" onclick="switchPage('dashboard')">Revan<span>Store</span></a>
+        <button class="navbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a href="#" class="navbar-brand" onclick="switchPage('dashboard')"><i class="fas fa-shield-alt"></i> Revan<span>Store</span></a>
         <div class="navbar-right">
-            <span class="navbar-clock" id="clockDisplay">--:--</span>
+            <span class="navbar-clock" id="clockDisplay"><i class="far fa-clock"></i> --:--</span>
             <div class="navbar-user">
                 <span class="name" id="navbarUserName">Admin</span>
-                <div class="avatar">A</div>
+                <div class="avatar"><i class="fas fa-user"></i></div>
             </div>
         </div>
     </nav>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <nav class="sidebar-nav">
-            <div class="label">Utama</div>
+            <div class="label"><i class="fas fa-th-large"></i> Utama</div>
             <a class="active" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
             <a data-page="all-users" onclick="switchPage('all-users')"><i class="fas fa-users"></i> Semua User</a>
             <div class="sidebar-divider"></div>
-            <div class="label">Manajemen</div>
+            <div class="label"><i class="fas fa-user-cog"></i> Manajemen</div>
             <a data-page="active-users" onclick="switchPage('active-users')"><i class="fas fa-check-circle"></i> User Aktif</a>
             <a data-page="banned-users" onclick="switchPage('banned-users')"><i class="fas fa-ban"></i> User Banned</a>
             <a data-page="banakses-users" onclick="switchPage('banakses-users')"><i class="fas fa-shield-alt"></i> Ban Akses</a>
             <a data-page="force-users" onclick="switchPage('force-users')"><i class="fas fa-eject"></i> Force Logout</a>
             <div class="sidebar-divider"></div>
-            <div class="label">Log & Statistik</div>
+            <div class="label"><i class="fas fa-chart-line"></i> Log & Statistik</div>
             <a data-page="activity-log" onclick="switchPage('activity-log')"><i class="fas fa-history"></i> Log Aktivitas</a>
             <a data-page="suspicious-log" onclick="switchPage('suspicious-log')"><i class="fas fa-exclamation-triangle"></i> Log Mencurigakan</a>
             <a data-page="web-stats" onclick="switchPage('web-stats')"><i class="fas fa-chart-bar"></i> Statistik Web</a>
@@ -686,36 +675,34 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content" id="mainContent">
 
-        <!-- DASHBOARD -->
         <div class="page active" id="page-dashboard">
             <div class="page-header">
                 <div>
-                    <h1>Dashboard</h1>
+                    <h1><i class="fas fa-home" style="color:var(--blue);margin-right:8px;"></i>Dashboard</h1>
                     <p>Selamat datang, <b id="loggedUser">Admin</b></p>
                 </div>
-                <button class="btn btn-primary" onclick="openAddUserModal()" style="width:auto;">+ Tambah User</button>
+                <button class="btn btn-primary" onclick="openAddUserModal()" style="width:auto;"><i class="fas fa-user-plus"></i> Tambah User</button>
             </div>
             <div class="stats">
                 <div class="stat">
-                    <div class="icon">👥</div>
+                    <div class="icon"><i class="fas fa-users"></i></div>
                     <div class="num" id="statTotal">0</div>
                     <div class="label">Total User</div>
                 </div>
                 <div class="stat">
-                    <div class="icon">✅</div>
+                    <div class="icon"><i class="fas fa-user-check"></i></div>
                     <div class="num" style="color:#16a34a;" id="statActive">0</div>
                     <div class="label">User Aktif</div>
                 </div>
                 <div class="stat">
-                    <div class="icon">🚫</div>
+                    <div class="icon"><i class="fas fa-user-slash"></i></div>
                     <div class="num" style="color:#dc2626;" id="statBanned">0</div>
                     <div class="label">Banned</div>
                 </div>
                 <div class="stat">
-                    <div class="icon">⏸</div>
+                    <div class="icon"><i class="fas fa-pause-circle"></i></div>
                     <div class="num" style="color:#ea580c;" id="statForce">0</div>
                     <div class="label">Force</div>
                 </div>
@@ -723,28 +710,28 @@
 
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-header">⚡ Quick Actions</div>
+                    <div class="card-header"><i class="fas fa-bolt"></i> Quick Actions</div>
                     <div class="quick-actions">
-                        <div class="action-pill" onclick="openActionModal('ban')">🚫 Ban</div>
-                        <div class="action-pill" onclick="openActionModal('banakses')">🛡️ Ban Akses</div>
-                        <div class="action-pill" onclick="openActionModal('force')">⏸ Force</div>
+                        <div class="action-pill" onclick="openActionModal('ban')"><i class="fas fa-ban"></i> Ban</div>
+                        <div class="action-pill" onclick="openActionModal('banakses')"><i class="fas fa-shield-alt"></i> Ban Akses</div>
+                        <div class="action-pill" onclick="openActionModal('force')"><i class="fas fa-pause"></i> Force</div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">📊 Ringkasan</div>
+                    <div class="card-header"><i class="fas fa-chart-pie"></i> Ringkasan</div>
                     <div style="display:flex;flex-direction:column;gap:6px;">
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);">User Aktif</span><span style="font-weight:700;color:#16a34a;" id="ringkasanAktif">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);">User Banned</span><span style="font-weight:700;color:#dc2626;" id="ringkasanBanned">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);">Ban Akses</span><span style="font-weight:700;color:#d97706;" id="ringkasanBanAkses">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);">Force Logout</span><span style="font-weight:700;color:#ea580c;" id="ringkasanForce">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-check" style="color:#16a34a;"></i> User Aktif</span><span style="font-weight:700;color:#16a34a;" id="ringkasanAktif">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-slash" style="color:#dc2626;"></i> User Banned</span><span style="font-weight:700;color:#dc2626;" id="ringkasanBanned">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-shield-alt" style="color:#d97706;"></i> Ban Akses</span><span style="font-weight:700;color:#d97706;" id="ringkasanBanAkses">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:#ea580c;"></i> Force Logout</span><span style="font-weight:700;color:#ea580c;" id="ringkasanForce">0</span></div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <span>📋 Aktivitas Terbaru</span>
-                    <button class="btn btn-danger btn-sm" onclick="clearAllLogs()">🗑 Hapus</button>
+                    <span><i class="fas fa-history"></i> Aktivitas Terbaru</span>
+                    <button class="btn btn-danger btn-sm" onclick="clearAllLogs()"><i class="fas fa-trash"></i> Hapus</button>
                 </div>
                 <div class="activity-list" id="activityListContainer">
                     <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
@@ -752,11 +739,10 @@
             </div>
         </div>
 
-        <!-- ALL USERS -->
         <div class="page" id="page-all-users">
             <div class="page-header">
-                <div><h1>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
-                <button class="btn btn-primary" onclick="openAddUserModal()">+ Tambah User</button>
+                <div><h1><i class="fas fa-users" style="color:var(--blue);margin-right:8px;"></i>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
+                <button class="btn btn-primary" onclick="openAddUserModal()"><i class="fas fa-user-plus"></i> Tambah User</button>
             </div>
             <div class="card">
                 <div class="table-wrap">
@@ -765,13 +751,12 @@
                         <tbody id="allUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="allUsersEmpty" style="display:none;">Tidak ada user</div>
+                <div class="empty-state" id="allUsersEmpty" style="display:none;"><i class="fas fa-users"></i> Tidak ada user</div>
             </div>
         </div>
 
-        <!-- ACTIVE USERS -->
         <div class="page" id="page-active-users">
-            <div class="page-header"><h1>User Aktif</h1></div>
+            <div class="page-header"><h1><i class="fas fa-check-circle" style="color:#16a34a;margin-right:8px;"></i>User Aktif</h1></div>
             <div class="card">
                 <div class="table-wrap">
                     <table>
@@ -779,13 +764,12 @@
                         <tbody id="activeUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="activeUsersEmpty" style="display:none;">Tidak ada user aktif</div>
+                <div class="empty-state" id="activeUsersEmpty" style="display:none;"><i class="fas fa-check-circle"></i> Tidak ada user aktif</div>
             </div>
         </div>
 
-        <!-- BANNED USERS -->
         <div class="page" id="page-banned-users">
-            <div class="page-header"><h1>User Banned</h1></div>
+            <div class="page-header"><h1><i class="fas fa-ban" style="color:#dc2626;margin-right:8px;"></i>User Banned</h1></div>
             <div class="card">
                 <div class="table-wrap">
                     <table>
@@ -793,13 +777,12 @@
                         <tbody id="bannedUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="bannedUsersEmpty" style="display:none;">Tidak ada user banned</div>
+                <div class="empty-state" id="bannedUsersEmpty" style="display:none;"><i class="fas fa-ban"></i> Tidak ada user banned</div>
             </div>
         </div>
 
-        <!-- BAN AKSES -->
         <div class="page" id="page-banakses-users">
-            <div class="page-header"><h1>User Ban Akses</h1></div>
+            <div class="page-header"><h1><i class="fas fa-shield-alt" style="color:#d97706;margin-right:8px;"></i>User Ban Akses</h1></div>
             <div class="card">
                 <div class="table-wrap">
                     <table>
@@ -807,13 +790,12 @@
                         <tbody id="banaksesUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="banaksesUsersEmpty" style="display:none;">Tidak ada user ban akses</div>
+                <div class="empty-state" id="banaksesUsersEmpty" style="display:none;"><i class="fas fa-shield-alt"></i> Tidak ada user ban akses</div>
             </div>
         </div>
 
-        <!-- FORCE USERS -->
         <div class="page" id="page-force-users">
-            <div class="page-header"><h1>User Force Logout</h1></div>
+            <div class="page-header"><h1><i class="fas fa-eject" style="color:#ea580c;margin-right:8px;"></i>User Force Logout</h1></div>
             <div class="card">
                 <div class="table-wrap">
                     <table>
@@ -821,15 +803,14 @@
                         <tbody id="forceUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="forceUsersEmpty" style="display:none;">Tidak ada user force</div>
+                <div class="empty-state" id="forceUsersEmpty" style="display:none;"><i class="fas fa-eject"></i> Tidak ada user force</div>
             </div>
         </div>
 
-        <!-- ACTIVITY LOG -->
         <div class="page" id="page-activity-log">
             <div class="page-header">
-                <div><h1>Log Aktivitas</h1></div>
-                <button class="btn btn-danger btn-sm" onclick="clearAllLogs()">🗑 Hapus Semua</button>
+                <div><h1><i class="fas fa-history" style="color:var(--blue);margin-right:8px;"></i>Log Aktivitas</h1></div>
+                <button class="btn btn-danger btn-sm" onclick="clearAllLogs()"><i class="fas fa-trash"></i> Hapus Semua</button>
             </div>
             <div class="card">
                 <div class="activity-list" id="allActivityLog" style="max-height:600px;">
@@ -838,9 +819,8 @@
             </div>
         </div>
 
-        <!-- SUSPICIOUS LOG -->
         <div class="page" id="page-suspicious-log">
-            <div class="page-header"><h1>Log Mencurigakan</h1></div>
+            <div class="page-header"><h1><i class="fas fa-exclamation-triangle" style="color:#dc2626;margin-right:8px;"></i>Log Mencurigakan</h1></div>
             <div class="card">
                 <div class="activity-list" id="suspiciousActivityLog" style="max-height:600px;">
                     <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
@@ -848,24 +828,23 @@
             </div>
         </div>
 
-        <!-- WEB STATS -->
         <div class="page" id="page-web-stats">
-            <div class="page-header"><h1>Statistik Web</h1></div>
+            <div class="page-header"><h1><i class="fas fa-chart-bar" style="color:var(--blue);margin-right:8px;"></i>Statistik Web</h1></div>
             <div class="web-stats">
-                <div class="web-stat"><div class="num" id="webStatTotalUsers">0</div><div class="label">Total User</div></div>
-                <div class="web-stat"><div class="num" style="color:#16a34a;" id="webStatActiveUsers">0</div><div class="label">User Aktif</div></div>
-                <div class="web-stat"><div class="num" style="color:#dc2626;" id="webStatBannedUsers">0</div><div class="label">User Diblokir</div></div>
-                <div class="web-stat"><div class="num" id="webStatTotalLogins">0</div><div class="label">Total Login</div></div>
-                <div class="web-stat"><div class="num" style="color:#d97706;" id="webStatBanAkses">0</div><div class="label">Ban Akses</div></div>
-                <div class="web-stat"><div class="num" style="color:#ea580c;" id="webStatForce">0</div><div class="label">Force Logout</div></div>
+                <div class="web-stat"><div class="num" id="webStatTotalUsers">0</div><div class="label"><i class="fas fa-users"></i> Total User</div></div>
+                <div class="web-stat"><div class="num" style="color:#16a34a;" id="webStatActiveUsers">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
+                <div class="web-stat"><div class="num" style="color:#dc2626;" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
+                <div class="web-stat"><div class="num" id="webStatTotalLogins">0</div><div class="label"><i class="fas fa-sign-in-alt"></i> Total Login</div></div>
+                <div class="web-stat"><div class="num" style="color:#d97706;" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
+                <div class="web-stat"><div class="num" style="color:#ea580c;" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Force Logout</div></div>
             </div>
             <div class="card" style="margin-top:16px;">
-                <div class="card-header">📊 Distribusi User</div>
+                <div class="card-header"><i class="fas fa-chart-line"></i> Distribusi User</div>
                 <div class="dist-grid">
-                    <div class="dist-item" style="background:#ecfdf5;"><div class="num" style="color:#16a34a;" id="distAktif">0</div><div class="label">Aktif</div></div>
-                    <div class="dist-item" style="background:#fef2f2;"><div class="num" style="color:#dc2626;" id="distBanned">0</div><div class="label">Banned</div></div>
-                    <div class="dist-item" style="background:#fffbeb;"><div class="num" style="color:#d97706;" id="distBanAkses">0</div><div class="label">Ban Akses</div></div>
-                    <div class="dist-item" style="background:#fff7ed;"><div class="num" style="color:#ea580c;" id="distForce">0</div><div class="label">Force</div></div>
+                    <div class="dist-item" style="background:#ecfdf5;"><div class="num" style="color:#16a34a;" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
+                    <div class="dist-item" style="background:#fef2f2;"><div class="num" style="color:#dc2626;" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
+                    <div class="dist-item" style="background:#fffbeb;"><div class="num" style="color:#d97706;" id="distBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
+                    <div class="dist-item" style="background:#fff7ed;"><div class="num" style="color:#ea580c;" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Force</div></div>
                 </div>
             </div>
         </div>
@@ -876,8 +855,8 @@
 <div class="modal" id="actionModal">
     <div class="modal-box">
         <div class="modal-header">
-            <span id="actionModalTitle">Action</span>
-            <button class="modal-close" onclick="closeModal('actionModal')">✕</button>
+            <span id="actionModalTitle"><i class="fas fa-cog"></i> Action</span>
+            <button class="modal-close" onclick="closeModal('actionModal')"><i class="fas fa-times"></i></button>
         </div>
         <div id="actionModalBody"></div>
     </div>
@@ -886,33 +865,33 @@
 <div class="modal" id="addUserModal">
     <div class="modal-box">
         <div class="modal-header">
-            <span>+ Tambah User</span>
-            <button class="modal-close" onclick="closeModal('addUserModal')">✕</button>
+            <span><i class="fas fa-user-plus"></i> Tambah User</span>
+            <button class="modal-close" onclick="closeModal('addUserModal')"><i class="fas fa-times"></i></button>
         </div>
-        <div class="input-group"><label>Username *</label><input type="text" id="newUsername" placeholder="Username"></div>
-        <div class="input-group"><label>Password * (min 6)</label><input type="password" id="newPassword" placeholder="Password"></div>
-        <div class="input-group"><label>Nomor</label><input type="text" id="newPhone" placeholder="Nomor HP"></div>
-        <div class="input-group"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-group"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="MM/DD/YYYY"></div>
-        <button class="btn btn-success" style="width:100%;" onclick="addUserNow()">Tambah User</button>
+        <div class="input-group"><label><i class="fas fa-user"></i> Username *</label><input type="text" id="newUsername" placeholder="Username"></div>
+        <div class="input-group"><label><i class="fas fa-lock"></i> Password * (min 6)</label><input type="password" id="newPassword" placeholder="Password"></div>
+        <div class="input-group"><label><i class="fas fa-phone"></i> Nomor</label><input type="text" id="newPhone" placeholder="Nomor HP"></div>
+        <div class="input-group"><label><i class="fas fa-tag"></i> Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+        <div class="input-group"><label><i class="fas fa-calendar-alt"></i> Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="MM/DD/YYYY"></div>
+        <button class="btn btn-success" style="width:100%;" onclick="addUserNow()"><i class="fas fa-user-plus"></i> Tambah User</button>
     </div>
 </div>
 
 <div class="modal" id="editUserModal">
     <div class="modal-box">
         <div class="modal-header">
-            <span>✏️ Edit User</span>
-            <button class="modal-close" onclick="closeModal('editUserModal')">✕</button>
+            <span><i class="fas fa-edit"></i> Edit User</span>
+            <button class="modal-close" onclick="closeModal('editUserModal')"><i class="fas fa-times"></i></button>
         </div>
         <input type="hidden" id="editUserId">
-        <div class="input-group"><label>Username</label><input type="text" id="editUsername"></div>
-        <div class="input-group"><label>Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="Kosongkan jika tidak diubah"></div>
-        <div class="input-group"><label>Nomor</label><input type="text" id="editPhone"></div>
-        <div class="input-group"><label>Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-group"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate"></div>
-        <div class="input-group"><label>IP</label><input type="text" id="editIP" readonly style="background:#f1f5f9;"></div>
-        <div class="input-group"><label>Fingerprint</label><input type="text" id="editFP" readonly style="background:#f1f5f9;"></div>
-        <button class="btn btn-primary" style="width:100%;" onclick="saveUserEdit()">Simpan</button>
+        <div class="input-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="editUsername"></div>
+        <div class="input-group"><label><i class="fas fa-lock"></i> Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="Kosongkan jika tidak diubah"></div>
+        <div class="input-group"><label><i class="fas fa-phone"></i> Nomor</label><input type="text" id="editPhone"></div>
+        <div class="input-group"><label><i class="fas fa-tag"></i> Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+        <div class="input-group"><label><i class="fas fa-calendar-alt"></i> Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate"></div>
+        <div class="input-group"><label><i class="fas fa-network-wired"></i> IP</label><input type="text" id="editIP" readonly style="background:#f1f5f9;"></div>
+        <div class="input-group"><label><i class="fas fa-fingerprint"></i> Fingerprint</label><input type="text" id="editFP" readonly style="background:#f1f5f9;"></div>
+        <button class="btn btn-primary" style="width:100%;" onclick="saveUserEdit()"><i class="fas fa-save"></i> Simpan</button>
     </div>
 </div>
 
@@ -929,8 +908,8 @@
     <div class="confirm-box">
         <div id="confirmMessage">Yakin?</div>
         <div class="btns">
-            <button class="btn btn-danger" id="confirmYes">Ya</button>
-            <button class="btn btn-outline" id="confirmNo">Batal</button>
+            <button class="btn btn-danger" id="confirmYes"><i class="fas fa-check"></i> Ya</button>
+            <button class="btn btn-outline" id="confirmNo"><i class="fas fa-times"></i> Batal</button>
         </div>
     </div>
 </div>
@@ -1060,7 +1039,6 @@ function switchPage(pageName) {
         }
     });
 
-    // Tutup sidebar di mobile
     var sidebar = document.getElementById('sidebar');
     if (sidebar && window.innerWidth <= 768) sidebar.classList.remove('open');
 
@@ -1224,7 +1202,7 @@ function updateActivityDisplay() {
     var container = document.getElementById('activityListContainer');
     if (!container) return;
     var logs = allActivities.slice(0, 20);
-    if (!logs.length) { container.innerHTML = '<div class="empty-state">Belum ada aktivitas</div>'; return; }
+    if (!logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
     var labels = {
         sharing_detected: 'SHARING DETEKSI', banned: 'Ban User', unbanned: 'Unban User',
         ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
@@ -1243,7 +1221,7 @@ function updateActivityDisplay() {
 function updateActivityLogPage() {
     var container = document.getElementById('allActivityLog');
     if (!container) return;
-    if (!allActivities.length) { container.innerHTML = '<div class="empty-state">Tidak ada aktivitas</div>'; return; }
+    if (!allActivities.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas</div>'; return; }
     var labels = {
         sharing_detected: 'SHARING DETEKSI', banned: 'Ban User', unbanned: 'Unban User',
         ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
@@ -1263,7 +1241,7 @@ function updateSuspiciousLogPage() {
     var container = document.getElementById('suspiciousActivityLog');
     if (!container) return;
     var suspicious = allActivities.filter(function(l) { return l.action === 'sharing_detected' || l.action === 'login_failed'; });
-    if (!suspicious.length) { container.innerHTML = '<div class="empty-state">Tidak ada aktivitas mencurigakan</div>'; return; }
+    if (!suspicious.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
     container.innerHTML = suspicious.map(function(l) {
         var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
         return '<div class="activity-item suspicious"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + (l.action === 'sharing_detected' ? '⚠️ SHARING DETEKSI' : '❌ Gagal Login') + (l.details ? ' - ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>';
@@ -1359,28 +1337,29 @@ function openActionModal(action) {
         force: { title: '⏸ Force Logout', list: 'Force' }
     };
     var al = actionLabels[action] || { title: 'Action', list: '' };
-    title.textContent = al.title;
+    title.innerHTML = '<i class="fas fa-cog"></i> ' + al.title;
 
     var statusMap = { ban: 'banned', banakses: 'banAkses', force: 'forceLogout' };
     var statusKey = statusMap[action];
     var filtered = allUsers.filter(function(u) { return u[statusKey]; });
 
     body.innerHTML = 
-        '<div class="input-group"><label>Cari User</label><input type="text" id="actionSearch" placeholder="Ketik username..." oninput="searchUserList(\''+action+'\')"></div>' +
+        '<div class="input-group"><label><i class="fas fa-search"></i> Cari User</label><input type="text" id="actionSearch" placeholder="Ketik username..." oninput="searchUserList(\''+action+'\')"></div>' +
         '<div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;"></div>' +
-        (action !== 'force' ? '<div class="input-group"><label>Durasi</label><select id="actionDuration" style="width:100%;padding:10px;border:0;border-bottom:2px solid var(--border);"><option value="3600000">1 Jam</option><option value="10800000">3 Jam</option><option value="86400000">24 Jam</option><option value="0">Permanen</option></select></div>' : '') +
+        (action !== 'force' ? '<div class="input-group"><label><i class="fas fa-clock"></i> Durasi</label><select id="actionDuration" style="width:100%;padding:10px;border:0;border-bottom:2px solid var(--border);"><option value="3600000">1 Jam</option><option value="10800000">3 Jam</option><option value="86400000">24 Jam</option><option value="0">Permanen</option></select></div>' : '') +
         '<div id="actionSelectedUser" style="margin-bottom:12px;font-size:13px;"></div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-        '<button class="btn btn-danger" onclick="executeAction(\''+action+'\')" style="flex:1;">Terapkan</button>' +
-        '<button class="btn btn-success" onclick="executeAction(\'un'+action+'\')" style="flex:1;">Batalkan</button>' +
+        '<button class="btn btn-danger" onclick="executeAction(\''+action+'\')" style="flex:1;"><i class="fas fa-check"></i> Terapkan</button>' +
+        '<button class="btn btn-success" onclick="executeAction(\'un'+action+'\')" style="flex:1;"><i class="fas fa-undo"></i> Batalkan</button>' +
         '</div>' +
         '<hr style="margin:12px 0;">' +
-        '<div style="font-size:13px;"><b>📋 List ' + al.list + ' (' + filtered.length + ')</b>' +
+        '<div style="font-size:13px;"><b><i class="fas fa-list"></i> List ' + al.list + ' (' + filtered.length + ')</b>' +
         '<div style="max-height:150px;overflow-y:auto;margin-top:8px;">' +
         (filtered.length ? filtered.map(function(u){ 
             var badge = action === 'ban' ? 'badge-red' : action === 'banakses' ? 'badge-yellow' : 'badge-orange';
-            return '<div style="padding:6px;cursor:pointer;font-size:12px;" onclick="selectActionUser(\''+u.id+'\',\''+action+'\')">' + esc(u.username) + ' <span class="badge ' + badge + '">' + (action === 'ban' ? 'BAN' : action === 'banakses' ? 'AKSES' : 'FORCE') + '</span></div>';
-        }).join('') : '<div style="padding:8px;color:var(--sub);">Kosong</div>') +
+            var label = action === 'ban' ? 'BAN' : action === 'banakses' ? 'AKSES' : 'FORCE';
+            return '<div style="padding:6px;cursor:pointer;font-size:12px;" onclick="selectActionUser(\''+u.id+'\',\''+action+'\')">' + esc(u.username) + ' <span class="badge ' + badge + '">' + label + '</span></div>';
+        }).join('') : '<div style="padding:8px;color:var(--sub);"><i class="fas fa-info-circle"></i> Kosong</div>') +
         '</div></div>';
 
     modal.classList.add('show');
@@ -1392,7 +1371,7 @@ function searchUserList(action) {
     var list = document.getElementById('actionUserList');
     if (!list) return;
     var filtered = allUsers.filter(function(u) { return u.username.toLowerCase().includes(q); });
-    if (!filtered.length) { list.innerHTML = '<div style="padding:8px;font-size:13px;color:var(--sub);">Tidak ditemukan</div>'; return; }
+    if (!filtered.length) { list.innerHTML = '<div style="padding:8px;font-size:13px;color:var(--sub);"><i class="fas fa-search"></i> Tidak ditemukan</div>'; return; }
     list.innerHTML = filtered.map(function(u) {
         var isSel = selectedActionUser && selectedActionUser.id === u.id;
         var badges = '';
@@ -1473,7 +1452,7 @@ function updateAllUsersTable() {
         if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
         if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
         if (u.forceLogout) badges += '<span class="badge badge-orange">Force</span> ';
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + badges + '</td><td>' + (u.ip || '-') + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')">✏️</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + badges + '</td><td>' + (u.ip || '-') + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button></td></tr>';
     }).join('');
 }
 
@@ -1485,7 +1464,7 @@ function updateActiveUsersTable() {
     if (!active.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = active.map(function(u) {
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')">✏️</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button></td></tr>';
     }).join('');
 }
 
@@ -1498,7 +1477,7 @@ function updateBannedUsersTable() {
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = banned.map(function(u) {
         var durasi = u.bannedUntil === 0 ? 'Permanen' : new Date(u.bannedUntil).toLocaleString('id-ID');
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + durasi + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unban\',selectedActionUser)">Unban</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + durasi + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unban\',selectedActionUser)"><i class="fas fa-check"></i> Unban</button></td></tr>';
     }).join('');
 }
 
@@ -1511,7 +1490,7 @@ function updateBanAksesUsersTable() {
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = ba.map(function(u) {
         var durasi = u.banAksesUntil === 0 ? 'Permanen' : new Date(u.banAksesUntil).toLocaleString('id-ID');
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + durasi + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unbanakses\',selectedActionUser)">Unban Akses</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + durasi + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unbanakses\',selectedActionUser)"><i class="fas fa-check"></i> Unban Akses</button></td></tr>';
     }).join('');
 }
 
@@ -1523,7 +1502,7 @@ function updateForceUsersTable() {
     if (!force.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = force.map(function(u) {
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + (u.ip || '-') + '</td><td>' + (u.fingerprint ? u.fingerprint.substring(0, 16) + '...' : '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unforce\',selectedActionUser)">Unforce</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + (u.ip || '-') + '</td><td>' + (u.fingerprint ? u.fingerprint.substring(0, 16) + '...' : '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unforce\',selectedActionUser)"><i class="fas fa-check"></i> Unforce</button></td></tr>';
     }).join('');
 }
 
@@ -1560,14 +1539,12 @@ function updateRingkasan() {
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', async function() {
-    // Close modals on overlay click
     document.querySelectorAll('.modal').forEach(function(m) {
         m.addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('show');
         });
     });
 
-    // Enter key for login
     document.getElementById('loginPassword').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') login();
     });
@@ -1575,7 +1552,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (e.key === 'Enter') verifyKey();
     });
 
-    // Session timer reset on activity
     document.addEventListener('click', function() {
         if (currentAdmin && sessionTimer) {
             clearTimeout(sessionTimer);
