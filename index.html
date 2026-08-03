@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <style>
         :root {
-            --bg: #f1f5f9;
+            --bg: #f8fafc;
             --card: #ffffff;
             --text: #1e293b;
             --sub: #64748b;
@@ -19,6 +19,7 @@
             --blue: #00BFFF;
             --blue-dark: #0099CC;
             --blue-light: #E6F9FF;
+            --blue-glow: rgba(0, 191, 255, 0.12);
             --red: #ef4444;
             --red-light: #fef2f2;
             --green: #10b981;
@@ -28,17 +29,21 @@
             --orange: #f97316;
             --orange-light: #fff7ed;
             --purple: #8b5cf6;
-            --font-body: 'Inter', system-ui, sans-serif;
+            --font-body: 'Inter', system-ui, -apple-system, sans-serif;
             --font-heading: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-            --radius-sm: 10px;
-            --radius-md: 14px;
+            --radius-xs: 8px;
+            --radius-sm: 12px;
+            --radius-md: 16px;
             --radius-lg: 20px;
             --radius-xl: 24px;
             --radius-full: 9999px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-xs: 0 1px 2px rgba(0,0,0,0.02);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
             --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
             --shadow-lg: 0 20px 60px rgba(0,0,0,0.1);
-            --transition: 0.2s ease;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-width: 260px;
+            --navbar-height: 64px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -46,152 +51,232 @@
 
         body {
             font-family: var(--font-body);
-            background: #f8fafc;
+            background: var(--bg);
             color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* ===== LOGIN SCREENS ===== */
+        #loginWrapper {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
-            line-height: 1.5;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
         }
-
-        #mainContainer {
+        #keyScreen, #loginScreen {
             background: var(--card);
             border-radius: var(--radius-xl);
-            padding: 2.5rem;
+            padding: 2.5rem 2rem;
             width: 100%;
-            max-width: 440px;
-            transition: all 0.35s ease;
-            box-shadow: var(--shadow-md);
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
             border: 1px solid var(--border);
+            position: relative;
+        }
+        #keyScreen .logo, #loginScreen .logo {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        #keyScreen .logo i, #loginScreen .logo i {
+            color: var(--blue);
+            filter: drop-shadow(0 4px 8px rgba(0,191,255,0.25));
+        }
+        #keyScreen .title, #loginScreen .title {
+            text-align: center;
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: var(--text);
+        }
+        #keyScreen .subtitle, #loginScreen .subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--sub);
+            margin-bottom: 1.8rem;
+            font-weight: 400;
         }
 
-        #mainContainer.panel-expanded {
-            max-width: 100%;
-            padding: 0;
-            border-radius: 0;
-            box-shadow: none;
-            border: none;
-            background: #f8fafc;
+        /* ===== LAYOUT ===== */
+        #appContainer {
+            display: none;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
-        #mainContainer.panel-expanded #keyScreen,
-        #mainContainer.panel-expanded #loginScreen { display: none !important; }
-
-        .logo { text-align: center; font-size: 2.8rem; margin-bottom: 0.5rem; }
-        .logo i { color: var(--blue); }
-        .title { text-align: center; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem; }
-        .subtitle { text-align: center; font-size: 0.85rem; color: var(--sub); margin-bottom: 1.8rem; }
-
-        .input-box { margin-bottom: 1.2rem; }
-        .input-box label {
-            display: block; font-size: 0.7rem; font-weight: 600; color: var(--sub);
-            margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em;
-        }
-        .input-box input, .input-box select {
-            width: 100%; padding: 0.8rem 0; border: none; border-bottom: 1.5px solid var(--border);
-            border-radius: 0; font-size: 0.9rem; background: transparent; font-family: var(--font-body);
-            transition: all var(--transition); color: var(--text); outline: none;
-        }
-        .input-box input:focus, .input-box select:focus { border-bottom: 2px solid var(--blue); }
-        .input-box input::placeholder { color: #bcc5cf; font-weight: 300; }
-        .input-box select {
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 2px center; cursor: pointer; padding-right: 20px;
-        }
-        .input-box input[readonly] { opacity: 0.5; cursor: not-allowed; }
-
-        .btn {
-            padding: 0.7rem 1.4rem; border: none; background: transparent; font-weight: 600;
-            font-size: 0.84rem; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-body);
-            display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-            transition: all var(--transition); white-space: nowrap;
-        }
-        .btn-primary { background: var(--blue); color: #fff; }
-        .btn-primary:hover { background: var(--blue-dark); }
-        .btn-green { background: var(--green); color: #fff; }
-        .btn-green:hover { background: #059669; }
-        .btn-red { background: var(--red); color: #fff; }
-        .btn-red:hover { background: #dc2626; }
-        .btn-yellow { background: var(--yellow); color: #000; }
-        .btn-yellow:hover { background: #d97706; }
-        .btn-orange { background: var(--orange); color: #fff; }
-        .btn-orange:hover { background: #ea580c; }
-        .btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
-        .btn-outline:hover { background: #f8fafc; }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.74rem; border-radius: 8px; }
-        .btn-xs { padding: 0.25rem 0.6rem; font-size: 0.7rem; border-radius: 6px; }
-        .btn-danger { background: var(--red); color: #fff; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-success { background: var(--green); color: #fff; }
-        .btn-success:hover { background: #059669; }
-        .btn-warning { background: var(--yellow); color: #000; }
-        .btn-warning:hover { background: #d97706; }
-
-        .navbar {
-            background: #fff;
+        /* ===== TOP NAVBAR ===== */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--navbar-height);
+            background: var(--card);
             border-bottom: 1px solid var(--border);
-            padding: 0 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 60px;
-            flex-shrink: 0;
-            gap: 1rem;
+            padding: 0 1.5rem;
+            z-index: 100;
+            box-shadow: var(--shadow-xs);
         }
-        .navbar-brand {
+        .top-navbar .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
             font-family: var(--font-heading);
             font-size: 1.2rem;
             font-weight: 800;
             color: var(--text);
-            white-space: nowrap;
+            text-decoration: none;
         }
-        .navbar-brand span { color: var(--blue); }
-        .navbar-menu {
+        .top-navbar .navbar-brand i {
+            color: var(--blue);
+            font-size: 1.4rem;
+        }
+        .top-navbar .navbar-actions {
             display: flex;
             align-items: center;
-            gap: 0.2rem;
-            list-style: none;
-            flex-wrap: wrap;
+            gap: 1rem;
         }
-        .navbar-menu li a {
-            display: block;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
+        .top-navbar .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+        .top-navbar .navbar-user .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--blue-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue);
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .top-navbar .navbar-clock {
+            font-size: 0.78rem;
+            color: var(--sub);
+            font-weight: 400;
+        }
+        .top-navbar .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text);
+            cursor: pointer;
+            padding: 0.3rem;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            top: var(--navbar-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--navbar-height));
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 1.2rem 0.8rem;
+            z-index: 90;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-xs);
             color: var(--sub);
             text-decoration: none;
             font-weight: 500;
+            font-size: 0.82rem;
+            transition: all var(--transition);
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-nav a:hover {
+            background: var(--blue-light);
+            color: var(--blue);
+            border-left-color: var(--blue);
+        }
+        .sidebar-nav a.active {
+            background: var(--blue-light);
+            color: var(--blue);
+            font-weight: 700;
+            border-left-color: var(--blue);
+        }
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        .sidebar-nav .nav-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0.8rem;
+        }
+        .sidebar-nav .nav-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--sub);
+            padding: 0.4rem 0.9rem;
+            font-weight: 700;
+            opacity: 0.6;
+        }
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 0.8rem;
+            margin-top: 0.8rem;
+        }
+        .sidebar-footer .logout-btn {
+            width: 100%;
+            padding: 0.6rem;
+            border: none;
+            background: transparent;
+            color: var(--sub);
+            font-weight: 600;
             font-size: 0.8rem;
             cursor: pointer;
+            border-radius: var(--radius-xs);
             transition: all var(--transition);
-            white-space: nowrap;
-        }
-        .navbar-menu li a:hover { background: var(--blue-light); color: var(--blue); }
-        .navbar-menu li a.active { background: var(--blue-light); color: var(--blue); font-weight: 700; }
-        .navbar-right {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            white-space: nowrap;
+            justify-content: center;
+            gap: 0.5rem;
         }
-        .navbar-info {
-            font-size: 0.78rem;
-            color: var(--sub);
+        .sidebar-footer .logout-btn:hover {
+            background: var(--red-light);
+            color: var(--red);
         }
-        .navbar-info b { color: var(--text); }
 
+        /* ===== MAIN CONTENT ===== */
         .main-content {
-            flex: 1;
-            padding: 2rem;
-            overflow-y: auto;
+            margin-left: var(--sidebar-width);
+            padding-top: var(--navbar-height);
+            min-height: 100vh;
+            padding: calc(var(--navbar-height) + 1.5rem) 2rem 2rem;
         }
 
+        /* ===== PAGES ===== */
         .page { display: none; }
         .page.active { display: block; }
 
@@ -199,14 +284,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.8rem;
         }
         .page-header h1 {
             font-family: var(--font-heading);
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 800;
+            color: var(--text);
         }
         .page-header p {
             font-size: 0.8rem;
@@ -214,85 +300,95 @@
             margin-top: 0.1rem;
         }
 
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         .stat-card {
-            background: #fff;
-            border-radius: var(--radius-md);
-            padding: 1.3rem;
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            padding: 1.2rem 1.2rem;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow-xs);
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--blue);
+            border-radius: 0 4px 4px 0;
+            opacity: 0;
+            transition: all var(--transition);
+        }
+        .stat-card:hover {
+            border-color: var(--blue);
             box-shadow: var(--shadow-sm);
+            transform: translateY(-2px);
+        }
+        .stat-card:hover::after { opacity: 1; }
+        .stat-card .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-bottom: 0.6rem;
+            background: var(--blue-light);
+            color: var(--blue);
         }
         .stat-card .stat-value {
             font-family: var(--font-heading);
             font-size: 1.8rem;
             font-weight: 800;
             color: var(--blue);
+            line-height: 1;
         }
         .stat-card .stat-label {
             font-size: 0.7rem;
             color: var(--sub);
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
             font-weight: 600;
             margin-top: 0.2rem;
         }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
+        /* ===== CARDS & TABLES ===== */
         .card {
-            background: #fff;
-            border-radius: var(--radius-md);
-            padding: 1.3rem;
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
             border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-xs);
             margin-bottom: 1.5rem;
         }
         .card-header {
             font-family: var(--font-heading);
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 700;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 0.5rem;
+            color: var(--text);
             flex-wrap: wrap;
+            gap: 0.5rem;
         }
-        .action-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.5rem 1.2rem;
-            border-radius: var(--radius-full);
-            border: 1.5px solid var(--border);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition);
-            background: #fff;
+        .card-header i {
+            color: var(--blue);
+            font-size: 1rem;
+            margin-right: 0.5rem;
         }
-        .action-tag:hover { background: var(--blue-light); border-color: var(--blue); }
-        .action-tag.ban { color: var(--red); }
-        .action-tag.akses { color: #b45309; }
-        .action-tag.force { color: var(--orange); }
-
-        .ringkasan-list { display: flex; flex-direction: column; gap: 0.7rem; }
-        .ringkasan-item { display: flex; justify-content: space-between; font-size: 0.84rem; }
-        .ringkasan-item .label { color: var(--sub); }
-        .ringkasan-item .value { font-weight: 700; }
 
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
@@ -303,49 +399,136 @@
             font-weight: 700;
             color: var(--sub);
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
             border-bottom: 2px solid var(--border);
             white-space: nowrap;
         }
         table td {
             padding: 0.6rem 0.8rem;
-            font-size: 0.83rem;
+            font-size: 0.82rem;
             border-bottom: 1px solid var(--border);
             white-space: nowrap;
         }
-        table tbody tr:hover { background: #f8fafc; }
+        table tbody tr { transition: all var(--transition); }
+        table tbody tr:hover { background: var(--blue-light); }
 
+        /* ===== BADGES ===== */
         .badge {
             display: inline-block;
-            padding: 0.15rem 0.5rem;
+            padding: 0.2rem 0.6rem;
             border-radius: var(--radius-full);
             font-size: 0.6rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.03em;
         }
         .badge-red { background: var(--red-light); color: #dc2626; }
-        .badge-yellow { background: var(--yellow-light); color: #b45309; }
-        .badge-orange { background: var(--orange-light); color: #c2410c; }
-        .badge-green { background: var(--green-light); color: #059669; }
+        .badge-yellow { background: var(--yellow-light); color: #d97706; }
+        .badge-orange { background: var(--orange-light); color: #ea580c; }
+        .badge-green { background: var(--green-light); color: #16a34a; }
+        .badge-blue { background: var(--blue-light); color: var(--blue); }
 
-        .activity-list {
-            max-height: 400px;
-            overflow-y: auto;
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-radius: var(--radius-xs);
+            cursor: pointer;
+            font-family: var(--font-body);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all var(--transition);
+            letter-spacing: 0.01em;
+            white-space: nowrap;
         }
+        .btn-primary {
+            background: var(--blue);
+            color: #fff;
+            border-radius: var(--radius-xs);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,191,255,0.3);
+        }
+        .btn-primary:hover {
+            background: var(--blue-dark);
+            box-shadow: 0 6px 20px rgba(0,191,255,0.4);
+            transform: translateY(-2px);
+        }
+        .btn-green {
+            background: var(--green);
+            color: #fff;
+            border-radius: var(--radius-xs);
+        }
+        .btn-green:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+        .btn-red {
+            background: var(--red);
+            color: #fff;
+            border-radius: var(--radius-xs);
+        }
+        .btn-red:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+        }
+        .btn-outline {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            font-weight: 500;
+        }
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.72rem; }
+        .btn-xs { padding: 0.25rem 0.6rem; font-size: 0.65rem; border-radius: 6px; }
+        .btn-danger { background: var(--red); color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-success:hover { background: #059669; }
+
+        /* ===== ACTIVITY LIST ===== */
+        .activity-list {
+            max-height: 450px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .activity-list::-webkit-scrollbar { width: 4px; }
+        .activity-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
         .activity-item {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.55rem 0.7rem;
-            border-radius: 8px;
+            gap: 0.8rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: var(--radius-xs);
             font-size: 0.8rem;
-            border-bottom: 1px solid var(--border);
+            transition: all var(--transition);
+            border: 1px solid transparent;
+            background: #f8fafc;
         }
-        .activity-item.suspicious { background: #fef2f2; }
+        .activity-item:hover {
+            background: var(--blue-light);
+            border-color: rgba(0,191,255,0.15);
+        }
+        .activity-item.suspicious {
+            background: #fef2f2;
+            border-color: rgba(239,68,68,0.15);
+        }
+        .activity-item.suspicious:hover { background: #fee2e2; }
         .activity-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             flex-shrink: 0;
         }
@@ -354,53 +537,154 @@
         .activity-dot.topup { background: var(--blue); }
         .activity-dot.kuras { background: var(--yellow); }
         .activity-dot.gantinama { background: var(--purple); }
-        .activity-dot.banned, .activity-dot.ban_akses { background: var(--red); }
-        .activity-dot.unbanned, .activity-dot.unban_akses { background: var(--green); }
+        .activity-dot.banned,
+        .activity-dot.ban_akses { background: var(--red); }
+        .activity-dot.unbanned,
+        .activity-dot.unban_akses { background: var(--green); }
         .activity-dot.force_logout { background: var(--orange); }
         .activity-dot.unforce_logout { background: var(--green); }
         .activity-dot.sharing_detected { background: var(--red); }
         .activity-info { flex: 1; }
         .activity-user { font-weight: 600; }
         .activity-desc { color: var(--sub); }
-        .activity-time { color: var(--sub); font-size: 0.7rem; white-space: nowrap; }
-
+        .activity-time {
+            color: var(--sub);
+            font-size: 0.68rem;
+            white-space: nowrap;
+        }
         .empty-state {
             text-align: center;
-            padding: 3rem;
+            padding: 2.5rem 1rem;
             color: var(--sub);
             font-size: 0.85rem;
         }
+        .empty-state i {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.6rem;
+            opacity: 0.3;
+            color: var(--blue);
+        }
 
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .action-pill {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 0.6rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            color: var(--text);
+        }
+        .action-pill:hover {
+            background: var(--blue-light);
+            border-color: var(--blue);
+            transform: translateX(2px);
+        }
+        .action-pill i { font-size: 0.95rem; }
+        .action-pill.pill-ban i { color: var(--red); }
+        .action-pill.pill-akses i { color: var(--yellow); }
+        .action-pill.pill-force i { color: var(--orange); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+        .web-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .web-stat-card {
+            background: var(--card);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: var(--shadow-xs);
+        }
+        .web-stat-card .web-stat-icon { font-size: 1.8rem; margin-bottom: 0.4rem; color: var(--blue); }
+        .web-stat-card .web-stat-value {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .web-stat-card .web-stat-label {
+            font-size: 0.68rem;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.15rem;
+        }
+
+        .ringkasan-row { display: flex; flex-direction: column; gap: 0.6rem; }
+        .ringkasan-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 0.2rem 0;
+        }
+        .ringkasan-item .ringkasan-label { color: var(--sub); }
+        .ringkasan-item .ringkasan-value { font-weight: 700; }
+
+        .dist-grid {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .dist-card {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: var(--radius-sm);
+        }
+        .dist-card .dist-value { font-size: 1.4rem; font-weight: 800; }
+        .dist-card .dist-label { font-size: 0.68rem; color: var(--sub); margin-top: 0.1rem; }
+
+        /* ===== MODALS ===== */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(4px);
             z-index: 200;
             display: flex;
             align-items: center;
             justify-content: center;
             visibility: hidden;
             opacity: 0;
-            transition: 0.2s ease;
+            transition: 0.25s ease;
         }
         .modal-overlay.show { visibility: visible; opacity: 1; }
         .modal-box {
-            background: #fff;
+            background: var(--card);
             border-radius: var(--radius-lg);
             padding: 1.8rem;
             width: 93%;
-            max-width: 500px;
+            max-width: 520px;
             max-height: 85vh;
             overflow-y: auto;
             box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
         }
         .modal-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.3rem;
+            margin-bottom: 1.2rem;
             font-family: var(--font-heading);
             font-size: 1.05rem;
             font-weight: 700;
@@ -408,53 +692,140 @@
         .modal-close {
             background: none;
             border: none;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             cursor: pointer;
             color: var(--sub);
             padding: 0.2rem;
-            line-height: 1;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
         }
-        .modal-close:hover { color: var(--text); }
+        .modal-close:hover { background: #f1f5f9; color: var(--text); }
+
+        .input-box { margin-bottom: 1rem; }
+        .input-box label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--sub);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .input-box input,
+        .input-box select {
+            width: 100%;
+            padding: 0.7rem 0;
+            border: none;
+            border-bottom: 1.5px solid var(--border);
+            border-radius: 0;
+            font-size: 0.85rem;
+            background: transparent;
+            font-family: var(--font-body);
+            transition: all var(--transition);
+            color: var(--text);
+        }
+        .input-box input:focus,
+        .input-box select:focus {
+            outline: none;
+            border-bottom: 2px solid var(--blue);
+        }
+        .input-box input::placeholder { color: #bcc5cf; font-weight: 300; }
+        .input-box select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%2364748b' d='M7 9L2 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 4px center;
+            cursor: pointer;
+            padding-right: 24px;
+        }
+        .input-box input[readonly] {
+            background: transparent;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .user-check-card {
-            padding: 0.6rem 0.8rem;
+            padding: 0.6rem 1rem;
             border: 1.5px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             font-size: 0.82rem;
-            margin-bottom: 0.3rem;
-            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             background: #fff;
+            transition: all var(--transition);
+            margin-bottom: 0.3rem;
         }
-        .user-check-card:hover { background: var(--blue-light); border-color: var(--blue); }
-        .user-check-card.selected { border-color: var(--blue); background: #e0f2fe; }
+        .user-check-card:hover {
+            background: var(--blue-light);
+            border-color: var(--blue);
+        }
+        .user-check-card.selected {
+            border-color: var(--blue);
+            background: #e0f2fe;
+        }
 
         .alert-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(4px);
             z-index: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             visibility: hidden;
             opacity: 0;
-            transition: 0.2s ease;
+            transition: 0.25s ease;
         }
         .alert-overlay.show { visibility: visible; opacity: 1; }
         .alert-popup {
-            background: #fff;
+            background: var(--card);
             border-radius: var(--radius-lg);
             padding: 2rem;
             text-align: center;
             width: 93%;
-            max-width: 360px;
+            max-width: 380px;
             box-shadow: var(--shadow-lg);
         }
+
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 250;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-box {
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            padding: 1.8rem;
+            width: 93%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
         .spinner {
-            width: 34px; height: 34px;
-            border: 3px solid #e2e8f0;
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
             border-top-color: var(--blue);
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
@@ -462,68 +833,73 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .confirm-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(3px);
-            z-index: 250;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .confirm-box {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 1.8rem;
-            width: 93%;
-            max-width: 360px;
-            text-align: center;
-        }
-
-        .web-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .grid-2 { grid-template-columns: 1fr; }
             .web-stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
+
         @media (max-width: 768px) {
-            .navbar { flex-wrap: wrap; height: auto; padding: 0.8rem 1rem; gap: 0.5rem; }
-            .navbar-menu { order: 3; width: 100%; justify-content: center; }
-            .navbar-menu li a { padding: 0.3rem 0.5rem; font-size: 0.72rem; }
-            .main-content { padding: 1rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-            .web-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-        }
-        @media (max-width: 480px) {
-            body { padding: 0.3rem; }
-            #mainContainer { padding: 1.3rem; border-radius: var(--radius-md); }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .top-navbar .navbar-toggle { display: block; }
+            .top-navbar .navbar-clock { display: none; }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: 1rem;
+            }
+            .sidebar.open { transform: translateX(0); }
+
+            .main-content {
+                margin-left: 0;
+                padding: calc(var(--navbar-height) + 1rem) 1rem 1.5rem;
+            }
+
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+            .stat-card .stat-value { font-size: 1.4rem; }
+
+            .page-header h1 { font-size: 1.2rem; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+
             .web-stats-grid { grid-template-columns: 1fr 1fr; }
-            .navbar-menu li a { font-size: 0.68rem; padding: 0.25rem 0.4rem; }
+            .dist-grid { flex-direction: column; }
+            .dist-card { min-width: auto; }
+        }
+
+        @media (max-width: 480px) {
+            .top-navbar { padding: 0 0.8rem; }
+            .top-navbar .navbar-brand { font-size: 1rem; }
+            .top-navbar .navbar-user .username { display: none; }
+
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+            .stat-card { padding: 0.8rem; }
+            .stat-card .stat-value { font-size: 1.2rem; }
+            .stat-card .stat-label { font-size: 0.6rem; }
+
+            .card { padding: 1rem; }
+            .modal-box { padding: 1.2rem; }
+
+            #keyScreen,
+            #loginScreen { padding: 1.8rem 1.2rem; }
         }
     </style>
 </head>
 <body>
 
-<div id="mainContainer">
-
+<!-- ===== LOGIN WRAPPER ===== -->
+<div id="loginWrapper">
     <div id="keyScreen">
         <div class="logo"><i class="fas fa-shield-alt"></i></div>
         <div class="title">Admin Access</div>
         <div class="subtitle">Masukkan key untuk melanjutkan</div>
         <div class="input-box">
-            <label>Access Key</label>
+            <label><i class="fas fa-key"></i> Access Key</label>
             <input type="password" id="accessKey" placeholder="Masukkan access key..." maxlength="50">
         </div>
-        <button class="btn btn-primary btn-block" onclick="verifyKey()">Verifikasi</button>
+        <button class="btn btn-primary btn-block" onclick="verifyKey()">
+            <i class="fas fa-arrow-right"></i> Verifikasi
+        </button>
     </div>
 
     <div id="loginScreen" style="display:none;">
@@ -531,61 +907,117 @@
         <div class="title">Admin Login</div>
         <div class="subtitle">Masukkan email & password admin</div>
         <div class="input-box">
-            <label>Email</label>
+            <label><i class="fas fa-envelope"></i> Email</label>
             <input type="email" id="loginEmail" placeholder="admin@email.com">
         </div>
         <div class="input-box">
-            <label>Password</label>
+            <label><i class="fas fa-lock"></i> Password</label>
             <input type="password" id="loginPassword" placeholder="············">
         </div>
-        <button class="btn btn-primary btn-block" onclick="login()">Login</button>
+        <button class="btn btn-primary btn-block" onclick="login()">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </button>
     </div>
+</div>
 
-    <nav class="navbar" id="navbar" style="display:none;">
-        <div class="navbar-brand">Revan<span>Store</span></div>
-        <ul class="navbar-menu" id="navbarMenu">
-            <li><a class="active" data-page="dashboard">Dashboard</a></li>
-            <li><a data-page="all-users">Semua User</a></li>
-            <li><a data-page="active-users">Aktif</a></li>
-            <li><a data-page="banned-users">Banned</a></li>
-            <li><a data-page="banakses-users">Ban Akses</a></li>
-            <li><a data-page="force-users">Force</a></li>
-            <li><a data-page="activity-log">Log</a></li>
-            <li><a data-page="suspicious-log">Mencurigakan</a></li>
-            <li><a data-page="web-stats">Statistik</a></li>
-        </ul>
-        <div class="navbar-right">
-            <div class="navbar-info" id="clockDisplay"></div>
-            <div class="navbar-info">| <b id="loggedUser">-</b></div>
-            <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+<!-- ===== APP CONTAINER ===== -->
+<div id="appContainer">
+
+    <!-- TOP NAVBAR -->
+    <nav class="top-navbar">
+        <button class="navbar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="#" class="navbar-brand" onclick="navigateTo('dashboard')">
+            <i class="fas fa-shield-alt"></i> RevanStore
+        </a>
+        <div class="navbar-actions">
+            <span class="navbar-clock" id="clockDisplay">--:--:--</span>
+            <div class="navbar-user">
+                <span class="username" id="navbarUserName">Admin</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+            </div>
         </div>
     </nav>
 
-    <div class="main-content" id="mainContent" style="display:none;">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <div class="nav-label">Menu Utama</div>
+            <a class="active" data-page="dashboard" onclick="navigateTo('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a data-page="all-users" onclick="navigateTo('all-users')">
+                <i class="fas fa-users"></i> Semua User
+            </a>
 
+            <div class="nav-divider"></div>
+            <div class="nav-label">Manajemen User</div>
+            <a data-page="active-users" onclick="navigateTo('active-users')">
+                <i class="fas fa-check-circle"></i> User Aktif
+            </a>
+            <a data-page="banned-users" onclick="navigateTo('banned-users')">
+                <i class="fas fa-ban"></i> User Banned
+            </a>
+            <a data-page="banakses-users" onclick="navigateTo('banakses-users')">
+                <i class="fas fa-shield-haltered"></i> Ban Akses
+            </a>
+            <a data-page="force-users" onclick="navigateTo('force-users')">
+                <i class="fas fa-eject"></i> Force Logout
+            </a>
+
+            <div class="nav-divider"></div>
+            <div class="nav-label">Log & Statistik</div>
+            <a data-page="activity-log" onclick="navigateTo('activity-log')">
+                <i class="fas fa-history"></i> Log Aktivitas
+            </a>
+            <a data-page="suspicious-log" onclick="navigateTo('suspicious-log')">
+                <i class="fas fa-exclamation-triangle"></i> Log Mencurigakan
+            </a>
+            <a data-page="web-stats" onclick="navigateTo('web-stats')">
+                <i class="fas fa-chart-bar"></i> Statistik Web
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="mainContent">
+
+        <!-- DASHBOARD -->
         <div class="page active" id="page-dashboard">
             <div class="page-header">
                 <div>
                     <h1>Dashboard</h1>
-                    <p>Selamat datang</p>
+                    <p>Selamat datang, <b id="loggedUser">Admin</b></p>
                 </div>
-                <button class="btn btn-primary" onclick="openAddUserModal()">Tambah User</button>
+                <button class="btn btn-primary" onclick="openAddUserModal()">
+                    <i class="fas fa-user-plus"></i> Tambah User
+                </button>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
                     <div class="stat-value" id="statTotal">0</div>
                     <div class="stat-label">Total User</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon" style="background:#ecfdf5;color:#10b981;"><i class="fas fa-check-circle"></i></div>
                     <div class="stat-value" id="statActive" style="color:#10b981;">0</div>
-                    <div class="stat-label">Aktif</div>
+                    <div class="stat-label">User Aktif</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon" style="background:#fef2f2;color:#ef4444;"><i class="fas fa-ban"></i></div>
                     <div class="stat-value" id="statBanned" style="color:#ef4444;">0</div>
                     <div class="stat-label">Banned</div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon" style="background:#fff7ed;color:#f97316;"><i class="fas fa-eject"></i></div>
                     <div class="stat-value" id="statForce" style="color:#f97316;">0</div>
                     <div class="stat-label">Force</div>
                 </div>
@@ -593,39 +1025,62 @@
 
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-header">Quick Actions</div>
+                    <div class="card-header"><span><i class="fas fa-bolt"></i> Quick Actions</span></div>
                     <div class="quick-actions">
-                        <span class="action-tag ban" onclick="openActionModal('ban')">Ban / Unban</span>
-                        <span class="action-tag akses" onclick="openActionModal('banakses')">Ban Akses</span>
-                        <span class="action-tag force" onclick="openActionModal('force')">Force</span>
+                        <div class="action-pill pill-ban" onclick="openActionModal('ban')">
+                            <i class="fas fa-ban"></i> Ban / Unban
+                        </div>
+                        <div class="action-pill pill-akses" onclick="openActionModal('banakses')">
+                            <i class="fas fa-shield-haltered"></i> Ban Akses
+                        </div>
+                        <div class="action-pill pill-force" onclick="openActionModal('force')">
+                            <i class="fas fa-eject"></i> Force
+                        </div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">Ringkasan</div>
-                    <div class="ringkasan-list">
-                        <div class="ringkasan-item"><span class="label">User Aktif</span><span class="value" style="color:#10b981;" id="ringkasanAktif">0</span></div>
-                        <div class="ringkasan-item"><span class="label">User Banned</span><span class="value" style="color:#ef4444;" id="ringkasanBanned">0</span></div>
-                        <div class="ringkasan-item"><span class="label">Ban Akses</span><span class="value" style="color:#f59e0b;" id="ringkasanBanAkses">0</span></div>
-                        <div class="ringkasan-item"><span class="label">Force Logout</span><span class="value" style="color:#f97316;" id="ringkasanForce">0</span></div>
+                    <div class="card-header"><span><i class="fas fa-chart-pie"></i> Ringkasan</span></div>
+                    <div class="ringkasan-row">
+                        <div class="ringkasan-item">
+                            <span class="ringkasan-label">User Aktif</span>
+                            <span class="ringkasan-value" style="color:#10b981;" id="ringkasanAktif">0</span>
+                        </div>
+                        <div class="ringkasan-item">
+                            <span class="ringkasan-label">User Banned</span>
+                            <span class="ringkasan-value" style="color:#ef4444;" id="ringkasanBanned">0</span>
+                        </div>
+                        <div class="ringkasan-item">
+                            <span class="ringkasan-label">Ban Akses</span>
+                            <span class="ringkasan-value" style="color:#f59e0b;" id="ringkasanBanAkses">0</span>
+                        </div>
+                        <div class="ringkasan-item">
+                            <span class="ringkasan-label">Force Logout</span>
+                            <span class="ringkasan-value" style="color:#f97316;" id="ringkasanForce">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <span>Aktivitas Terbaru</span>
-                    <button class="btn btn-danger btn-xs" onclick="clearAllLogs()">Clear Log</button>
+                    <span><i class="fas fa-history"></i> Aktivitas Terbaru</span>
+                    <button class="btn btn-danger btn-xs" onclick="clearAllLogs()">
+                        <i class="fas fa-trash"></i> Clear Log
+                    </button>
                 </div>
                 <div class="activity-list" id="activityListContainer">
-                    <div class="empty-state">Memuat...</div>
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
                 </div>
             </div>
         </div>
 
+        <!-- ALL USERS -->
         <div class="page" id="page-all-users">
             <div class="page-header">
                 <div><h1>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
-                <button class="btn btn-primary" onclick="openAddUserModal()">Tambah User</button>
+                <button class="btn btn-primary" onclick="openAddUserModal()">
+                    <i class="fas fa-user-plus"></i> Tambah User
+                </button>
             </div>
             <div class="card">
                 <div class="table-responsive">
@@ -634,10 +1089,13 @@
                         <tbody id="allUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="allUsersEmpty" style="display:none;">Tidak ada user</div>
+                <div class="empty-state" id="allUsersEmpty" style="display:none;">
+                    <i class="fas fa-users"></i> Tidak ada user
+                </div>
             </div>
         </div>
 
+        <!-- ACTIVE USERS -->
         <div class="page" id="page-active-users">
             <div class="page-header"><h1>User Aktif</h1></div>
             <div class="card">
@@ -647,10 +1105,13 @@
                         <tbody id="activeUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="activeUsersEmpty" style="display:none;">Tidak ada user aktif</div>
+                <div class="empty-state" id="activeUsersEmpty" style="display:none;">
+                    <i class="fas fa-check-circle"></i> Tidak ada user aktif
+                </div>
             </div>
         </div>
 
+        <!-- BANNED USERS -->
         <div class="page" id="page-banned-users">
             <div class="page-header"><h1>User Banned</h1></div>
             <div class="card">
@@ -660,10 +1121,13 @@
                         <tbody id="bannedUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="bannedUsersEmpty" style="display:none;">Tidak ada user banned</div>
+                <div class="empty-state" id="bannedUsersEmpty" style="display:none;">
+                    <i class="fas fa-ban"></i> Tidak ada user banned
+                </div>
             </div>
         </div>
 
+        <!-- BAN AKSES -->
         <div class="page" id="page-banakses-users">
             <div class="page-header"><h1>User Ban Akses</h1></div>
             <div class="card">
@@ -673,10 +1137,13 @@
                         <tbody id="banaksesUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="banaksesUsersEmpty" style="display:none;">Tidak ada user ban akses</div>
+                <div class="empty-state" id="banaksesUsersEmpty" style="display:none;">
+                    <i class="fas fa-shield-haltered"></i> Tidak ada user ban akses
+                </div>
             </div>
         </div>
 
+        <!-- FORCE LOGOUT -->
         <div class="page" id="page-force-users">
             <div class="page-header"><h1>User Force Logout</h1></div>
             <div class="card">
@@ -686,55 +1153,202 @@
                         <tbody id="forceUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="forceUsersEmpty" style="display:none;">Tidak ada user force</div>
-            </div>
-        </div>
-
-        <div class="page" id="page-activity-log">
-            <div class="page-header">
-                <h1>Log Aktivitas</h1>
-                <button class="btn btn-danger btn-sm" onclick="clearAllLogs()">Hapus Semua Log</button>
-            </div>
-            <div class="card">
-                <div class="activity-list" id="allActivityLog" style="max-height:600px;">
-                    <div class="empty-state">Memuat...</div>
+                <div class="empty-state" id="forceUsersEmpty" style="display:none;">
+                    <i class="fas fa-eject"></i> Tidak ada user force
                 </div>
             </div>
         </div>
 
+        <!-- ACTIVITY LOG -->
+        <div class="page" id="page-activity-log">
+            <div class="page-header">
+                <div><h1>Log Aktivitas</h1></div>
+                <button class="btn btn-danger btn-sm" onclick="clearAllLogs()">
+                    <i class="fas fa-trash"></i> Hapus Semua Log
+                </button>
+            </div>
+            <div class="card">
+                <div class="activity-list" id="allActivityLog" style="max-height:600px;">
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUSPICIOUS LOG -->
         <div class="page" id="page-suspicious-log">
             <div class="page-header"><h1>Log Mencurigakan</h1></div>
             <div class="card">
                 <div class="activity-list" id="suspiciousActivityLog" style="max-height:600px;">
-                    <div class="empty-state">Memuat...</div>
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
                 </div>
             </div>
         </div>
 
+        <!-- WEB STATS -->
         <div class="page" id="page-web-stats">
             <div class="page-header"><h1>Statistik Web</h1></div>
             <div class="web-stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatTotalUsers">0</div>
-                    <div class="stat-label">Total User</div>
+                <div class="web-stat-card">
+                    <div class="web-stat-icon"><i class="fas fa-database"></i></div>
+                    <div class="web-stat-value" id="webStatTotalUsers">0</div>
+                    <div class="web-stat-label">Total User</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatActiveUsers" style="color:#10b981;">0</div>
-                    <div class="stat-label">User Aktif</div>
+                <div class="web-stat-card">
+                    <div class="web-stat-icon" style="color:#10b981;"><i class="fas fa-user-check"></i></div>
+                    <div class="web-stat-value" id="webStatActiveUsers" style="color:#10b981;">0</div>
+                    <div class="web-stat-label">User Aktif</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatBannedUsers" style="color:#ef4444;">0</div>
-                    <div class="stat-label">User Diblokir</div>
+                <div class="web-stat-card">
+                    <div class="web-stat-icon" style="color:#ef4444;"><i class="fas fa-user-slash"></i></div>
+                    <div class="web-stat-value" id="webStatBannedUsers" style="color:#ef4444;">0</div>
+                    <div class="web-stat-label">User Diblokir</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatTotalLogins">0</div>
-                    <div class="stat-label">Total Login</div>
+                <div class="web-stat-card">
+                    <div class="web-stat-icon"><i class="fas fa-sign-in-alt"></i></div>
+                    <div class="web-stat-value" id="webStatTotalLogins">0</div>
+                    <div class="web-stat-label">Total Login</div>
+                </div>
+                <div class="web-stat-card">
+                    <div class="web-stat-icon" style="color:#f59e0b;"><i class="fas fa-shield-haltered"></i></div>
+                    <div class="web-stat-value" id="webStatBanAkses" style="color:#f59e0b;">0</div>
+                    <div class="web-stat-label">Ban Akses</div>
+                </div>
+                <div class="web-stat-card">
+                    <div class="web-stat-icon" style="color:#f97316;"><i class="fas fa-eject"></i></div>
+                    <div class="web-stat-value" id="webStatForce" style="color:#f97316;">0</div>
+                    <div class="web-stat-label">Force Logout</div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:1.5rem;">
+                <div class="card-header"><span><i class="fas fa-chart-line"></i> Distribusi User</span></div>
+                <div class="dist-grid">
+                    <div class="dist-card" style="background:#ecfdf5;">
+                        <div class="dist-value" style="color:#10b981;" id="distAktif">0</div>
+                        <div class="dist-label">Aktif</div>
+                    </div>
+                    <div class="dist-card" style="background:#fef2f2;">
+                        <div class="dist-value" style="color:#ef4444;" id="distBanned">0</div>
+                        <div class="dist-label">Banned</div>
+                    </div>
+                    <div class="dist-card" style="background:#fffbeb;">
+                        <div class="dist-value" style="color:#f59e0b;" id="distBanAkses">0</div>
+                        <div class="dist-label">Ban Akses</div>
+                    </div>
+                    <div class="dist-card" style="background:#fff7ed;">
+                        <div class="dist-value" style="color:#f97316;" id="distForce">0</div>
+                        <div class="dist-label">Force</div>
+                    </div>
                 </div>
             </div>
         </div>
+    </main>
+</div>
+
+<!-- ===== MODALS ===== -->
+<div class="modal-overlay" id="actionModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="actionModalTitle"></span>
+            <button class="modal-close" onclick="closeModal('actionModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="actionModalBody"></div>
     </div>
 </div>
 
+<div class="modal-overlay" id="addUserModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span><i class="fas fa-user-plus"></i> Tambah User</span>
+            <button class="modal-close" onclick="closeModal('addUserModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="input-box">
+            <label>Username *</label>
+            <input type="text" id="newUsername" placeholder="Username..." maxlength="30">
+        </div>
+        <div class="input-box">
+            <label>Password * (min 6)</label>
+            <input type="password" id="newPassword" placeholder="Password..." maxlength="50">
+        </div>
+        <div class="input-box">
+            <label>Nomor</label>
+            <input type="text" id="newPhone" placeholder="Nomor HP..." maxlength="20">
+        </div>
+        <div class="input-box">
+            <label>Role</label>
+            <select id="newRole">
+                <option>Admin</option>
+                <option selected>Operator</option>
+                <option>User</option>
+                <option>VIP</option>
+                <option>Premium</option>
+                <option>Trial</option>
+            </select>
+        </div>
+        <div class="input-box">
+            <label>Masa Aktif (MM/DD/YYYY)</label>
+            <input type="text" id="newExpiryDate" placeholder="MM/DD/YYYY" maxlength="10">
+        </div>
+        <button class="btn btn-green btn-block" onclick="addUserNow()">
+            <i class="fas fa-user-plus"></i> Tambah
+        </button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="editUserModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span><i class="fas fa-edit"></i> Edit User</span>
+            <button class="modal-close" onclick="closeModal('editUserModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <input type="hidden" id="editUserId">
+        <div class="input-box">
+            <label>Username</label>
+            <input type="text" id="editUsername" maxlength="30">
+        </div>
+        <div class="input-box">
+            <label>Password (kosongkan jika tidak diubah)</label>
+            <input type="password" id="editPassword" placeholder="············" maxlength="50">
+        </div>
+        <div class="input-box">
+            <label>Nomor</label>
+            <input type="text" id="editPhone" maxlength="20">
+        </div>
+        <div class="input-box">
+            <label>Role</label>
+            <select id="editRole">
+                <option>Admin</option>
+                <option>Operator</option>
+                <option>User</option>
+                <option>VIP</option>
+                <option>Premium</option>
+                <option>Trial</option>
+            </select>
+        </div>
+        <div class="input-box">
+            <label>Masa Aktif (MM/DD/YYYY)</label>
+            <input type="text" id="editExpiryDate" maxlength="10">
+        </div>
+        <div class="input-box">
+            <label>IP</label>
+            <input type="text" id="editIP" readonly style="background:#f1f5f9;">
+        </div>
+        <div class="input-box">
+            <label>Fingerprint</label>
+            <input type="text" id="editFP" readonly style="background:#f1f5f9;">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="saveUserEdit()">
+            <i class="fas fa-save"></i> Simpan
+        </button>
+    </div>
+</div>
+
+<!-- ===== ALERT & CONFIRM ===== -->
 <div class="alert-overlay" id="alertOverlay">
     <div class="alert-popup">
         <div id="alertIcon" style="margin-bottom:1rem;"></div>
@@ -745,61 +1359,11 @@
 
 <div class="confirm-overlay" id="confirmOverlay">
     <div class="confirm-box">
-        <div id="confirmMessage" style="margin-bottom:1.3rem;font-size:0.9rem;font-weight:500;"></div>
-        <div style="display:flex;gap:0.5rem;justify-content:center;">
-            <button class="btn btn-danger btn-sm" id="confirmYes">Ya</button>
-            <button class="btn btn-outline btn-sm" id="confirmNo">Batal</button>
+        <div id="confirmMessage" style="margin-bottom:1.5rem;font-size:0.95rem;font-weight:500;"></div>
+        <div style="display:flex;gap:0.6rem;justify-content:center;">
+            <button class="btn btn-danger" id="confirmYes"><i class="fas fa-check"></i> Ya</button>
+            <button class="btn btn-outline" id="confirmNo"><i class="fas fa-times"></i> Batal</button>
         </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="actionModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span id="actionModalTitle"></span>
-            <button class="modal-close" id="closeActionModalBtn">&times;</button>
-        </div>
-        <div id="actionModalBody"></div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="addUserModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span>Tambah User</span>
-            <button class="modal-close" onclick="closeAddUserModal()">&times;</button>
-        </div>
-        <div class="input-box"><label>Username *</label><input type="text" id="newUsername" placeholder="Username..." maxlength="30"></div>
-        <div class="input-box"><label>Password * (min 6)</label><input type="password" id="newPassword" placeholder="Password..." maxlength="50"></div>
-        <div class="input-box"><label>Nomor</label><input type="text" id="newPhone" placeholder="Nomor HP..." maxlength="20"></div>
-        <div class="input-box"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" maxlength="10"></div>
-        <button class="btn btn-green btn-block" onclick="addUserNow()">Tambah</button>
-    </div>
-</div>
-
-<div class="modal-overlay" id="editUserModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span>Edit User</span>
-            <button class="modal-close" id="closeEditModalBtn">&times;</button>
-        </div>
-        <input type="hidden" id="editUserId">
-        <div class="input-box"><label>Username</label><input type="text" id="editUsername" maxlength="30"></div>
-        <div class="input-box"><label>Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="············" maxlength="50"></div>
-        <div class="input-box"><label>Nomor</label><input type="text" id="editPhone" maxlength="20"></div>
-        <div class="input-box"><label>Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate" maxlength="10"></div>
-        <div class="input-box"><label>IP</label><input type="text" id="editIP" readonly></div>
-        <div class="input-box"><label>Fingerprint</label><input type="text" id="editFP" readonly></div>
-        <button class="btn btn-primary btn-block" onclick="saveUserEdit()">Simpan</button>
-    </div>
-</div>
-
-<div id="subPanel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f8fafc;z-index:50;overflow-y:auto;padding:1.5rem;">
-    <div style="max-width:700px;margin:0 auto;">
-        <button class="btn btn-outline btn-sm" onclick="closeSubPanel()" style="margin-bottom:1rem;">Kembali</button>
-        <div id="subPanelContent"></div>
     </div>
 </div>
 
