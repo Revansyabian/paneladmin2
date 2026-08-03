@@ -1183,13 +1183,14 @@ function updateActivityDisplay(logs) {
         ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
         force_logout: 'Tangguhkan', unforce_logout: 'Lepas Tangguh',
         topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
-        login_success: 'Login Sukses', login_failed: 'Gagal Login'
+        login_success: '✅ Login Berhasil', login_failed: '❌ Login Ditolak'
     };
     container.innerHTML = logs.map(function(l) {
         var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
         var label = labels[l.action] || l.action;
-        var isSuspicious = l.action === 'sharing_detected';
-        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + '</span></div><div class="activity-time">' + time + '</div></div>';
+        var isSuspicious = l.action === 'sharing_detected' || l.action === 'login_failed';
+        var details = l.details ? ' - ' + l.details : '';
+        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + details + '</span></div><div class="activity-time">' + time + '</div></div>';
     }).join('');
 }
 
@@ -1202,13 +1203,14 @@ function updateActivityLogPage(logs) {
         ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
         force_logout: 'Tangguhkan', unforce_logout: 'Lepas Tangguh',
         topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
-        login_success: 'Login Sukses', login_failed: 'Gagal Login'
+        login_success: '✅ Login Berhasil', login_failed: '❌ Login Ditolak'
     };
     container.innerHTML = logs.map(function(l) {
         var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
         var label = labels[l.action] || l.action;
         var isSuspicious = l.action === 'sharing_detected' || l.action === 'login_failed';
-        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + (l.details ? ' - ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>';
+        var details = l.details ? ' - ' + l.details : '';
+        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + details + '</span></div><div class="activity-time">' + time + '</div></div>';
     }).join('');
 }
 
@@ -1220,7 +1222,8 @@ function updateSuspiciousLogPage(logs) {
     if (!suspicious.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
     container.innerHTML = suspicious.map(function(l) {
         var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
-        return '<div class="activity-item suspicious"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + (l.action === 'sharing_detected' ? '⚠️ SHARING DETEKSI' : '❌ Gagal Login') + (l.details ? ' - ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>';
+        var details = l.details ? ' - ' + l.details : '';
+        return '<div class="activity-item suspicious"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + (l.action === 'sharing_detected' ? '⚠️ SHARING DETEKSI' : '❌ Gagal Login') + details + '</span></div><div class="activity-time">' + time + '</div></div>';
     }).join('');
 }
 
@@ -1614,4 +1617,4 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 </script>
 </body>
-</html> 
+</html>
