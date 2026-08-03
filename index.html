@@ -2,196 +2,277 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RevanStore • Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+        }
         :root {
-            --bg: #f1f5f9;
-            --card: #ffffff;
+            --sidebar: 240px;
+            --nav-height: 60px;
+            --blue: #2563eb;
+            --blue-light: #eff6ff;
+            --border: #e2e8f0;
             --text: #1e293b;
             --sub: #64748b;
-            --border: #e2e8f0;
-            --blue: #00BFFF;
-            --blue-dark: #0099CC;
-            --blue-light: #E6F9FF;
-            --red: #ef4444;
-            --red-light: #fef2f2;
-            --green: #10b981;
-            --green-light: #ecfdf5;
-            --yellow: #f59e0b;
-            --yellow-light: #fffbeb;
-            --orange: #f97316;
-            --orange-light: #fff7ed;
-            --purple: #8b5cf6;
-            --font-body: 'Inter', system-ui, sans-serif;
-            --font-heading: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-            --radius-sm: 10px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 24px;
-            --radius-full: 9999px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-            --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
-            --shadow-lg: 0 20px 60px rgba(0,0,0,0.1);
-            --transition: 0.2s ease;
+            --radius: 10px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { font-size: 16px; -webkit-font-smoothing: antialiased; }
-
-        body {
-            font-family: var(--font-body);
-            background: #f8fafc;
-            color: var(--text);
+        #loginWrapper {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            line-height: 1.5;
+            background: #f1f5f9;
+            padding: 20px;
         }
-
-        #mainContainer {
-            background: var(--card);
-            border-radius: var(--radius-xl);
-            padding: 2.5rem;
+        #keyScreen, #loginScreen {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px 36px;
             width: 100%;
-            max-width: 440px;
-            transition: all 0.35s ease;
-            box-shadow: var(--shadow-md);
+            max-width: 380px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
             border: 1px solid var(--border);
         }
-
-        #mainContainer.panel-expanded {
-            max-width: 100%;
-            padding: 0;
-            border-radius: 0;
-            box-shadow: none;
+        #keyScreen h2, #loginScreen h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+        #keyScreen p, #loginScreen p {
+            font-size: 14px;
+            color: var(--sub);
+            margin-bottom: 24px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--sub);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px 0;
             border: none;
-            background: #f8fafc;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            border-bottom: 2px solid var(--border);
+            font-size: 15px;
+            background: transparent;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+            outline: none;
         }
-
-        #mainContainer.panel-expanded #keyScreen,
-        #mainContainer.panel-expanded #loginScreen { display: none !important; }
-
-        .logo { text-align: center; font-size: 2.8rem; margin-bottom: 0.5rem; }
-        .logo i { color: var(--blue); }
-        .title { text-align: center; font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem; }
-        .subtitle { text-align: center; font-size: 0.85rem; color: var(--sub); margin-bottom: 1.8rem; }
-
-        .input-box { margin-bottom: 1.2rem; }
-        .input-box label {
-            display: block; font-size: 0.7rem; font-weight: 600; color: var(--sub);
-            margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em;
+        .input-group input:focus, .input-group select:focus {
+            border-bottom-color: var(--blue);
         }
-        .input-box input, .input-box select {
-            width: 100%; padding: 0.8rem 0; border: none; border-bottom: 1.5px solid var(--border);
-            border-radius: 0; font-size: 0.9rem; background: transparent; font-family: var(--font-body);
-            transition: all var(--transition); color: var(--text); outline: none;
+        .input-group select {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
         }
-        .input-box input:focus, .input-box select:focus { border-bottom: 2px solid var(--blue); }
-        .input-box input::placeholder { color: #bcc5cf; font-weight: 300; }
-        .input-box select {
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 2px center; cursor: pointer; padding-right: 20px;
-        }
-        .input-box input[readonly] { opacity: 0.5; cursor: not-allowed; }
-
         .btn {
-            padding: 0.7rem 1.4rem; border: none; background: transparent; font-weight: 600;
-            font-size: 0.84rem; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-body);
-            display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-            transition: all var(--transition); white-space: nowrap;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .btn-primary { background: var(--blue); color: #fff; }
-        .btn-primary:hover { background: var(--blue-dark); }
-        .btn-green { background: var(--green); color: #fff; }
-        .btn-green:hover { background: #059669; }
-        .btn-red { background: var(--red); color: #fff; }
-        .btn-red:hover { background: #dc2626; }
-        .btn-yellow { background: var(--yellow); color: #000; }
-        .btn-yellow:hover { background: #d97706; }
-        .btn-orange { background: var(--orange); color: #fff; }
-        .btn-orange:hover { background: #ea580c; }
-        .btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+        .btn-primary {
+            background: var(--blue);
+            color: #fff;
+            width: 100%;
+        }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+        }
+        .btn-success:hover { background: #15803d; }
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-outline {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+        }
         .btn-outline:hover { background: #f8fafc; }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.74rem; border-radius: 8px; }
-        .btn-xs { padding: 0.25rem 0.6rem; font-size: 0.7rem; border-radius: 6px; }
-        .btn-danger { background: var(--red); color: #fff; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-success { background: var(--green); color: #fff; }
-        .btn-success:hover { background: #059669; }
-        .btn-warning { background: var(--yellow); color: #000; }
-        .btn-warning:hover { background: #d97706; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .btn-xs { padding: 4px 10px; font-size: 11px; }
+
+        #appContainer { display: none; min-height: 100vh; }
 
         .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-height);
             background: #fff;
             border-bottom: 1px solid var(--border);
-            padding: 0 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 60px;
-            flex-shrink: 0;
-            gap: 1rem;
+            padding: 0 20px;
+            z-index: 100;
         }
         .navbar-brand {
-            font-family: var(--font-heading);
-            font-size: 1.2rem;
-            font-weight: 800;
+            font-weight: 700;
+            font-size: 18px;
             color: var(--text);
-            white-space: nowrap;
-        }
-        .navbar-brand span { color: var(--blue); }
-        .navbar-menu {
             display: flex;
             align-items: center;
-            gap: 0.2rem;
-            list-style: none;
-            flex-wrap: wrap;
-        }
-        .navbar-menu li a {
-            display: block;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            color: var(--sub);
+            gap: 8px;
             text-decoration: none;
-            font-weight: 500;
-            font-size: 0.8rem;
             cursor: pointer;
-            transition: all var(--transition);
-            white-space: nowrap;
         }
-        .navbar-menu li a:hover { background: var(--blue-light); color: var(--blue); }
-        .navbar-menu li a.active { background: var(--blue-light); color: var(--blue); font-weight: 700; }
+        .navbar-brand i { color: var(--blue); font-size: 20px; }
+        .navbar-brand span { color: var(--blue); }
         .navbar-right {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            white-space: nowrap;
+            gap: 16px;
         }
-        .navbar-info {
-            font-size: 0.78rem;
+        .navbar-clock {
+            font-size: 13px;
             color: var(--sub);
         }
-        .navbar-info b { color: var(--text); }
-
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-            overflow-y: auto;
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .navbar-user .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--blue-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--blue);
+        }
+        .navbar-user .avatar i { font-size: 14px; }
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text);
         }
 
+        .sidebar {
+            position: fixed;
+            top: var(--nav-height);
+            left: 0;
+            width: var(--sidebar);
+            height: calc(100vh - var(--nav-height));
+            background: #fff;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 12px 10px;
+            z-index: 90;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar-nav .label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--sub);
+            padding: 10px 12px 4px;
+            opacity: 0.5;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            color: var(--sub);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .sidebar-nav a:hover {
+            background: var(--blue-light);
+            color: var(--blue);
+        }
+        .sidebar-nav a.active {
+            background: var(--blue-light);
+            color: var(--blue);
+            font-weight: 600;
+        }
+        .sidebar-nav a i { width: 18px; font-size: 14px; text-align: center; }
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 12px;
+        }
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding: 12px 12px 0;
+            margin-top: 8px;
+        }
+        .sidebar-footer .logout-btn {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            background: transparent;
+            color: var(--sub);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: var(--radius);
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .sidebar-footer .logout-btn:hover {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar);
+            padding-top: var(--nav-height);
+            min-height: 100vh;
+            padding: calc(var(--nav-height) + 20px) 24px 24px;
+        }
         .page { display: none; }
         .page.active { display: block; }
 
@@ -199,275 +280,257 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 2rem;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 12px;
         }
         .page-header h1 {
-            font-family: var(--font-heading);
-            font-size: 1.4rem;
-            font-weight: 800;
+            font-size: 22px;
+            font-weight: 700;
         }
         .page-header p {
-            font-size: 0.8rem;
+            font-size: 14px;
             color: var(--sub);
-            margin-top: 0.1rem;
         }
 
-        .stats-grid {
+        .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 14px;
+            margin-bottom: 20px;
         }
-        .stat-card {
+        .stat {
             background: #fff;
-            border-radius: var(--radius-md);
-            padding: 1.3rem;
+            border-radius: var(--radius);
+            padding: 16px 18px;
             border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
         }
-        .stat-card .stat-value {
-            font-family: var(--font-heading);
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--blue);
+        .stat .num {
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.2;
         }
-        .stat-card .stat-label {
-            font-size: 0.7rem;
+        .stat .label {
+            font-size: 12px;
             color: var(--sub);
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.04em;
-            font-weight: 600;
-            margin-top: 0.2rem;
         }
+        .stat .icon { font-size: 18px; margin-bottom: 6px; }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
         .card {
             background: #fff;
-            border-radius: var(--radius-md);
-            padding: 1.3rem;
+            border-radius: var(--radius);
+            padding: 18px 20px;
             border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 1.5rem;
+            margin-bottom: 16px;
         }
         .card-header {
-            font-family: var(--font-heading);
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 0.5rem;
             flex-wrap: wrap;
+            gap: 8px;
         }
-        .action-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.5rem 1.2rem;
-            border-radius: var(--radius-full);
-            border: 1.5px solid var(--border);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition);
-            background: #fff;
-        }
-        .action-tag:hover { background: var(--blue-light); border-color: var(--blue); }
-        .action-tag.ban { color: var(--red); }
-        .action-tag.akses { color: #b45309; }
-        .action-tag.force { color: var(--orange); }
+        .card-header i { margin-right: 6px; }
 
-        .ringkasan-list { display: flex; flex-direction: column; gap: 0.7rem; }
-        .ringkasan-item { display: flex; justify-content: space-between; font-size: 0.84rem; }
-        .ringkasan-item .label { color: var(--sub); }
-        .ringkasan-item .value { font-weight: 700; }
-
-        .table-responsive { overflow-x: auto; }
+        .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        table th {
+        th {
             text-align: left;
-            padding: 0.6rem 0.8rem;
-            font-size: 0.68rem;
+            padding: 8px 10px;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--sub);
             text-transform: uppercase;
             letter-spacing: 0.04em;
+            color: var(--sub);
             border-bottom: 2px solid var(--border);
-            white-space: nowrap;
         }
-        table td {
-            padding: 0.6rem 0.8rem;
-            font-size: 0.83rem;
+        td {
+            padding: 8px 10px;
+            font-size: 13px;
             border-bottom: 1px solid var(--border);
-            white-space: nowrap;
         }
-        table tbody tr:hover { background: #f8fafc; }
+        tr:hover { background: var(--blue-light); }
 
         .badge {
             display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: var(--radius-full);
-            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
         }
-        .badge-red { background: var(--red-light); color: #dc2626; }
-        .badge-yellow { background: var(--yellow-light); color: #b45309; }
-        .badge-orange { background: var(--orange-light); color: #c2410c; }
-        .badge-green { background: var(--green-light); color: #059669; }
+        .badge-red { background: #fef2f2; color: #dc2626; }
+        .badge-yellow { background: #fffbeb; color: #d97706; }
+        .badge-orange { background: #fff7ed; color: #ea580c; }
+        .badge-green { background: #ecfdf5; color: #16a34a; }
+        .badge-blue { background: var(--blue-light); color: var(--blue); }
 
         .activity-list {
             max-height: 400px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         .activity-item {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.55rem 0.7rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            border-bottom: 1px solid var(--border);
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            background: #f8fafc;
+            font-size: 13px;
         }
+        .activity-item:hover { background: var(--blue-light); }
         .activity-item.suspicious { background: #fef2f2; }
         .activity-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .activity-dot.login_success { background: var(--green); }
-        .activity-dot.login_failed { background: var(--red); }
+        .activity-dot.login_success { background: #16a34a; }
+        .activity-dot.login_failed { background: #dc2626; }
+        .activity-dot.banned, .activity-dot.ban_akses { background: #dc2626; }
+        .activity-dot.unbanned, .activity-dot.unban_akses { background: #16a34a; }
+        .activity-dot.force_logout { background: #ea580c; }
+        .activity-dot.unforce_logout { background: #16a34a; }
+        .activity-dot.sharing_detected { background: #dc2626; }
         .activity-dot.topup { background: var(--blue); }
-        .activity-dot.kuras { background: var(--yellow); }
-        .activity-dot.gantinama { background: var(--purple); }
-        .activity-dot.banned, .activity-dot.ban_akses { background: var(--red); }
-        .activity-dot.unbanned, .activity-dot.unban_akses { background: var(--green); }
-        .activity-dot.force_logout { background: var(--orange); }
-        .activity-dot.unforce_logout { background: var(--green); }
-        .activity-dot.sharing_detected { background: var(--red); }
         .activity-info { flex: 1; }
         .activity-user { font-weight: 600; }
         .activity-desc { color: var(--sub); }
-        .activity-time { color: var(--sub); font-size: 0.7rem; white-space: nowrap; }
+        .activity-time { font-size: 11px; color: var(--sub); white-space: nowrap; }
 
         .empty-state {
             text-align: center;
-            padding: 3rem;
+            padding: 40px 20px;
             color: var(--sub);
-            font-size: 0.85rem;
         }
+        .empty-state i { font-size: 32px; opacity: 0.3; display: block; margin-bottom: 8px; }
 
-        .modal-overlay {
+        .web-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        .web-stat {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .web-stat .num { font-size: 22px; font-weight: 700; }
+        .web-stat .label { font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.04em; }
+
+        .dist-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .dist-item {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            border-radius: var(--radius);
+            text-align: center;
+            background: #f8fafc;
+        }
+        .dist-item .num { font-size: 20px; font-weight: 700; }
+        .dist-item .label { font-size: 11px; color: var(--sub); }
+
+        .modal {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(3px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15,23,42,0.4);
+            backdrop-filter: blur(4px);
             z-index: 200;
             display: flex;
             align-items: center;
             justify-content: center;
             visibility: hidden;
             opacity: 0;
-            transition: 0.2s ease;
+            transition: 0.25s;
         }
-        .modal-overlay.show { visibility: visible; opacity: 1; }
+        .modal.show { visibility: visible; opacity: 1; }
         .modal-box {
             background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 1.8rem;
-            width: 93%;
-            max-width: 500px;
+            border-radius: 16px;
+            padding: 24px;
+            width: 92%;
+            max-width: 480px;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: var(--shadow-lg);
         }
         .modal-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.3rem;
-            font-family: var(--font-heading);
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 16px;
         }
         .modal-close {
             background: none;
             border: none;
-            font-size: 1.3rem;
+            font-size: 18px;
             cursor: pointer;
             color: var(--sub);
-            padding: 0.2rem;
-            line-height: 1;
+            padding: 4px;
         }
         .modal-close:hover { color: var(--text); }
-        .user-check-card {
-            padding: 0.6rem 0.8rem;
+
+        .user-check {
+            padding: 8px 12px;
             border: 1.5px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius);
             cursor: pointer;
-            font-size: 0.82rem;
-            margin-bottom: 0.3rem;
-            transition: all var(--transition);
-            background: #fff;
+            font-size: 13px;
+            margin-bottom: 4px;
+            transition: 0.2s;
         }
-        .user-check-card:hover { background: var(--blue-light); border-color: var(--blue); }
-        .user-check-card.selected { border-color: var(--blue); background: #e0f2fe; }
+        .user-check:hover { background: var(--blue-light); border-color: var(--blue); }
+        .user-check.selected { border-color: var(--blue); background: #dbeafe; }
+        .user-check.banned-status { border-color: #dc2626; background: #fef2f2; }
 
         .alert-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(3px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15,23,42,0.4);
+            backdrop-filter: blur(4px);
             z-index: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             visibility: hidden;
             opacity: 0;
-            transition: 0.2s ease;
+            transition: 0.25s;
         }
         .alert-overlay.show { visibility: visible; opacity: 1; }
-        .alert-popup {
+        .alert-box {
             background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 2rem;
+            border-radius: 16px;
+            padding: 32px;
             text-align: center;
-            width: 93%;
+            width: 92%;
             max-width: 360px;
-            box-shadow: var(--shadow-lg);
         }
-        .spinner {
-            width: 34px; height: 34px;
-            border: 3px solid #e2e8f0;
-            border-top-color: var(--blue);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .alert-box .icon { font-size: 40px; margin-bottom: 12px; }
+        .alert-box .title { font-weight: 700; font-size: 18px; margin-bottom: 4px; }
+        .alert-box .msg { font-size: 14px; color: var(--sub); }
 
         .confirm-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(3px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15,23,42,0.4);
+            backdrop-filter: blur(4px);
             z-index: 250;
             display: none;
             align-items: center;
@@ -475,334 +538,1186 @@
         }
         .confirm-box {
             background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 1.8rem;
-            width: 93%;
+            border-radius: 16px;
+            padding: 24px;
+            width: 92%;
             max-width: 360px;
             text-align: center;
         }
+        .confirm-box .btns { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
 
-        .web-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--blue);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 6px;
+        }
+        .status-badge.banned { background: #fef2f2; color: #dc2626; border: 1px solid #dc2626; }
+        .status-badge.banakses { background: #fffbeb; color: #d97706; border: 1px solid #d97706; }
+        .status-badge.force { background: #fff7ed; color: #ea580c; border: 1px solid #ea580c; }
 
         @media (max-width: 1024px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .grid-2 { grid-template-columns: 1fr; }
-            .web-stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .web-stats { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
-            .navbar { flex-wrap: wrap; height: auto; padding: 0.8rem 1rem; gap: 0.5rem; }
-            .navbar-menu { order: 3; width: 100%; justify-content: center; }
-            .navbar-menu li a { padding: 0.3rem 0.5rem; font-size: 0.72rem; }
-            .main-content { padding: 1rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-            .web-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+            .navbar-toggle { display: block; }
+            .navbar-clock { display: none; }
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content {
+                margin-left: 0;
+                padding: calc(var(--nav-height) + 16px) 14px 16px;
+            }
+            .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat .num { font-size: 20px; }
+            .web-stats { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 480px) {
-            body { padding: 0.3rem; }
-            #mainContainer { padding: 1.3rem; border-radius: var(--radius-md); }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .web-stats-grid { grid-template-columns: 1fr 1fr; }
-            .navbar-menu li a { font-size: 0.68rem; padding: 0.25rem 0.4rem; }
+            .navbar { padding: 0 12px; }
+            .navbar-brand { font-size: 15px; }
+            .navbar-user .name { display: none; }
+            .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat { padding: 12px; }
+            .stat .num { font-size: 17px; }
+            .page-header h1 { font-size: 18px; }
+            .card { padding: 14px; }
+            .modal-box { padding: 18px; }
+            #keyScreen, #loginScreen { padding: 28px 20px; }
         }
     </style>
 </head>
 <body>
 
-<div id="mainContainer">
-
+<div id="loginWrapper">
     <div id="keyScreen">
-        <div class="logo"><i class="fas fa-shield-alt"></i></div>
-        <div class="title">Admin Access</div>
-        <div class="subtitle">Masukkan key untuk melanjutkan</div>
-        <div class="input-box">
-            <label>Access Key</label>
-            <input type="password" id="accessKey" placeholder="Masukkan access key..." maxlength="50">
+        <h2><i class="fas fa-key" style="color:var(--blue);margin-right:8px;"></i>Admin Access</h2>
+        <p>Masukkan key untuk melanjutkan</p>
+        <div class="input-group">
+            <label><i class="fas fa-lock"></i> Access Key</label>
+            <input type="password" id="accessKey" placeholder="Masukkan access key">
         </div>
-        <button class="btn btn-primary btn-block" onclick="verifyKey()">Verifikasi</button>
+        <button class="btn btn-primary" onclick="verifyKey()"><i class="fas fa-arrow-right"></i> Verifikasi</button>
     </div>
-
     <div id="loginScreen" style="display:none;">
-        <div class="logo"><i class="fas fa-user-shield"></i></div>
-        <div class="title">Admin Login</div>
-        <div class="subtitle">Masukkan email & password admin</div>
-        <div class="input-box">
-            <label>Email</label>
+        <h2><i class="fas fa-user-shield" style="color:var(--blue);margin-right:8px;"></i>Admin Login</h2>
+        <p>Masukkan email & password</p>
+        <div class="input-group">
+            <label><i class="fas fa-envelope"></i> Email</label>
             <input type="email" id="loginEmail" placeholder="admin@email.com">
         </div>
-        <div class="input-box">
-            <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="············">
+        <div class="input-group">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <input type="password" id="loginPassword" placeholder="Password">
         </div>
-        <button class="btn btn-primary btn-block" onclick="login()">Login</button>
+        <button class="btn btn-primary" onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
     </div>
+</div>
 
-    <nav class="navbar" id="navbar" style="display:none;">
-        <div class="navbar-brand">Revan<span>Store</span></div>
-        <ul class="navbar-menu" id="navbarMenu">
-            <li><a class="active" data-page="dashboard">Dashboard</a></li>
-            <li><a data-page="all-users">Semua User</a></li>
-            <li><a data-page="active-users">Aktif</a></li>
-            <li><a data-page="banned-users">Banned</a></li>
-            <li><a data-page="banakses-users">Ban Akses</a></li>
-            <li><a data-page="force-users">Force</a></li>
-            <li><a data-page="activity-log">Log</a></li>
-            <li><a data-page="suspicious-log">Mencurigakan</a></li>
-            <li><a data-page="web-stats">Statistik</a></li>
-        </ul>
+<div id="appContainer">
+
+    <nav class="navbar">
+        <button class="navbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a href="#" class="navbar-brand" onclick="switchPage('dashboard')"><i class="fas fa-shield-alt"></i> Revan<span>Store</span></a>
         <div class="navbar-right">
-            <div class="navbar-info" id="clockDisplay"></div>
-            <div class="navbar-info">| <b id="loggedUser">-</b></div>
-            <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+            <span class="navbar-clock" id="clockDisplay"><i class="far fa-clock"></i> --:--</span>
+            <div class="navbar-user">
+                <span class="name" id="navbarUserName">Admin</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+            </div>
         </div>
     </nav>
 
-    <div class="main-content" id="mainContent" style="display:none;">
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <div class="label"><i class="fas fa-th-large"></i> Utama</div>
+            <a class="active" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
+            <a data-page="all-users" onclick="switchPage('all-users')"><i class="fas fa-users"></i> Semua User</a>
+            <div class="sidebar-divider"></div>
+            <div class="label"><i class="fas fa-user-cog"></i> Manajemen</div>
+            <a data-page="banned-users" onclick="switchPage('banned-users')"><i class="fas fa-ban"></i> Banned User</a>
+            <a data-page="unbanned-users" onclick="switchPage('unbanned-users')"><i class="fas fa-check-circle"></i> Unban User</a>
+            <a data-page="banakses-users" onclick="switchPage('banakses-users')"><i class="fas fa-shield-alt"></i> Ban Akses</a>
+            <a data-page="unbanakses-users" onclick="switchPage('unbanakses-users')"><i class="fas fa-check-circle"></i> Unban Akses</a>
+            <a data-page="force-users" onclick="switchPage('force-users')"><i class="fas fa-eject"></i> Tangguhkan</a>
+            <a data-page="unforce-users" onclick="switchPage('unforce-users')"><i class="fas fa-check-circle"></i> Lepas Tangguh</a>
+            <div class="sidebar-divider"></div>
+            <div class="label"><i class="fas fa-chart-line"></i> Log & Statistik</div>
+            <a data-page="activity-log" onclick="switchPage('activity-log')"><i class="fas fa-history"></i> Log Aktivitas</a>
+            <a data-page="suspicious-log" onclick="switchPage('suspicious-log')"><i class="fas fa-exclamation-triangle"></i> Log Mencurigakan</a>
+            <a data-page="web-stats" onclick="switchPage('web-stats')"><i class="fas fa-chart-bar"></i> Statistik Web</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
 
         <div class="page active" id="page-dashboard">
             <div class="page-header">
                 <div>
-                    <h1>Dashboard</h1>
-                    <p>Selamat datang</p>
+                    <h1><i class="fas fa-home" style="color:var(--blue);margin-right:8px;"></i>Dashboard</h1>
+                    <p>Selamat datang, <b id="loggedUser">Admin</b></p>
                 </div>
-                <button class="btn btn-primary" onclick="openAddUserModal()">Tambah User</button>
+                <button class="btn btn-primary" onclick="openAddUserModal()" style="width:auto;"><i class="fas fa-user-plus"></i> Tambah User</button>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="icon"><i class="fas fa-users"></i></div>
+                    <div class="num" id="statTotal">0</div>
+                    <div class="label">Total User</div>
+                </div>
+                <div class="stat">
+                    <div class="icon"><i class="fas fa-user-check"></i></div>
+                    <div class="num" style="color:#16a34a;" id="statActive">0</div>
+                    <div class="label">User Aktif</div>
+                </div>
+                <div class="stat">
+                    <div class="icon"><i class="fas fa-user-slash"></i></div>
+                    <div class="num" style="color:#dc2626;" id="statBanned">0</div>
+                    <div class="label">Banned</div>
+                </div>
+                <div class="stat">
+                    <div class="icon"><i class="fas fa-pause-circle"></i></div>
+                    <div class="num" style="color:#ea580c;" id="statForce">0</div>
+                    <div class="label">Tangguhkan</div>
+                </div>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="statTotal">0</div>
-                    <div class="stat-label">Total User</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statActive" style="color:#10b981;">0</div>
-                    <div class="stat-label">Aktif</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statBanned" style="color:#ef4444;">0</div>
-                    <div class="stat-label">Banned</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statForce" style="color:#f97316;">0</div>
-                    <div class="stat-label">Force</div>
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <div class="card">
-                    <div class="card-header">Quick Actions</div>
-                    <div class="quick-actions">
-                        <span class="action-tag ban" onclick="openActionModal('ban')">Ban / Unban</span>
-                        <span class="action-tag akses" onclick="openActionModal('banakses')">Ban Akses</span>
-                        <span class="action-tag force" onclick="openActionModal('force')">Force</span>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Ringkasan</div>
-                    <div class="ringkasan-list">
-                        <div class="ringkasan-item"><span class="label">User Aktif</span><span class="value" style="color:#10b981;" id="ringkasanAktif">0</span></div>
-                        <div class="ringkasan-item"><span class="label">User Banned</span><span class="value" style="color:#ef4444;" id="ringkasanBanned">0</span></div>
-                        <div class="ringkasan-item"><span class="label">Ban Akses</span><span class="value" style="color:#f59e0b;" id="ringkasanBanAkses">0</span></div>
-                        <div class="ringkasan-item"><span class="label">Force Logout</span><span class="value" style="color:#f97316;" id="ringkasanForce">0</span></div>
-                    </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-chart-pie"></i> Ringkasan</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-check" style="color:#16a34a;"></i> User Aktif</span><span style="font-weight:700;color:#16a34a;" id="ringkasanAktif">0</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-slash" style="color:#dc2626;"></i> User Banned</span><span style="font-weight:700;color:#dc2626;" id="ringkasanBanned">0</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-shield-alt" style="color:#d97706;"></i> Ban Akses</span><span style="font-weight:700;color:#d97706;" id="ringkasanBanAkses">0</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:#ea580c;"></i> Tangguhkan</span><span style="font-weight:700;color:#ea580c;" id="ringkasanForce">0</span></div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <span>Aktivitas Terbaru</span>
-                    <button class="btn btn-danger btn-xs" onclick="clearAllLogs()">Clear Log</button>
+                    <span><i class="fas fa-history"></i> Aktivitas Terbaru</span>
+                    <button class="btn btn-danger btn-sm" onclick="clearAllLogs()"><i class="fas fa-trash"></i> Hapus Semua</button>
                 </div>
                 <div class="activity-list" id="activityListContainer">
-                    <div class="empty-state">Memuat...</div>
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
                 </div>
             </div>
         </div>
 
         <div class="page" id="page-all-users">
             <div class="page-header">
-                <div><h1>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
-                <button class="btn btn-primary" onclick="openAddUserModal()">Tambah User</button>
+                <div><h1><i class="fas fa-users" style="color:var(--blue);margin-right:8px;"></i>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
+                <button class="btn btn-primary" onclick="openAddUserModal()"><i class="fas fa-user-plus"></i> Tambah User</button>
             </div>
             <div class="card">
-                <div class="table-responsive">
+                <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>IP</th><th>Expiry</th><th>Aksi</th></tr></thead>
+                        <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>IP</th><th>FP</th><th>Expiry</th><th>Aksi</th></tr></thead>
                         <tbody id="allUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="allUsersEmpty" style="display:none;">Tidak ada user</div>
-            </div>
-        </div>
-
-        <div class="page" id="page-active-users">
-            <div class="page-header"><h1>User Aktif</h1></div>
-            <div class="card">
-                <div class="table-responsive">
-                    <table>
-                        <thead><tr><th>Username</th><th>Role</th><th>Expiry</th><th>Aksi</th></tr></thead>
-                        <tbody id="activeUsersTable"></tbody>
-                    </table>
-                </div>
-                <div class="empty-state" id="activeUsersEmpty" style="display:none;">Tidak ada user aktif</div>
+                <div class="empty-state" id="allUsersEmpty" style="display:none;"><i class="fas fa-users"></i> Tidak ada user</div>
             </div>
         </div>
 
         <div class="page" id="page-banned-users">
-            <div class="page-header"><h1>User Banned</h1></div>
+            <div class="page-header"><h1><i class="fas fa-ban" style="color:#dc2626;margin-right:8px;"></i>User Banned</h1><p>User yang sudah di-ban</p></div>
             <div class="card">
-                <div class="table-responsive">
+                <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Username</th><th>Durasi</th><th>Aksi</th></tr></thead>
+                        <thead><tr><th>Username</th><th>Role</th><th>Durasi</th><th>Aksi</th></tr></thead>
                         <tbody id="bannedUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="bannedUsersEmpty" style="display:none;">Tidak ada user banned</div>
+                <div class="empty-state" id="bannedUsersEmpty" style="display:none;"><i class="fas fa-ban"></i> Tidak ada user banned</div>
+            </div>
+        </div>
+
+        <div class="page" id="page-unbanned-users">
+            <div class="page-header"><h1><i class="fas fa-check-circle" style="color:#16a34a;margin-right:8px;"></i>Unban User</h1><p>User yang sedang di-ban</p></div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
+                        <tbody id="unbannedUsersTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="unbannedUsersEmpty" style="display:none;"><i class="fas fa-check-circle"></i> Tidak ada user yang di-ban</div>
             </div>
         </div>
 
         <div class="page" id="page-banakses-users">
-            <div class="page-header"><h1>User Ban Akses</h1></div>
+            <div class="page-header"><h1><i class="fas fa-shield-alt" style="color:#d97706;margin-right:8px;"></i>Ban Akses</h1><p>User yang belum di-ban akses</p></div>
             <div class="card">
-                <div class="table-responsive">
+                <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Username</th><th>Durasi</th><th>Aksi</th></tr></thead>
+                        <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
                         <tbody id="banaksesUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="banaksesUsersEmpty" style="display:none;">Tidak ada user ban akses</div>
+                <div class="empty-state" id="banaksesUsersEmpty" style="display:none;"><i class="fas fa-shield-alt"></i> Semua user sudah di-ban akses</div>
+            </div>
+        </div>
+
+        <div class="page" id="page-unbanakses-users">
+            <div class="page-header"><h1><i class="fas fa-check-circle" style="color:#16a34a;margin-right:8px;"></i>Unban Akses</h1><p>User yang sedang di-ban akses</p></div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
+                        <tbody id="unbanaksesUsersTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="unbanaksesUsersEmpty" style="display:none;"><i class="fas fa-check-circle"></i> Tidak ada user yang di-ban akses</div>
             </div>
         </div>
 
         <div class="page" id="page-force-users">
-            <div class="page-header"><h1>User Force Logout</h1></div>
+            <div class="page-header"><h1><i class="fas fa-eject" style="color:#ea580c;margin-right:8px;"></i>Tangguhkan User</h1><p>User yang belum ditangguhkan</p></div>
             <div class="card">
-                <div class="table-responsive">
+                <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Username</th><th>IP</th><th>Fingerprint</th><th>Aksi</th></tr></thead>
+                        <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
                         <tbody id="forceUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="forceUsersEmpty" style="display:none;">Tidak ada user force</div>
+                <div class="empty-state" id="forceUsersEmpty" style="display:none;"><i class="fas fa-eject"></i> Semua user sudah ditangguhkan</div>
+            </div>
+        </div>
+
+        <div class="page" id="page-unforce-users">
+            <div class="page-header"><h1><i class="fas fa-check-circle" style="color:#16a34a;margin-right:8px;"></i>Lepas Tangguh</h1><p>User yang sedang ditangguhkan</p></div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
+                        <tbody id="unforceUsersTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="unforceUsersEmpty" style="display:none;"><i class="fas fa-check-circle"></i> Tidak ada user yang ditangguhkan</div>
             </div>
         </div>
 
         <div class="page" id="page-activity-log">
             <div class="page-header">
-                <h1>Log Aktivitas</h1>
-                <button class="btn btn-danger btn-sm" onclick="clearAllLogs()">Hapus Semua Log</button>
+                <div><h1><i class="fas fa-history" style="color:var(--blue);margin-right:8px;"></i>Log Aktivitas</h1></div>
+                <button class="btn btn-danger btn-sm" onclick="clearAllLogs()"><i class="fas fa-trash"></i> Hapus Semua</button>
             </div>
             <div class="card">
                 <div class="activity-list" id="allActivityLog" style="max-height:600px;">
-                    <div class="empty-state">Memuat...</div>
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
                 </div>
             </div>
         </div>
 
         <div class="page" id="page-suspicious-log">
-            <div class="page-header"><h1>Log Mencurigakan</h1></div>
+            <div class="page-header"><h1><i class="fas fa-exclamation-triangle" style="color:#dc2626;margin-right:8px;"></i>Log Mencurigakan</h1></div>
             <div class="card">
                 <div class="activity-list" id="suspiciousActivityLog" style="max-height:600px;">
-                    <div class="empty-state">Memuat...</div>
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
                 </div>
             </div>
         </div>
 
         <div class="page" id="page-web-stats">
-            <div class="page-header"><h1>Statistik Web</h1></div>
-            <div class="web-stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatTotalUsers">0</div>
-                    <div class="stat-label">Total User</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatActiveUsers" style="color:#10b981;">0</div>
-                    <div class="stat-label">User Aktif</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatBannedUsers" style="color:#ef4444;">0</div>
-                    <div class="stat-label">User Diblokir</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="webStatTotalLogins">0</div>
-                    <div class="stat-label">Total Login</div>
+            <div class="page-header"><h1><i class="fas fa-chart-bar" style="color:var(--blue);margin-right:8px;"></i>Statistik Web</h1></div>
+            <div class="web-stats">
+                <div class="web-stat"><div class="num" id="webStatTotalUsers">0</div><div class="label"><i class="fas fa-users"></i> Total User</div></div>
+                <div class="web-stat"><div class="num" style="color:#16a34a;" id="webStatActiveUsers">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
+                <div class="web-stat"><div class="num" style="color:#dc2626;" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
+                <div class="web-stat"><div class="num" id="webStatTotalLogins">0</div><div class="label"><i class="fas fa-sign-in-alt"></i> Total Login</div></div>
+                <div class="web-stat"><div class="num" style="color:#d97706;" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
+                <div class="web-stat"><div class="num" style="color:#ea580c;" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+            </div>
+            <div class="card" style="margin-top:16px;">
+                <div class="card-header"><i class="fas fa-chart-line"></i> Distribusi User</div>
+                <div class="dist-grid">
+                    <div class="dist-item" style="background:#ecfdf5;"><div class="num" style="color:#16a34a;" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
+                    <div class="dist-item" style="background:#fef2f2;"><div class="num" style="color:#dc2626;" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
+                    <div class="dist-item" style="background:#fffbeb;"><div class="num" style="color:#d97706;" id="distBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
+                    <div class="dist-item" style="background:#fff7ed;"><div class="num" style="color:#ea580c;" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
-<div class="alert-overlay" id="alertOverlay">
-    <div class="alert-popup">
-        <div id="alertIcon" style="margin-bottom:1rem;"></div>
-        <div id="alertTitle" style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;"></div>
-        <div id="alertMessage" style="font-size:0.85rem;color:var(--sub);"></div>
-    </div>
-</div>
-
-<div class="confirm-overlay" id="confirmOverlay">
-    <div class="confirm-box">
-        <div id="confirmMessage" style="margin-bottom:1.3rem;font-size:0.9rem;font-weight:500;"></div>
-        <div style="display:flex;gap:0.5rem;justify-content:center;">
-            <button class="btn btn-danger btn-sm" id="confirmYes">Ya</button>
-            <button class="btn btn-outline btn-sm" id="confirmNo">Batal</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="actionModal">
+<!-- MODALS -->
+<div class="modal" id="actionModal">
     <div class="modal-box">
         <div class="modal-header">
-            <span id="actionModalTitle"></span>
-            <button class="modal-close" id="closeActionModalBtn">&times;</button>
+            <span id="actionModalTitle"><i class="fas fa-cog"></i> Action</span>
+            <button class="modal-close" onclick="closeModal('actionModal')"><i class="fas fa-times"></i></button>
         </div>
         <div id="actionModalBody"></div>
     </div>
 </div>
 
-<div class="modal-overlay" id="addUserModal">
+<div class="modal" id="addUserModal">
     <div class="modal-box">
         <div class="modal-header">
-            <span>Tambah User</span>
-            <button class="modal-close" onclick="closeAddUserModal()">&times;</button>
+            <span><i class="fas fa-user-plus"></i> Tambah User</span>
+            <button class="modal-close" onclick="closeModal('addUserModal')"><i class="fas fa-times"></i></button>
         </div>
-        <div class="input-box"><label>Username *</label><input type="text" id="newUsername" placeholder="Username..." maxlength="30"></div>
-        <div class="input-box"><label>Password * (min 6)</label><input type="password" id="newPassword" placeholder="Password..." maxlength="50"></div>
-        <div class="input-box"><label>Nomor</label><input type="text" id="newPhone" placeholder="Nomor HP..." maxlength="20"></div>
-        <div class="input-box"><label>Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" maxlength="10"></div>
-        <button class="btn btn-green btn-block" onclick="addUserNow()">Tambah</button>
+        <div class="input-group"><label><i class="fas fa-user"></i> Username *</label><input type="text" id="newUsername" placeholder="Username"></div>
+        <div class="input-group"><label><i class="fas fa-lock"></i> Password * (min 6)</label><input type="password" id="newPassword" placeholder="Password"></div>
+        <div class="input-group"><label><i class="fas fa-phone"></i> Nomor</label><input type="text" id="newPhone" placeholder="Nomor HP"></div>
+        <div class="input-group"><label><i class="fas fa-tag"></i> Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+        <div class="input-group"><label><i class="fas fa-calendar-alt"></i> Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="MM/DD/YYYY"></div>
+        <button class="btn btn-success" style="width:100%;" onclick="addUserNow()"><i class="fas fa-user-plus"></i> Tambah User</button>
     </div>
 </div>
 
-<div class="modal-overlay" id="editUserModal">
+<div class="modal" id="editUserModal">
     <div class="modal-box">
         <div class="modal-header">
-            <span>Edit User</span>
-            <button class="modal-close" id="closeEditModalBtn">&times;</button>
+            <span><i class="fas fa-edit"></i> Edit User</span>
+            <button class="modal-close" onclick="closeModal('editUserModal')"><i class="fas fa-times"></i></button>
         </div>
         <input type="hidden" id="editUserId">
-        <div class="input-box"><label>Username</label><input type="text" id="editUsername" maxlength="30"></div>
-        <div class="input-box"><label>Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="············" maxlength="50"></div>
-        <div class="input-box"><label>Nomor</label><input type="text" id="editPhone" maxlength="20"></div>
-        <div class="input-box"><label>Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
-        <div class="input-box"><label>Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate" maxlength="10"></div>
-        <div class="input-box"><label>IP</label><input type="text" id="editIP" readonly></div>
-        <div class="input-box"><label>Fingerprint</label><input type="text" id="editFP" readonly></div>
-        <button class="btn btn-primary btn-block" onclick="saveUserEdit()">Simpan</button>
+        <div class="input-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="editUsername"></div>
+        <div class="input-group"><label><i class="fas fa-lock"></i> Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="Kosongkan jika tidak diubah"></div>
+        <div class="input-group"><label><i class="fas fa-phone"></i> Nomor</label><input type="text" id="editPhone"></div>
+        <div class="input-group"><label><i class="fas fa-tag"></i> Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
+        <div class="input-group"><label><i class="fas fa-calendar-alt"></i> Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate"></div>
+        <div class="input-group"><label><i class="fas fa-network-wired"></i> IP</label><input type="text" id="editIP" readonly style="background:#f1f5f9;"></div>
+        <div class="input-group"><label><i class="fas fa-fingerprint"></i> Fingerprint</label><input type="text" id="editFP" readonly style="background:#f1f5f9;"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="saveUserEdit()"><i class="fas fa-save"></i> Simpan</button>
+            <button class="btn btn-success" style="flex:1;" onclick="updateUserFormat()"><i class="fas fa-sync"></i> Update Format</button>
+        </div>
     </div>
 </div>
 
-<div id="subPanel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f8fafc;z-index:50;overflow-y:auto;padding:1.5rem;">
-    <div style="max-width:700px;margin:0 auto;">
-        <button class="btn btn-outline btn-sm" onclick="closeSubPanel()" style="margin-bottom:1rem;">Kembali</button>
-        <div id="subPanelContent"></div>
+<!-- ALERT & CONFIRM -->
+<div class="alert-overlay" id="alertOverlay">
+    <div class="alert-box">
+        <div class="icon" id="alertIcon">✅</div>
+        <div class="title" id="alertTitle">Berhasil</div>
+        <div class="msg" id="alertMessage">Proses berhasil</div>
     </div>
 </div>
 
-<script src="main.js"></script>
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div id="confirmMessage">Yakin?</div>
+        <div class="btns">
+            <button class="btn btn-danger" id="confirmYes"><i class="fas fa-check"></i> Ya</button>
+            <button class="btn btn-outline" id="confirmNo"><i class="fas fa-times"></i> Batal</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== ANTI DEVTOOLS ====================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault();
+        return false;
+    }
+});
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+
+var devtoolsOpen = false;
+setInterval(function() {
+    if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+        if (!devtoolsOpen) {
+            devtoolsOpen = true;
+            document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:#fff;font-size:18px;font-family:sans-serif">DevTools terdeteksi! Tutup untuk melanjutkan.</div>';
+        }
+    } else { devtoolsOpen = false; }
+}, 1000);
+
+// ==================== CONFIG ====================
+var API_URL = '/api/revanstore';
+var ADMIN_KEY = 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b';
+var API_KEY = '835a198a-7843-4e13-a085-331eb891100e';
+
+var currentAdmin = null;
+var allUsers = [];
+var allActivities = [];
+var fingerprint = '';
+var keyAttempts = 0;
+var sessionTimer = null;
+var pendingRequests = {};
+var selectedActionUser = null;
+var clockInterval = null;
+var statsInterval = null;
+var activityLoaded = false;
+
+// ==================== FINGERPRINT ====================
+async function getFingerprint() {
+    var fp = '';
+    fp += navigator.userAgent || '';
+    fp += navigator.language || '';
+    fp += (screen.width || 0) + 'x' + (screen.height || 0);
+    fp += screen.colorDepth || '';
+    fp += new Date().getTimezoneOffset();
+    fp += navigator.hardwareConcurrency || '';
+    fp += navigator.deviceMemory || '';
+    fp += navigator.platform || '';
+    return CryptoJS.MD5(fp).toString();
+}
+
+// ==================== ALERT ====================
+function showAlert(title, msg, type) {
+    var overlay = document.getElementById('alertOverlay');
+    var icon = document.getElementById('alertIcon');
+    var titleEl = document.getElementById('alertTitle');
+    var msgEl = document.getElementById('alertMessage');
+    if (!overlay) { alert(title + ': ' + msg); return; }
+    titleEl.textContent = title;
+    msgEl.textContent = msg;
+    if (type === 'loading') icon.innerHTML = '<div class="spinner"></div>';
+    else if (type === 'success') icon.innerHTML = '✅';
+    else if (type === 'error') icon.innerHTML = '❌';
+    else icon.innerHTML = 'ℹ️';
+    overlay.classList.add('show');
+    if (type !== 'loading') setTimeout(function() { overlay.classList.remove('show'); }, 2000);
+}
+function hideAlert() { var o = document.getElementById('alertOverlay'); if (o) o.classList.remove('show'); }
+
+// ==================== HELPERS ====================
+function formatDate(d) {
+    return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + '/' + d.getFullYear();
+}
+function calculateDaysLeft(e) {
+    if (!e) return -9999;
+    var p = e.split('/');
+    if (p.length !== 3) return -9999;
+    var ex = new Date(parseInt(p[2]), parseInt(p[0]) - 1, parseInt(p[1]));
+    if (ex.getFullYear() === 9999) return 999999;
+    var n = new Date(); n.setHours(0, 0, 0, 0);
+    return Math.floor((ex - n) / (1000 * 60 * 60 * 24));
+}
+function esc(s) {
+    if (!s) return '';
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function debounce(key, fn, delay) {
+    if (pendingRequests[key]) return;
+    pendingRequests[key] = true;
+    fn().finally(function() { setTimeout(function() { pendingRequests[key] = false; }, delay || 1500); });
+}
+function closeModal(id) { var m = document.getElementById(id); if (m) m.classList.remove('show'); }
+
+// ==================== API CALL ====================
+async function apiCall(path, method, data) {
+    if (!fingerprint) fingerprint = await getFingerprint();
+    var payload = CryptoJS.AES.encrypt(JSON.stringify({ path: path, method: method, data: data || {} }), ADMIN_KEY).toString();
+    var res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'X-Fingerprint': fingerprint },
+        body: JSON.stringify({ data: payload })
+    });
+    var result = await res.json();
+    if (result.error) throw new Error(result.error);
+    if (result.encrypted && result.data) {
+        var dec = CryptoJS.AES.decrypt(result.data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        if (dec) return JSON.parse(dec);
+    }
+    return result;
+}
+
+// ==================== NAVIGATION ====================
+function switchPage(pageName) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
+
+    var page = document.getElementById('page-' + pageName);
+    if (page) page.classList.add('active');
+
+    document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
+        if (link.getAttribute('data-page') === pageName) {
+            link.classList.add('active');
+        }
+    });
+
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth <= 768) sidebar.classList.remove('open');
+
+    if (pageName === 'all-users') updateAllUsersTable();
+    if (pageName === 'banned-users') updateBannedUsersTable();
+    if (pageName === 'unbanned-users') updateUnbannedUsersTable();
+    if (pageName === 'banakses-users') updateBanAksesUsersTable();
+    if (pageName === 'unbanakses-users') updateUnbanAksesUsersTable();
+    if (pageName === 'force-users') updateForceUsersTable();
+    if (pageName === 'unforce-users') updateUnforceUsersTable();
+    if (pageName === 'activity-log') updateActivityLogPage();
+    if (pageName === 'suspicious-log') updateSuspiciousLogPage();
+    if (pageName === 'web-stats') updateWebStats();
+    if (pageName === 'dashboard') { updateRingkasan(); updateActivityDisplay(); }
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ==================== VERIFY KEY ====================
+function verifyKey() {
+    var key = document.getElementById('accessKey').value.trim();
+    if (!key) { showAlert('Error', 'Key wajib diisi!', 'error'); return; }
+    showAlert('Verifikasi', 'Memeriksa key...', 'loading');
+    apiCall('access_key', 'GET').then(function(r) {
+        if (r && r.key === key) {
+            keyAttempts = 0;
+            document.getElementById('keyScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('accessKey').value = '';
+            hideAlert();
+            showAlert('Berhasil', 'Key valid!', 'success');
+        } else {
+            keyAttempts++;
+            document.getElementById('accessKey').value = '';
+            hideAlert();
+            if (keyAttempts >= 3) {
+                showAlert('Error', 'Key salah 3x! Diblokir.', 'error');
+                setTimeout(function() { showBlockedScreen(); }, 1500);
+                return;
+            }
+            showAlert('Error', 'Key salah! Sisa ' + (3 - keyAttempts), 'error');
+        }
+    }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
+}
+function showBlockedScreen() {
+    document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:rgba(30,41,59,0.9);border-radius:20px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid rgba(239,68,68,0.3);"><div style="font-size:70px;margin-bottom:20px;">🔒</div><h1 style="color:#ef4444;font-size:24px;">AKSES DITOLAK</h1><p style="color:#94a3b8;">Akses Anda telah diblokir permanen.</p></div></div>';
+}
+
+// ==================== LOGIN ====================
+function login() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var pass = document.getElementById('loginPassword').value.trim();
+    if (!email || !pass) { showAlert('Error', 'Email & password wajib!', 'error'); return; }
+    showAlert('Verifikasi', 'Mohon tunggu...', 'loading');
+    apiCall('admin/auth', 'GET').then(function(r) {
+        if (r && r.blocked) { hideAlert(); showBlockedScreen(); return; }
+        if (r && r.email === email && r.password === pass) {
+            apiCall('admin/login_success', 'POST', {}).then(function() {
+                currentAdmin = email;
+                document.getElementById('loggedUser').textContent = email;
+                document.getElementById('navbarUserName').textContent = email;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('loginWrapper').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                hideAlert();
+                showAlert('Berhasil', 'Login berhasil!', 'success');
+                startBg();
+                loadUsers();
+                loadActivity();
+                switchPage('dashboard');
+                if (sessionTimer) clearTimeout(sessionTimer);
+                sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); } }, 1800000);
+            });
+        } else {
+            apiCall('admin/login_failed', 'POST', {}).then(function() {
+                hideAlert();
+                showAlert('Gagal', 'Email atau password salah!', 'error');
+            });
+        }
+    }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
+}
+
+function logout() {
+    currentAdmin = null; activityLoaded = false;
+    if (sessionTimer) clearTimeout(sessionTimer);
+    if (clockInterval) clearInterval(clockInterval);
+    if (statsInterval) clearInterval(statsInterval);
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('loginWrapper').style.display = 'flex';
+    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('keyScreen').style.display = 'none';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginEmail').value = '';
+    showAlert('Logout', 'Anda telah logout.', 'info');
+}
+
+// ==================== BACKGROUND ====================
+function startBg() {
+    updateClock();
+    clockInterval = setInterval(updateClock, 60000);
+    statsInterval = setInterval(function() { if (currentAdmin) { loadUsers(); } }, 30000);
+}
+function updateClock() {
+    var el = document.getElementById('clockDisplay');
+    if (el) el.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
+// ==================== USERS ====================
+function loadUsers() {
+    apiCall('users', 'GET').then(function(data) {
+        allUsers = [];
+        for (var key in data) {
+            if (data[key] && data[key].username) {
+                data[key].id = key;
+                data[key].banned = data[key].banned || false;
+                data[key].banAkses = data[key].banAkses || false;
+                data[key].forceLogout = data[key].forceLogout || false;
+                data[key].ip = data[key].ip || '';
+                data[key].fingerprint = data[key].fingerprint || '';
+                data[key].phone = data[key].phone || '';
+                allUsers.push(data[key]);
+            }
+        }
+        updateStats();
+        updateAllTables();
+    }).catch(function() {});
+}
+
+function updateStats() {
+    var total = allUsers.length;
+    var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout && calculateDaysLeft(u.expiry_date) > 0; }).length;
+    var banned = allUsers.filter(function(u) { return u.banned; }).length;
+    var banAkses = allUsers.filter(function(u) { return u.banAkses; }).length;
+    var force = allUsers.filter(function(u) { return u.forceLogout; }).length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statBanned').textContent = banned;
+    document.getElementById('statForce').textContent = force;
+    updateRingkasan();
+    updateWebStats();
+}
+
+// ==================== ACTIVITIES ====================
+function loadActivity() {
+    apiCall('activity_logs', 'GET').then(function(data) {
+        allActivities = [];
+        for (var key in data) {
+            if (data[key] && data[key].username) {
+                data[key].id = key;
+                allActivities.push(data[key]);
+            }
+        }
+        allActivities.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
+        var recentLogs = allActivities.slice(0, 20);
+        updateActivityDisplay(recentLogs);
+        updateActivityLogPage(recentLogs);
+        updateSuspiciousLogPage(recentLogs);
+        activityLoaded = true;
+    }).catch(function() { activityLoaded = false; });
+}
+
+function updateActivityDisplay(logs) {
+    var container = document.getElementById('activityListContainer');
+    if (!container) return;
+    if (!logs || !logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
+    var labels = {
+        sharing_detected: 'SHARING DETEKSI', banned: 'Ban User', unbanned: 'Unban User',
+        ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
+        force_logout: 'Tangguhkan', unforce_logout: 'Lepas Tangguh',
+        topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
+        login_success: '✅ Login Berhasil', login_failed: '❌ Login Ditolak'
+    };
+    container.innerHTML = logs.map(function(l) {
+        var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+        var label = labels[l.action] || l.action;
+        var isSuspicious = l.action === 'sharing_detected' || l.action === 'login_failed';
+        var details = l.details ? ' - ' + l.details : '';
+        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + details + '</span></div><div class="activity-time">' + time + '</div></div>';
+    }).join('');
+}
+
+function updateActivityLogPage(logs) {
+    var container = document.getElementById('allActivityLog');
+    if (!container) return;
+    if (!logs || !logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas</div>'; return; }
+    var labels = {
+        sharing_detected: 'SHARING DETEKSI', banned: 'Ban User', unbanned: 'Unban User',
+        ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
+        force_logout: 'Tangguhkan', unforce_logout: 'Lepas Tangguh',
+        topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
+        login_success: '✅ Login Berhasil', login_failed: '❌ Login Ditolak'
+    };
+    container.innerHTML = logs.map(function(l) {
+        var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+        var label = labels[l.action] || l.action;
+        var isSuspicious = l.action === 'sharing_detected' || l.action === 'login_failed';
+        var details = l.details ? ' - ' + l.details : '';
+        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + details + '</span></div><div class="activity-time">' + time + '</div></div>';
+    }).join('');
+}
+
+function updateSuspiciousLogPage(logs) {
+    var container = document.getElementById('suspiciousActivityLog');
+    if (!container) return;
+    if (!logs || !logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
+    var suspicious = logs.filter(function(l) { return l.action === 'sharing_detected' || l.action === 'login_failed'; });
+    if (!suspicious.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
+    container.innerHTML = suspicious.map(function(l) {
+        var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+        var details = l.details ? ' - ' + l.details : '';
+        return '<div class="activity-item suspicious"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + (l.action === 'sharing_detected' ? '⚠️ SHARING DETEKSI' : '❌ Gagal Login') + details + '</span></div><div class="activity-time">' + time + '</div></div>';
+    }).join('');
+}
+
+// ==================== CLEAR LOG ====================
+function clearAllLogs() {
+    showConfirm('Hapus semua log?', function() {
+        showAlert('Proses', 'Menghapus...', 'loading');
+        apiCall('activity_logs', 'GET').then(function(data) {
+            if (!data || Object.keys(data).length === 0) { 
+                hideAlert(); 
+                showAlert('Info', 'Log kosong!', 'info'); 
+                return; 
+            }
+            var keys = Object.keys(data);
+            var promises = [];
+            keys.forEach(function(key) {
+                promises.push(apiCall('activity_logs/' + key, 'DELETE'));
+            });
+            Promise.all(promises).then(function() {
+                allActivities = [];
+                activityLoaded = false;
+                var container1 = document.getElementById('activityListContainer');
+                if (container1) container1.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Log kosong</div>';
+                var container2 = document.getElementById('allActivityLog');
+                if (container2) container2.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Log kosong</div>';
+                var container3 = document.getElementById('suspiciousActivityLog');
+                if (container3) container3.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>';
+                hideAlert();
+                showAlert('Berhasil', keys.length + ' log dihapus permanen!', 'success');
+            });
+        }).catch(function() { hideAlert(); showAlert('Error', 'Gagal hapus log!', 'error'); });
+    });
+}
+
+// ==================== ADD USER ====================
+function openAddUserModal() {
+    var nm = new Date(); nm.setMonth(nm.getMonth() + 1);
+    document.getElementById('newExpiryDate').value = formatDate(nm);
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newPhone').value = '';
+    document.getElementById('newRole').value = 'Operator';
+    document.getElementById('addUserModal').classList.add('show');
+}
+function addUserNow() {
+    var u = document.getElementById('newUsername').value.trim();
+    var p = document.getElementById('newPassword').value.trim();
+    var ph = document.getElementById('newPhone').value.trim();
+    var r = document.getElementById('newRole').value;
+    var e = document.getElementById('newExpiryDate').value.trim();
+    if (!u || !p || !e) { showAlert('Error', 'Username, password, expiry wajib!', 'error'); return; }
+    if (p.length < 6) { showAlert('Error', 'Password min 6 karakter!', 'error'); return; }
+    showAlert('Proses', 'Menambahkan...', 'loading');
+    apiCall('users', 'POST', { username: u, password: p, phone: ph, role: r, expiry_date: e, banned: false, banAkses: false, forceLogout: false, ip: '', fingerprint: '', banAksesUntil: 0, bannedUntil: 0, createdAt: Date.now() })
+    .then(function() { showAlert('Berhasil', 'User ditambahkan!', 'success'); closeModal('addUserModal'); loadUsers(); activityLoaded = false; loadActivity(); })
+    .catch(function(e) { showAlert('Error', e.message, 'error'); });
+}
+
+// ==================== EDIT USER ====================
+function openEditUserModal(id) {
+    var u = allUsers.find(function(x) { return x.id === id; });
+    if (!u) return;
+    document.getElementById('editUserId').value = u.id;
+    document.getElementById('editUsername').value = u.username;
+    document.getElementById('editPassword').value = '';
+    document.getElementById('editPhone').value = u.phone || '';
+    document.getElementById('editRole').value = u.role || 'Operator';
+    document.getElementById('editExpiryDate').value = u.expiry_date || '';
+    document.getElementById('editIP').value = u.ip || '-';
+    document.getElementById('editFP').value = u.fingerprint ? u.fingerprint.substring(0, 20) + '...' : '-';
+    document.getElementById('editUserModal').classList.add('show');
+}
+function saveUserEdit() {
+    var id = document.getElementById('editUserId').value;
+    var u = document.getElementById('editUsername').value.trim();
+    var p = document.getElementById('editPassword').value.trim();
+    var ph = document.getElementById('editPhone').value.trim();
+    var r = document.getElementById('editRole').value;
+    var e = document.getElementById('editExpiryDate').value.trim();
+    if (!u) { showAlert('Error', 'Username wajib!', 'error'); return; }
+    showAlert('Proses', 'Menyimpan...', 'loading');
+    var d = { username: u, role: r, expiry_date: e };
+    if (p) d.password = p;
+    if (ph) d.phone = ph;
+    apiCall('users/' + id, 'PATCH', d).then(function() { showAlert('Berhasil', 'Updated!', 'success'); closeModal('editUserModal'); loadUsers(); activityLoaded = false; loadActivity(); })
+    .catch(function(e) { showAlert('Error', e.message, 'error'); });
+}
+
+// ==================== UPDATE USER FORMAT ====================
+function updateUserFormat() {
+    var id = document.getElementById('editUserId').value;
+    var u = document.getElementById('editUsername').value.trim();
+    var p = document.getElementById('editPassword').value.trim();
+    var ph = document.getElementById('editPhone').value.trim();
+    var r = document.getElementById('editRole').value;
+    var e = document.getElementById('editExpiryDate').value.trim();
+    var ip = document.getElementById('editIP').value.trim();
+    var fp = document.getElementById('editFP').value.trim();
+
+    if (!u) { showAlert('Error', 'Username wajib!', 'error'); return; }
+
+    showConfirm('Update format user "' + u + '"?\n\nFormat baru:\n- Username: ' + u + '\n- Password: ' + (p || '(tetap)') + '\n- Nomor: ' + (ph || '-') + '\n- Role: ' + r + '\n- Expiry: ' + (e || '-') + '\n- IP: ' + (ip || '-') + '\n- FP: ' + (fp || '-'), function() {
+        showAlert('Proses', 'Mengupdate...', 'loading');
+        var d = { 
+            username: u, 
+            role: r, 
+            expiry_date: e,
+            phone: ph || '',
+            ip: ip || '',
+            fingerprint: fp || ''
+        };
+        if (p) d.password = p;
+        apiCall('users/' + id, 'PATCH', d).then(function() { 
+            showAlert('Berhasil', 'User diupdate!', 'success'); 
+            closeModal('editUserModal'); 
+            loadUsers(); 
+            activityLoaded = false; 
+            loadActivity(); 
+        }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+    });
+}
+
+// ==================== ACTION HANDLER ====================
+function doAction(action, target) {
+    closeModal('actionModal');
+    showAlert('Proses', 'Memproses...', 'loading');
+    var patchData = {};
+    if (action === 'ban') { 
+        var dur = parseInt(document.getElementById('actionDuration').value); 
+        patchData = { banned: true, bannedUntil: dur === 0 ? 0 : Date.now() + dur }; 
+    }
+    else if (action === 'unban') { 
+        patchData = { banned: false, bannedUntil: 0 }; 
+    }
+    else if (action === 'banakses') { 
+        var dur2 = parseInt(document.getElementById('actionDuration').value); 
+        patchData = { banAkses: true, banAksesUntil: dur2 === 0 ? 0 : Date.now() + dur2 };
+        if (target.ip && target.ip !== '-') {
+            apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function() {});
+        }
+        if (target.fingerprint && target.fingerprint !== '-') {
+            apiCall('block_fp_manual', 'POST', { fp: target.fingerprint }).catch(function() {});
+        }
+    }
+    else if (action === 'unbanakses') { 
+        patchData = { banAkses: false, banAksesUntil: 0 };
+        if (target.ip && target.ip !== '-') {
+            apiCall('blocked_ips/' + target.ip.replace(/\./g, '_'), 'DELETE').catch(function() {});
+        }
+        if (target.fingerprint && target.fingerprint !== '-') {
+            apiCall('blocked_fp/' + target.fingerprint, 'DELETE').catch(function() {});
+        }
+    }
+    else if (action === 'force') { 
+        patchData = { forceLogout: true }; 
+    }
+    else if (action === 'unforce') { 
+        patchData = { forceLogout: false }; 
+    }
+
+    apiCall('users/' + target.id, 'PATCH', patchData).then(function() {
+        showAlert('Berhasil', 'Sukses!', 'success');
+        loadUsers();
+        activityLoaded = false;
+        loadActivity();
+    }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+}
+
+// ==================== CONFIRM ====================
+function showConfirm(msg, cb) {
+    var overlay = document.getElementById('confirmOverlay');
+    var msgEl = document.getElementById('confirmMessage');
+    if (!overlay) { if (confirm(msg)) cb(); return; }
+    msgEl.textContent = msg;
+    overlay.style.display = 'flex';
+    document.getElementById('confirmYes').onclick = function() { overlay.style.display = 'none'; cb(); };
+    document.getElementById('confirmNo').onclick = function() { overlay.style.display = 'none'; };
+}
+
+// ==================== TABLE UPDATES ====================
+function updateAllTables() {
+    updateAllUsersTable();
+    updateBannedUsersTable();
+    updateUnbannedUsersTable();
+    updateBanAksesUsersTable();
+    updateUnbanAksesUsersTable();
+    updateForceUsersTable();
+    updateUnforceUsersTable();
+    updateRingkasan();
+    updateWebStats();
+}
+
+function updateAllUsersTable() {
+    var tbody = document.getElementById('allUsersTable');
+    var empty = document.getElementById('allUsersEmpty');
+    var count = document.getElementById('allUsersCount');
+    if (!tbody) return;
+    if (!allUsers.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; if (count) count.textContent = '0'; return; }
+    if (empty) empty.style.display = 'none';
+    if (count) count.textContent = allUsers.length;
+    tbody.innerHTML = allUsers.map(function(u) {
+        var badges = '';
+        if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
+        if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
+        if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
+        var fpDisplay = u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + badges + '</td><td>' + (u.ip || '-') + '</td><td>' + fpDisplay + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button></td></tr>';
+    }).join('');
+}
+
+function updateBannedUsersTable() {
+    var tbody = document.getElementById('bannedUsersTable');
+    var empty = document.getElementById('bannedUsersEmpty');
+    if (!tbody) return;
+    var banned = allUsers.filter(function(u) { return u.banned === true; });
+    if (!banned.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = banned.map(function(u) {
+        var durasi = u.bannedUntil === 0 ? 'Permanen' : new Date(u.bannedUntil).toLocaleString('id-ID');
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + durasi + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unban\',selectedActionUser)"><i class="fas fa-check"></i> Unban</button></td></tr>';
+    }).join('');
+}
+
+function updateUnbannedUsersTable() {
+    var tbody = document.getElementById('unbannedUsersTable');
+    var empty = document.getElementById('unbannedUsersEmpty');
+    if (!tbody) return;
+    var unbanned = allUsers.filter(function(u) { return u.banned === true; });
+    if (!unbanned.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = unbanned.map(function(u) {
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unban\',selectedActionUser)"><i class="fas fa-check"></i> Unban</button></td></tr>';
+    }).join('');
+}
+
+function updateBanAksesUsersTable() {
+    var tbody = document.getElementById('banaksesUsersTable');
+    var empty = document.getElementById('banaksesUsersEmpty');
+    if (!tbody) return;
+    // TAMPILKAN SEMUA USER (termasuk yang sudah di-ban akses) tapi dengan status
+    var users = allUsers;
+    if (!users.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = users.map(function(u) {
+        var statusBadge = '';
+        if (u.banned) statusBadge += '<span class="status-badge banned">BANNED</span> ';
+        if (u.banAkses) statusBadge += '<span class="status-badge banakses">BAN AKSES</span> ';
+        if (u.forceLogout) statusBadge += '<span class="status-badge force">TANGGUH</span> ';
+        var isBanAkses = u.banAkses === true;
+        return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td>' + (isBanAkses ? '<span class="badge badge-yellow">Sudah Ban Akses</span>' : '<span class="badge badge-green">Belum</span>') + '</td><td>' + (isBanAkses ? 
+            '<button class="btn btn-outline btn-sm" disabled style="opacity:0.5;">Sudah</button>' :
+            '<button class="btn btn-danger btn-sm" onclick="openActionModal(\'banakses\',\'' + u.id + '\')"><i class="fas fa-shield-alt"></i> Ban Akses</button>'
+        ) + '</td></tr>';
+    }).join('');
+}
+
+function updateUnbanAksesUsersTable() {
+    var tbody = document.getElementById('unbanaksesUsersTable');
+    var empty = document.getElementById('unbanaksesUsersEmpty');
+    if (!tbody) return;
+    var unbanakses = allUsers.filter(function(u) { return u.banAkses === true; });
+    if (!unbanakses.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = unbanakses.map(function(u) {
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unbanakses\',selectedActionUser)"><i class="fas fa-check"></i> Unban Akses</button></td></tr>';
+    }).join('');
+}
+
+function updateForceUsersTable() {
+    var tbody = document.getElementById('forceUsersTable');
+    var empty = document.getElementById('forceUsersEmpty');
+    if (!tbody) return;
+    var users = allUsers;
+    if (!users.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = users.map(function(u) {
+        var statusBadge = '';
+        if (u.banned) statusBadge += '<span class="status-badge banned">BANNED</span> ';
+        if (u.banAkses) statusBadge += '<span class="status-badge banakses">BAN AKSES</span> ';
+        if (u.forceLogout) statusBadge += '<span class="status-badge force">TANGGUH</span> ';
+        var isForce = u.forceLogout === true;
+        return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td>' + (isForce ? '<span class="badge badge-orange">Sudah Tangguh</span>' : '<span class="badge badge-green">Belum</span>') + '</td><td>' + (isForce ? 
+            '<button class="btn btn-outline btn-sm" disabled style="opacity:0.5;">Sudah</button>' :
+            '<button class="btn btn-danger btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'force\',selectedActionUser)"><i class="fas fa-eject"></i> Tangguhkan</button>'
+        ) + '</td></tr>';
+    }).join('');
+}
+
+function updateUnforceUsersTable() {
+    var tbody = document.getElementById('unforceUsersTable');
+    var empty = document.getElementById('unforceUsersEmpty');
+    if (!tbody) return;
+    var unforce = allUsers.filter(function(u) { return u.forceLogout === true; });
+    if (!unforce.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = unforce.map(function(u) {
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unforce\',selectedActionUser)"><i class="fas fa-check"></i> Lepas Tangguh</button></td></tr>';
+    }).join('');
+}
+
+function updateWebStats() {
+    var total = allUsers.length;
+    var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout && calculateDaysLeft(u.expiry_date) > 0; }).length;
+    var banned = allUsers.filter(function(u) { return u.banned; }).length;
+    var banAkses = allUsers.filter(function(u) { return u.banAkses; }).length;
+    var force = allUsers.filter(function(u) { return u.forceLogout; }).length;
+    var totalLogins = allActivities.filter(function(l) { return l.action === 'login_success'; }).length;
+
+    document.getElementById('webStatTotalUsers').textContent = total;
+    document.getElementById('webStatActiveUsers').textContent = active;
+    document.getElementById('webStatBannedUsers').textContent = banned;
+    document.getElementById('webStatBanAkses').textContent = banAkses;
+    document.getElementById('webStatForce').textContent = force;
+    document.getElementById('webStatTotalLogins').textContent = totalLogins;
+    document.getElementById('distAktif').textContent = active;
+    document.getElementById('distBanned').textContent = banned;
+    document.getElementById('distBanAkses').textContent = banAkses;
+    document.getElementById('distForce').textContent = force;
+}
+
+function updateRingkasan() {
+    var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout && calculateDaysLeft(u.expiry_date) > 0; }).length;
+    var banned = allUsers.filter(function(u) { return u.banned; }).length;
+    var banAkses = allUsers.filter(function(u) { return u.banAkses; }).length;
+    var force = allUsers.filter(function(u) { return u.forceLogout; }).length;
+    document.getElementById('ringkasanAktif').textContent = active;
+    document.getElementById('ringkasanBanned').textContent = banned;
+    document.getElementById('ringkasanBanAkses').textContent = banAkses;
+    document.getElementById('ringkasanForce').textContent = force;
+}
+
+// ==================== SHOW BAN AKSES HALAMAN ====================
+function showBanAksesPage(until) {
+    var untilText = (until || 0) === 0 ? 'PERMANEN' : ('sampai ' + new Date(until).toLocaleString('id-ID'));
+    document.body.innerHTML = 
+        '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0f9ff 0%,#bae6fd 50%,#7dd3fc 100%);padding:20px;font-family:\'Inter\',sans-serif;">' +
+        '<div style="background:#ffffff;border-radius:24px;padding:48px 36px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,191,255,0.15);border:1px solid rgba(0,191,255,0.1);">' +
+        '<div style="font-size:72px;color:#f59e0b;margin-bottom:12px;">🚫</div>' +
+        '<h2 style="font-size:24px;font-weight:700;color:#0c4a6e;margin-bottom:8px;">AKSES DIBLOKIR</h2>' +
+        '<p style="font-size:14px;color:#64748b;margin-bottom:6px;">Maaf, akses Anda diblokir oleh admin.</p>' +
+        '<div style="background:#fef3c7;color:#92400e;padding:12px 16px;border-radius:12px;font-weight:600;font-size:14px;margin:16px 0 24px;">⏱️ Durasi: ' + untilText + '</div>' +
+        '<button onclick="window.open(\'https://wa.me/6285199120995?text=Assalamualaikum%20admin%2C%20akses%20saya%20diblokir\',\'_blank\')" style="display:inline-flex;align-items:center;gap:10px;padding:12px 32px;background:#25D366;color:#fff;border:none;border-radius:30px;font-weight:600;font-size:15px;cursor:pointer;transition:0.2s;font-family:\'Inter\',sans-serif;">' +
+        '<i class="fab fa-whatsapp"></i> Hubungi Admin</button>' +
+        '</div></div>';
+}
+
+function openActionModal(action, userId) {
+    if (userId) {
+        selectedActionUser = allUsers.find(function(u) { return u.id === userId; });
+        if (!selectedActionUser) return;
+        var dur = parseInt(document.getElementById('actionDuration').value); 
+        var patchData = {};
+        if (action === 'banakses') { 
+            patchData = { banAkses: true, banAksesUntil: dur === 0 ? 0 : Date.now() + dur };
+            if (selectedActionUser.ip && selectedActionUser.ip !== '-') {
+                apiCall('block_ip_manual', 'POST', { ip: selectedActionUser.ip }).catch(function() {});
+            }
+            if (selectedActionUser.fingerprint && selectedActionUser.fingerprint !== '-') {
+                apiCall('block_fp_manual', 'POST', { fp: selectedActionUser.fingerprint }).catch(function() {});
+            }
+        }
+        apiCall('users/' + selectedActionUser.id, 'PATCH', patchData).then(function() {
+            showAlert('Berhasil', 'User di-ban akses!', 'success');
+            loadUsers();
+            activityLoaded = false;
+            loadActivity();
+        }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+        return;
+    }
+    // MODAL UNTUK BAN USER (dengan durasi)
+    var modal = document.getElementById('actionModal');
+    var title = document.getElementById('actionModalTitle');
+    var body = document.getElementById('actionModalBody');
+    if (!modal || !title || !body) return;
+    selectedActionUser = null;
+
+    title.innerHTML = '<i class="fas fa-ban"></i> Ban User';
+
+    body.innerHTML = 
+        '<div class="input-group"><label><i class="fas fa-search"></i> Cari User</label><input type="text" id="actionSearch" placeholder="Ketik username..." oninput="searchUserList(\'ban\')"></div>' +
+        '<div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;"></div>' +
+        '<div class="input-group"><label><i class="fas fa-clock"></i> Durasi</label><select id="actionDuration" style="width:100%;padding:10px;border:0;border-bottom:2px solid var(--border);"><option value="3600000">1 Jam</option><option value="10800000">3 Jam</option><option value="86400000">24 Jam</option><option value="0">Permanen</option></select></div>' +
+        '<div id="actionSelectedUser" style="margin-bottom:12px;font-size:13px;"></div>' +
+        '<button class="btn btn-danger" onclick="executeAction(\'ban\')" style="width:100%;"><i class="fas fa-ban"></i> Ban</button>';
+
+    modal.classList.add('show');
+    setTimeout(function() { searchUserList('ban'); }, 100);
+}
+
+function searchUserList(action) {
+    var q = document.getElementById('actionSearch') ? document.getElementById('actionSearch').value.toLowerCase() : '';
+    var list = document.getElementById('actionUserList');
+    if (!list) return;
+    // TAMPILKAN SEMUA USER YANG BELUM DI-BAN
+    var filtered = allUsers.filter(function(u) { 
+        return u.username.toLowerCase().includes(q) && u.banned === false;
+    });
+    if (!filtered.length) { list.innerHTML = '<div style="padding:8px;font-size:13px;color:var(--sub);"><i class="fas fa-search"></i> Tidak ditemukan atau sudah di-ban</div>'; return; }
+    list.innerHTML = filtered.map(function(u) {
+        var isSel = selectedActionUser && selectedActionUser.id === u.id;
+        var badges = '';
+        if (u.banned) badges += ' <span class="badge badge-red">BANNED</span>';
+        if (u.banAkses) badges += ' <span class="badge badge-yellow">AKSES</span>';
+        if (u.forceLogout) badges += ' <span class="badge badge-orange">FORCE</span>';
+        return '<div class="user-check' + (isSel ? ' selected' : '') + '" onclick="selectActionUser(\'' + u.id + '\',\''+action+'\')">' + esc(u.username) + ' · ' + esc(u.role) + badges + '</div>';
+    }).join('');
+}
+
+function selectActionUser(id, action) {
+    selectedActionUser = allUsers.find(function(u) { return u.id === id; });
+    var el = document.getElementById('actionSelectedUser');
+    if (el) el.innerHTML = selectedActionUser ? '✅ Dipilih: <b>' + esc(selectedActionUser.username) + '</b>' : '';
+}
+
+function executeAction(action) {
+    if (!selectedActionUser) { showAlert('Error', 'Pilih user dulu!', 'error'); return; }
+    var name = selectedActionUser.username;
+    var confirmMsg = 'Ban user "' + name + '"?';
+    showConfirm(confirmMsg, function() {
+        debounce(action + selectedActionUser.id, function() { return doAction(action, selectedActionUser); });
+    });
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', async function() {
+    document.querySelectorAll('.modal').forEach(function(m) {
+        m.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('show');
+        });
+    });
+
+    document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') login();
+    });
+    document.getElementById('accessKey').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') verifyKey();
+    });
+
+    document.addEventListener('click', function() {
+        if (currentAdmin && sessionTimer) {
+            clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(function() {
+                if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); }
+            }, 1800000);
+        }
+    });
+
+    if (!fingerprint) fingerprint = await getFingerprint();
+    try {
+        var c = await apiCall('check_blocked', 'POST', { fingerprint: fingerprint });
+        if (c && c.blocked) { showBlockedScreen(); }
+    } catch (e) {}
+});
+</script>
 </body>
 </html>
