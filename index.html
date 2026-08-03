@@ -498,7 +498,6 @@
         }
         .user-check:hover { background: var(--blue-light); border-color: var(--blue); }
         .user-check.selected { border-color: var(--blue); background: #dbeafe; }
-        .user-check.banned-status { border-color: #dc2626; background: #fef2f2; }
 
         .alert-overlay {
             position: fixed;
@@ -652,12 +651,13 @@
             <a data-page="all-users" onclick="switchPage('all-users')"><i class="fas fa-users"></i> Semua User</a>
             <div class="sidebar-divider"></div>
             <div class="label"><i class="fas fa-user-cog"></i> Manajemen</div>
-            <a data-page="banned-users" onclick="switchPage('banned-users')"><i class="fas fa-ban"></i> Banned User</a>
+            <a data-page="ban-user" onclick="switchPage('ban-user')"><i class="fas fa-ban"></i> Banned User</a>
             <a data-page="unbanned-users" onclick="switchPage('unbanned-users')"><i class="fas fa-check-circle"></i> Unban User</a>
             <a data-page="banakses-users" onclick="switchPage('banakses-users')"><i class="fas fa-shield-alt"></i> Ban Akses</a>
             <a data-page="unbanakses-users" onclick="switchPage('unbanakses-users')"><i class="fas fa-check-circle"></i> Unban Akses</a>
             <a data-page="force-users" onclick="switchPage('force-users')"><i class="fas fa-eject"></i> Tangguhkan</a>
             <a data-page="unforce-users" onclick="switchPage('unforce-users')"><i class="fas fa-check-circle"></i> Lepas Tangguh</a>
+            <a data-page="problem-users" onclick="switchPage('problem-users')"><i class="fas fa-exclamation-triangle"></i> User Bermasalah</a>
             <div class="sidebar-divider"></div>
             <div class="label"><i class="fas fa-chart-line"></i> Log & Statistik</div>
             <a data-page="activity-log" onclick="switchPage('activity-log')"><i class="fas fa-history"></i> Log Aktivitas</a>
@@ -739,16 +739,29 @@
             </div>
         </div>
 
-        <div class="page" id="page-banned-users">
-            <div class="page-header"><h1><i class="fas fa-ban" style="color:#dc2626;margin-right:8px;"></i>User Banned</h1><p>User yang sudah di-ban</p></div>
+        <div class="page" id="page-ban-user">
+            <div class="page-header"><h1><i class="fas fa-ban" style="color:#dc2626;margin-right:8px;"></i>Banned User</h1><p>Ban user yang bermasalah</p></div>
             <div class="card">
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Username</th><th>Role</th><th>Durasi</th><th>Aksi</th></tr></thead>
-                        <tbody id="bannedUsersTable"></tbody>
-                    </table>
+                <div class="card-header">
+                    <span><i class="fas fa-search"></i> Cari User</span>
                 </div>
-                <div class="empty-state" id="bannedUsersEmpty" style="display:none;"><i class="fas fa-ban"></i> Tidak ada user banned</div>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="banUserSearch" placeholder="Ketik username..." oninput="searchBanUser()">
+                </div>
+                <div id="banUserList" style="max-height:300px;overflow-y:auto;margin-top:12px;"></div>
+                <div style="margin-top:12px;">
+                    <label>Durasi</label>
+                    <select id="banDuration" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);">
+                        <option value="3600000">1 Jam</option>
+                        <option value="10800000">3 Jam</option>
+                        <option value="86400000">24 Jam</option>
+                        <option value="604800000">1 Minggu</option>
+                        <option value="0">Permanen</option>
+                    </select>
+                </div>
+                <div id="banSelectedUser" style="margin:12px 0;font-size:13px;"></div>
+                <button class="btn btn-danger" onclick="executeBanUser()" style="width:100%;"><i class="fas fa-ban"></i> Ban User</button>
             </div>
         </div>
 
@@ -757,7 +770,7 @@
             <div class="card">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
+                        <thead><tr><th>Username</th><th>Role</th><th>Durasi</th><th>Aksi</th></tr></thead>
                         <tbody id="unbannedUsersTable"></tbody>
                     </table>
                 </div>
@@ -814,6 +827,19 @@
                     </table>
                 </div>
                 <div class="empty-state" id="unforceUsersEmpty" style="display:none;"><i class="fas fa-check-circle"></i> Tidak ada user yang ditangguhkan</div>
+            </div>
+        </div>
+
+        <div class="page" id="page-problem-users">
+            <div class="page-header"><h1><i class="fas fa-exclamation-triangle" style="color:#dc2626;margin-right:8px;"></i>User Bermasalah</h1><p>User yang memiliki masalah (Banned / Ban Akses / Tangguhkan)</p></div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody id="problemUsersTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="problemUsersEmpty" style="display:none;"><i class="fas fa-check-circle"></i> Tidak ada user bermasalah</div>
             </div>
         </div>
 
@@ -960,6 +986,7 @@ var keyAttempts = 0;
 var sessionTimer = null;
 var pendingRequests = {};
 var selectedActionUser = null;
+var selectedBanUser = null;
 var clockInterval = null;
 var statsInterval = null;
 var activityLoaded = false;
@@ -1056,12 +1083,13 @@ function switchPage(pageName) {
     if (sidebar && window.innerWidth <= 768) sidebar.classList.remove('open');
 
     if (pageName === 'all-users') updateAllUsersTable();
-    if (pageName === 'banned-users') updateBannedUsersTable();
+    if (pageName === 'ban-user') searchBanUser();
     if (pageName === 'unbanned-users') updateUnbannedUsersTable();
     if (pageName === 'banakses-users') updateBanAksesUsersTable();
     if (pageName === 'unbanakses-users') updateUnbanAksesUsersTable();
     if (pageName === 'force-users') updateForceUsersTable();
     if (pageName === 'unforce-users') updateUnforceUsersTable();
+    if (pageName === 'problem-users') updateProblemUsersTable();
     if (pageName === 'activity-log') updateActivityLogPage();
     if (pageName === 'suspicious-log') updateSuspiciousLogPage();
     if (pageName === 'web-stats') updateWebStats();
@@ -1387,21 +1415,78 @@ function updateUserFormat() {
     });
 }
 
-// ==================== ACTION HANDLER ====================
+// ==================== BAN USER ====================
+function searchBanUser() {
+    var q = document.getElementById('banUserSearch') ? document.getElementById('banUserSearch').value.toLowerCase() : '';
+    var list = document.getElementById('banUserList');
+    if (!list) return;
+    // TAMPILKAN USER YANG BELUM DI-BAN
+    var filtered = allUsers.filter(function(u) { 
+        return u.username.toLowerCase().includes(q) && u.banned === false;
+    });
+    if (!filtered.length) { 
+        list.innerHTML = '<div style="padding:12px;color:var(--sub);text-align:center;">Tidak ditemukan atau sudah di-ban</div>'; 
+        selectedBanUser = null;
+        document.getElementById('banSelectedUser').innerHTML = '';
+        return; 
+    }
+    list.innerHTML = filtered.map(function(u) {
+        var isSel = selectedBanUser && selectedBanUser.id === u.id;
+        var badges = '';
+        if (u.banAkses) badges += ' <span class="badge badge-yellow">AKSES</span>';
+        if (u.forceLogout) badges += ' <span class="badge badge-orange">FORCE</span>';
+        return '<div class="user-check' + (isSel ? ' selected' : '') + '" onclick="selectBanUser(\'' + u.id + '\')">' + esc(u.username) + ' · ' + esc(u.role) + badges + '</div>';
+    }).join('');
+}
+
+function selectBanUser(id) {
+    selectedBanUser = allUsers.find(function(u) { return u.id === id; });
+    var el = document.getElementById('banSelectedUser');
+    if (el) el.innerHTML = selectedBanUser ? '✅ Dipilih: <b>' + esc(selectedBanUser.username) + '</b>' : '';
+    // Highlight
+    document.querySelectorAll('#banUserList .user-check').forEach(function(el) {
+        el.classList.remove('selected');
+    });
+    if (selectedBanUser) {
+        var items = document.querySelectorAll('#banUserList .user-check');
+        items.forEach(function(el) {
+            if (el.textContent.includes(selectedBanUser.username)) {
+                el.classList.add('selected');
+            }
+        });
+    }
+}
+
+function executeBanUser() {
+    if (!selectedBanUser) { showAlert('Error', 'Pilih user dulu!', 'error'); return; }
+    var dur = parseInt(document.getElementById('banDuration').value);
+    var name = selectedBanUser.username;
+    var durText = dur === 0 ? 'PERMANEN' : new Date(Date.now() + dur).toLocaleString('id-ID');
+    showConfirm('Ban user "' + name + '" selama ' + durText + '?', function() {
+        showAlert('Proses', 'Memproses...', 'loading');
+        var patchData = { banned: true, bannedUntil: dur === 0 ? 0 : Date.now() + dur };
+        apiCall('users/' + selectedBanUser.id, 'PATCH', patchData).then(function() {
+            showAlert('Berhasil', 'User di-ban!', 'success');
+            loadUsers();
+            activityLoaded = false;
+            loadActivity();
+            selectedBanUser = null;
+            document.getElementById('banSelectedUser').innerHTML = '';
+            searchBanUser();
+        }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+    });
+}
+
+// ==================== DO ACTION ====================
 function doAction(action, target) {
-    closeModal('actionModal');
     showAlert('Proses', 'Memproses...', 'loading');
     var patchData = {};
-    if (action === 'ban') { 
-        var dur = parseInt(document.getElementById('actionDuration').value); 
-        patchData = { banned: true, bannedUntil: dur === 0 ? 0 : Date.now() + dur }; 
-    }
-    else if (action === 'unban') { 
+    if (action === 'unban') { 
         patchData = { banned: false, bannedUntil: 0 }; 
     }
     else if (action === 'banakses') { 
-        var dur2 = parseInt(document.getElementById('actionDuration').value); 
-        patchData = { banAkses: true, banAksesUntil: dur2 === 0 ? 0 : Date.now() + dur2 };
+        var dur = parseInt(document.getElementById('banDuration') ? document.getElementById('banDuration').value : 0);
+        patchData = { banAkses: true, banAksesUntil: dur === 0 ? 0 : Date.now() + dur };
         if (target.ip && target.ip !== '-') {
             apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function() {});
         }
@@ -1447,12 +1532,12 @@ function showConfirm(msg, cb) {
 // ==================== TABLE UPDATES ====================
 function updateAllTables() {
     updateAllUsersTable();
-    updateBannedUsersTable();
     updateUnbannedUsersTable();
     updateBanAksesUsersTable();
     updateUnbanAksesUsersTable();
     updateForceUsersTable();
     updateUnforceUsersTable();
+    updateProblemUsersTable();
     updateRingkasan();
     updateWebStats();
 }
@@ -1475,19 +1560,6 @@ function updateAllUsersTable() {
     }).join('');
 }
 
-function updateBannedUsersTable() {
-    var tbody = document.getElementById('bannedUsersTable');
-    var empty = document.getElementById('bannedUsersEmpty');
-    if (!tbody) return;
-    var banned = allUsers.filter(function(u) { return u.banned === true; });
-    if (!banned.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
-    if (empty) empty.style.display = 'none';
-    tbody.innerHTML = banned.map(function(u) {
-        var durasi = u.bannedUntil === 0 ? 'Permanen' : new Date(u.bannedUntil).toLocaleString('id-ID');
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + durasi + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unban\',selectedActionUser)"><i class="fas fa-check"></i> Unban</button></td></tr>';
-    }).join('');
-}
-
 function updateUnbannedUsersTable() {
     var tbody = document.getElementById('unbannedUsersTable');
     var empty = document.getElementById('unbannedUsersEmpty');
@@ -1496,7 +1568,8 @@ function updateUnbannedUsersTable() {
     if (!unbanned.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = unbanned.map(function(u) {
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unban\',selectedActionUser)"><i class="fas fa-check"></i> Unban</button></td></tr>';
+        var durasi = u.bannedUntil === 0 ? 'Permanen' : new Date(u.bannedUntil).toLocaleString('id-ID');
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + durasi + '</td><td><button class="btn btn-success btn-sm" onclick="doAction(\'unban\',allUsers.find(function(x){return x.id===\'' + u.id + '\'}))"><i class="fas fa-check"></i> Unban</button></td></tr>';
     }).join('');
 }
 
@@ -1504,20 +1577,15 @@ function updateBanAksesUsersTable() {
     var tbody = document.getElementById('banaksesUsersTable');
     var empty = document.getElementById('banaksesUsersEmpty');
     if (!tbody) return;
-    // TAMPILKAN SEMUA USER (termasuk yang sudah di-ban akses) tapi dengan status
-    var users = allUsers;
+    // TAMPILKAN USER YANG BELUM DI-BAN AKSES
+    var users = allUsers.filter(function(u) { return u.banAkses === false; });
     if (!users.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = users.map(function(u) {
         var statusBadge = '';
         if (u.banned) statusBadge += '<span class="status-badge banned">BANNED</span> ';
-        if (u.banAkses) statusBadge += '<span class="status-badge banakses">BAN AKSES</span> ';
         if (u.forceLogout) statusBadge += '<span class="status-badge force">TANGGUH</span> ';
-        var isBanAkses = u.banAkses === true;
-        return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td>' + (isBanAkses ? '<span class="badge badge-yellow">Sudah Ban Akses</span>' : '<span class="badge badge-green">Belum</span>') + '</td><td>' + (isBanAkses ? 
-            '<button class="btn btn-outline btn-sm" disabled style="opacity:0.5;">Sudah</button>' :
-            '<button class="btn btn-danger btn-sm" onclick="openActionModal(\'banakses\',\'' + u.id + '\')"><i class="fas fa-shield-alt"></i> Ban Akses</button>'
-        ) + '</td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td><span class="badge badge-green">Belum</span></td><td><button class="btn btn-danger btn-sm" onclick="doAction(\'banakses\',allUsers.find(function(x){return x.id===\'' + u.id + '\'}))"><i class="fas fa-shield-alt"></i> Ban Akses</button></td></tr>';
     }).join('');
 }
 
@@ -1529,7 +1597,7 @@ function updateUnbanAksesUsersTable() {
     if (!unbanakses.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = unbanakses.map(function(u) {
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unbanakses\',selectedActionUser)"><i class="fas fa-check"></i> Unban Akses</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="doAction(\'unbanakses\',allUsers.find(function(x){return x.id===\'' + u.id + '\'}))"><i class="fas fa-check"></i> Unban Akses</button></td></tr>';
     }).join('');
 }
 
@@ -1537,19 +1605,15 @@ function updateForceUsersTable() {
     var tbody = document.getElementById('forceUsersTable');
     var empty = document.getElementById('forceUsersEmpty');
     if (!tbody) return;
-    var users = allUsers;
+    // TAMPILKAN USER YANG BELUM DI-TANGGUHKAN
+    var users = allUsers.filter(function(u) { return u.forceLogout === false; });
     if (!users.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = users.map(function(u) {
         var statusBadge = '';
         if (u.banned) statusBadge += '<span class="status-badge banned">BANNED</span> ';
         if (u.banAkses) statusBadge += '<span class="status-badge banakses">BAN AKSES</span> ';
-        if (u.forceLogout) statusBadge += '<span class="status-badge force">TANGGUH</span> ';
-        var isForce = u.forceLogout === true;
-        return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td>' + (isForce ? '<span class="badge badge-orange">Sudah Tangguh</span>' : '<span class="badge badge-green">Belum</span>') + '</td><td>' + (isForce ? 
-            '<button class="btn btn-outline btn-sm" disabled style="opacity:0.5;">Sudah</button>' :
-            '<button class="btn btn-danger btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'force\',selectedActionUser)"><i class="fas fa-eject"></i> Tangguhkan</button>'
-        ) + '</td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td><span class="badge badge-green">Belum</span></td><td><button class="btn btn-danger btn-sm" onclick="doAction(\'force\',allUsers.find(function(x){return x.id===\'' + u.id + '\'}))"><i class="fas fa-eject"></i> Tangguhkan</button></td></tr>';
     }).join('');
 }
 
@@ -1561,7 +1625,25 @@ function updateUnforceUsersTable() {
     if (!unforce.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = unforce.map(function(u) {
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unforce\',selectedActionUser)"><i class="fas fa-check"></i> Lepas Tangguh</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-sm" onclick="doAction(\'unforce\',allUsers.find(function(x){return x.id===\'' + u.id + '\'}))"><i class="fas fa-check"></i> Lepas Tangguh</button></td></tr>';
+    }).join('');
+}
+
+function updateProblemUsersTable() {
+    var tbody = document.getElementById('problemUsersTable');
+    var empty = document.getElementById('problemUsersEmpty');
+    if (!tbody) return;
+    var problems = allUsers.filter(function(u) { 
+        return u.banned === true || u.banAkses === true || u.forceLogout === true;
+    });
+    if (!problems.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = problems.map(function(u) {
+        var badges = '';
+        if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
+        if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
+        if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + badges + '</td><td><button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button></td></tr>';
     }).join('');
 }
 
@@ -1611,83 +1693,6 @@ function showBanAksesPage(until) {
         '</div></div>';
 }
 
-function openActionModal(action, userId) {
-    if (userId) {
-        selectedActionUser = allUsers.find(function(u) { return u.id === userId; });
-        if (!selectedActionUser) return;
-        var dur = parseInt(document.getElementById('actionDuration').value); 
-        var patchData = {};
-        if (action === 'banakses') { 
-            patchData = { banAkses: true, banAksesUntil: dur === 0 ? 0 : Date.now() + dur };
-            if (selectedActionUser.ip && selectedActionUser.ip !== '-') {
-                apiCall('block_ip_manual', 'POST', { ip: selectedActionUser.ip }).catch(function() {});
-            }
-            if (selectedActionUser.fingerprint && selectedActionUser.fingerprint !== '-') {
-                apiCall('block_fp_manual', 'POST', { fp: selectedActionUser.fingerprint }).catch(function() {});
-            }
-        }
-        apiCall('users/' + selectedActionUser.id, 'PATCH', patchData).then(function() {
-            showAlert('Berhasil', 'User di-ban akses!', 'success');
-            loadUsers();
-            activityLoaded = false;
-            loadActivity();
-        }).catch(function(e) { showAlert('Error', e.message, 'error'); });
-        return;
-    }
-    // MODAL UNTUK BAN USER (dengan durasi)
-    var modal = document.getElementById('actionModal');
-    var title = document.getElementById('actionModalTitle');
-    var body = document.getElementById('actionModalBody');
-    if (!modal || !title || !body) return;
-    selectedActionUser = null;
-
-    title.innerHTML = '<i class="fas fa-ban"></i> Ban User';
-
-    body.innerHTML = 
-        '<div class="input-group"><label><i class="fas fa-search"></i> Cari User</label><input type="text" id="actionSearch" placeholder="Ketik username..." oninput="searchUserList(\'ban\')"></div>' +
-        '<div id="actionUserList" style="max-height:200px;overflow-y:auto;margin-bottom:12px;"></div>' +
-        '<div class="input-group"><label><i class="fas fa-clock"></i> Durasi</label><select id="actionDuration" style="width:100%;padding:10px;border:0;border-bottom:2px solid var(--border);"><option value="3600000">1 Jam</option><option value="10800000">3 Jam</option><option value="86400000">24 Jam</option><option value="0">Permanen</option></select></div>' +
-        '<div id="actionSelectedUser" style="margin-bottom:12px;font-size:13px;"></div>' +
-        '<button class="btn btn-danger" onclick="executeAction(\'ban\')" style="width:100%;"><i class="fas fa-ban"></i> Ban</button>';
-
-    modal.classList.add('show');
-    setTimeout(function() { searchUserList('ban'); }, 100);
-}
-
-function searchUserList(action) {
-    var q = document.getElementById('actionSearch') ? document.getElementById('actionSearch').value.toLowerCase() : '';
-    var list = document.getElementById('actionUserList');
-    if (!list) return;
-    // TAMPILKAN SEMUA USER YANG BELUM DI-BAN
-    var filtered = allUsers.filter(function(u) { 
-        return u.username.toLowerCase().includes(q) && u.banned === false;
-    });
-    if (!filtered.length) { list.innerHTML = '<div style="padding:8px;font-size:13px;color:var(--sub);"><i class="fas fa-search"></i> Tidak ditemukan atau sudah di-ban</div>'; return; }
-    list.innerHTML = filtered.map(function(u) {
-        var isSel = selectedActionUser && selectedActionUser.id === u.id;
-        var badges = '';
-        if (u.banned) badges += ' <span class="badge badge-red">BANNED</span>';
-        if (u.banAkses) badges += ' <span class="badge badge-yellow">AKSES</span>';
-        if (u.forceLogout) badges += ' <span class="badge badge-orange">FORCE</span>';
-        return '<div class="user-check' + (isSel ? ' selected' : '') + '" onclick="selectActionUser(\'' + u.id + '\',\''+action+'\')">' + esc(u.username) + ' · ' + esc(u.role) + badges + '</div>';
-    }).join('');
-}
-
-function selectActionUser(id, action) {
-    selectedActionUser = allUsers.find(function(u) { return u.id === id; });
-    var el = document.getElementById('actionSelectedUser');
-    if (el) el.innerHTML = selectedActionUser ? '✅ Dipilih: <b>' + esc(selectedActionUser.username) + '</b>' : '';
-}
-
-function executeAction(action) {
-    if (!selectedActionUser) { showAlert('Error', 'Pilih user dulu!', 'error'); return; }
-    var name = selectedActionUser.username;
-    var confirmMsg = 'Ban user "' + name + '"?';
-    showConfirm(confirmMsg, function() {
-        debounce(action + selectedActionUser.id, function() { return doAction(action, selectedActionUser); });
-    });
-}
-
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', async function() {
     document.querySelectorAll('.modal').forEach(function(m) {
@@ -1701,6 +1706,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
     document.getElementById('accessKey').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') verifyKey();
+    });
+    document.getElementById('banUserSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchBanUser();
     });
 
     document.addEventListener('click', function() {
