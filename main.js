@@ -62,7 +62,7 @@ function showAlert(title, message, type) {
     if (type === 'loading') icon.innerHTML = '<div class="spinner"></div>';
     else if (type === 'success') icon.innerHTML = '<div style="font-size:44px;color:#10b981"><i class="fas fa-check-circle"></i></div>';
     else if (type === 'error') icon.innerHTML = '<div style="font-size:44px;color:#ef4444"><i class="fas fa-times-circle"></i></div>';
-    else icon.innerHTML = '<div style="font-size:44px;color:#3b82f6"><i class="fas fa-info-circle"></i></div>';
+    else icon.innerHTML = '<div style="font-size:44px;color:#00BFFF"><i class="fas fa-info-circle"></i></div>';
     overlay.classList.add('show');
     if (type !== 'loading') setTimeout(function() { overlay.classList.remove('show'); }, 2000);
 }
@@ -109,6 +109,32 @@ async function apiCall(path, method, data) {
     return result;
 }
 
+// ==================== NAVIGATION ====================
+function switchPage(pageName) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
+
+    var page = document.getElementById('page-' + pageName);
+    if (page) page.classList.add('active');
+
+    var links = document.querySelectorAll('.sidebar-nav a');
+    links.forEach(function(link) {
+        if (link.getAttribute('data-page') === pageName) {
+            link.classList.add('active');
+        }
+    });
+
+    if (pageName === 'all-users') updateAllUsersTable();
+    if (pageName === 'active-users') updateActiveUsersTable();
+    if (pageName === 'banned-users') updateBannedUsersTable();
+    if (pageName === 'banakses-users') updateBanAksesUsersTable();
+    if (pageName === 'force-users') updateForceUsersTable();
+    if (pageName === 'activity-log') updateActivityLogPage();
+    if (pageName === 'suspicious-log') updateSuspiciousLogPage();
+    if (pageName === 'web-stats') updateWebStats();
+    if (pageName === 'dashboard') { updateRingkasan(); updateActivityDisplay(); }
+}
+
 // ==================== VERIFY KEY ====================
 function verifyKey() {
     var key = document.getElementById('accessKey').value.trim();
@@ -150,16 +176,29 @@ function login() {
         if (r && r.email === email && r.password === pass) {
             apiCall('admin/login_success', 'POST', {}).then(function() {
                 currentAdmin = email;
-                document.getElementById('loggedUser').textContent = email;
+                
+                var loggedElements = document.querySelectorAll('#loggedUser');
+                loggedElements.forEach(function(el) { el.textContent = email; });
+                
+                var sidebarUser = document.getElementById('sidebarUserName');
+                if (sidebarUser) sidebarUser.textContent = email;
+                
                 document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('mainContainer').style.maxWidth = '1000px';
+                document.getElementById('mainContainer').classList.add('panel-expanded');
+                
+                var sidebar = document.getElementById('sidebar');
+                var mainContent = document.getElementById('mainContent');
+                if (sidebar) sidebar.style.display = 'flex';
+                if (mainContent) mainContent.style.display = 'block';
+                
                 hideAlert();
                 showAlert('Berhasil', 'Login berhasil!', 'success');
                 startBg();
                 loadUsers();
                 updateStats();
                 loadActivity();
+                switchPage('dashboard');
+                
                 if (sessionTimer) clearTimeout(sessionTimer);
                 sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); } }, 1800000);
             });
@@ -171,10 +210,17 @@ function login() {
         }
     }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
 }
+
 function logout() {
     currentAdmin = null; stopBg(); activityLoaded = false;
     if (sessionTimer) clearTimeout(sessionTimer);
-    document.getElementById('adminPanel').style.display = 'none';
+    
+    document.getElementById('mainContainer').classList.remove('panel-expanded');
+    var sidebar = document.getElementById('sidebar');
+    var mainContent = document.getElementById('mainContent');
+    if (sidebar) sidebar.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'none';
+    
     document.getElementById('loginScreen').style.display = 'block';
     document.getElementById('keyScreen').style.display = 'none';
     document.getElementById('loginPassword').value = '';
@@ -188,7 +234,10 @@ function startBg() {
     statsInterval = setInterval(function() { if (currentAdmin) { loadUsers(); updateStats(); } }, 30000);
 }
 function stopBg() { if (clockInterval) clearInterval(clockInterval); if (statsInterval) clearInterval(statsInterval); if (activityInterval) clearInterval(activityInterval); }
-function updateClock() { var el = document.getElementById('clockDisplay'); if (el) el.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
+function updateClock() {
+    var el = document.getElementById('clockDisplay');
+    if (el) el.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
 
 // ==================== USERS ====================
 function loadUsers() {
@@ -206,8 +255,10 @@ function loadUsers() {
             }
         }
         updateStats();
+        updateAllTables();
     }).catch(function() {});
 }
+
 function updateStats() {
     var elTotal = document.getElementById('statTotal');
     var elActive = document.getElementById('statActive');
@@ -217,6 +268,8 @@ function updateStats() {
     if (elActive) elActive.textContent = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout && calculateDaysLeft(u.expiry_date) > 0; }).length;
     if (elBanned) elBanned.textContent = allUsers.filter(function(u) { return u.banned || u.banAkses; }).length;
     if (elForce) elForce.textContent = allUsers.filter(function(u) { return u.forceLogout; }).length;
+    updateRingkasan();
+    updateWebStats();
 }
 
 // ==================== ACTIVITIES ====================
@@ -248,10 +301,12 @@ function loadActivity() {
             h += '<div class="activity-item" style="' + bg + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + lb + (l.details ? ' — ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>';
         });
         c.innerHTML = h;
+        updateActivityLogPage();
+        updateSuspiciousLogPage();
     }).catch(function() { activityLoaded = false; });
 }
 
-// ==================== CLEAR LOG (HAPUS SEMUA) ====================
+// ==================== CLEAR LOG ====================
 function clearAllLogs() {
     showConfirm('<i class="fas fa-trash"></i> HAPUS SEMUA LOG?', function() {
         showAlert('Proses', 'Menghapus...', 'loading');
@@ -329,7 +384,7 @@ function saveUserEdit() {
     .catch(function(e) { showAlert('Error', e.message, 'error'); });
 }
 
-// ==================== ACTION MODAL (BAN/UNBAN + LIST) ====================
+// ==================== ACTION MODAL ====================
 function openActionModal(action) {
     var modal = document.getElementById('actionModal');
     var title = document.getElementById('actionModalTitle');
@@ -401,8 +456,10 @@ function doAction(action, target) {
     }).catch(function(e) { showAlert('Error', e.message, 'error'); });
 }
 
-// ==================== NAVIGATION ====================
+// ==================== LEGACY NAVIGATION ====================
 function navigateTo(tab) {
+    var pageMap = { 'users': 'all-users', 'bannedlist': 'banned-users', 'banakseslist': 'banakses-users', 'suspicious': 'force-users' };
+    if (typeof switchPage === 'function') { switchPage(pageMap[tab] || tab); return; }
     document.getElementById('adminPanel').style.display = 'none';
     if (!document.getElementById('subPanel')) {
         var el = document.createElement('div');
@@ -417,8 +474,7 @@ function navigateTo(tab) {
     else if (tab === 'banakseslist') renderBanAksesList();
     else if (tab === 'suspicious') renderSuspiciousList();
 }
-function closeSubPanel() { document.getElementById('subPanel').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; activityLoaded = false; loadActivity(); }
-
+function closeSubPanel() { document.getElementById('subPanel').style.display = 'none'; if (document.getElementById('adminPanel')) document.getElementById('adminPanel').style.display = 'block'; activityLoaded = false; loadActivity(); }
 function renderUserList() {
     var h = '<div style="background:#fff;border-radius:14px;padding:20px;"><b>👥 Semua User (' + allUsers.length + ')</b><div style="margin-top:12px;">';
     allUsers.forEach(function(u) {
@@ -464,18 +520,211 @@ function showConfirm(msg, cb) {
     document.getElementById('confirmNo').onclick = function() { overlay.style.display = 'none'; };
 }
 
+// ==================== TABLE UPDATES ====================
+function updateAllTables() {
+    updateAllUsersTable();
+    updateActiveUsersTable();
+    updateBannedUsersTable();
+    updateBanAksesUsersTable();
+    updateForceUsersTable();
+    updateRingkasan();
+    updateWebStats();
+}
+
+function updateAllUsersTable() {
+    var tbody = document.getElementById('allUsersTable');
+    var empty = document.getElementById('allUsersEmpty');
+    var count = document.getElementById('allUsersCount');
+    if (!tbody) return;
+    if (allUsers.length === 0) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; if (count) count.textContent = '0'; return; }
+    if (empty) empty.style.display = 'none';
+    if (count) count.textContent = allUsers.length;
+    tbody.innerHTML = allUsers.map(function(u) {
+        var badges = '';
+        if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
+        if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
+        if (u.forceLogout) badges += '<span class="badge badge-orange">Force</span> ';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + badges + '</td><td>' + (u.ip || '-') + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-xs" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button></td></tr>';
+    }).join('');
+}
+
+function updateActiveUsersTable() {
+    var tbody = document.getElementById('activeUsersTable');
+    var empty = document.getElementById('activeUsersEmpty');
+    if (!tbody) return;
+    var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout; });
+    if (active.length === 0) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = active.map(function(u) {
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-xs" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button></td></tr>';
+    }).join('');
+}
+
+function updateBannedUsersTable() {
+    var tbody = document.getElementById('bannedUsersTable');
+    var empty = document.getElementById('bannedUsersEmpty');
+    if (!tbody) return;
+    var banned = allUsers.filter(function(u) { return u.banned; });
+    if (banned.length === 0) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = banned.map(function(u) {
+        var durasi = u.bannedUntil === 0 ? 'Permanen' : new Date(u.bannedUntil).toLocaleString('id-ID');
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + durasi + '</td><td><button class="btn btn-success btn-xs" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unban\',selectedActionUser)"><i class="fas fa-check"></i> Unban</button></td></tr>';
+    }).join('');
+}
+
+function updateBanAksesUsersTable() {
+    var tbody = document.getElementById('banaksesUsersTable');
+    var empty = document.getElementById('banaksesUsersEmpty');
+    if (!tbody) return;
+    var ba = allUsers.filter(function(u) { return u.banAkses; });
+    if (ba.length === 0) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = ba.map(function(u) {
+        var durasi = u.banAksesUntil === 0 ? 'Permanen' : new Date(u.banAksesUntil).toLocaleString('id-ID');
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + durasi + '</td><td><button class="btn btn-success btn-xs" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unbanakses\',selectedActionUser)"><i class="fas fa-check"></i> Unban Akses</button></td></tr>';
+    }).join('');
+}
+
+function updateForceUsersTable() {
+    var tbody = document.getElementById('forceUsersTable');
+    var empty = document.getElementById('forceUsersEmpty');
+    if (!tbody) return;
+    var force = allUsers.filter(function(u) { return u.forceLogout; });
+    if (force.length === 0) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = force.map(function(u) {
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + (u.ip || '-') + '</td><td>' + (u.fingerprint ? u.fingerprint.substring(0, 16) + '...' : '-') + '</td><td><button class="btn btn-success btn-xs" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unforce\',selectedActionUser)"><i class="fas fa-check"></i> Unforce</button></td></tr>';
+    }).join('');
+}
+
+function updateActivityLogPage() {
+    var container = document.getElementById('allActivityLog');
+    if (!container) return;
+    if (allActivities.length === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas</div>'; return; }
+    var labels = {
+        sharing_detected: 'SHARING TERDETEKSI', banned: 'Ban User', unbanned: 'Unban User',
+        ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
+        force_logout: 'Force Logout', unforce_logout: 'Unforce',
+        topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
+        login_success: 'Login Sukses', login_failed: 'Gagal Login'
+    };
+    container.innerHTML = allActivities.map(function(l) {
+        var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+        var label = labels[l.action] || l.action;
+        var isSuspicious = l.action === 'sharing_detected' || l.action === 'login_failed';
+        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + (l.details ? ' - ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>';
+    }).join('');
+}
+
+function updateSuspiciousLogPage() {
+    var container = document.getElementById('suspiciousActivityLog');
+    if (!container) return;
+    var suspicious = allActivities.filter(function(l) { return l.action === 'sharing_detected' || l.action === 'login_failed'; });
+    if (suspicious.length === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-shield"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
+    container.innerHTML = suspicious.map(function(l) {
+        var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+        return '<div class="activity-item suspicious"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + (l.action === 'sharing_detected' ? '⚠️ SHARING TERDETEKSI' : '❌ Gagal Login') + (l.details ? ' - ' + l.details : '') + '</span></div><div class="activity-time">' + time + '</div></div>';
+    }).join('');
+}
+
+function updateWebStats() {
+    var total = allUsers.length;
+    var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout; }).length;
+    var banned = allUsers.filter(function(u) { return u.banned; }).length;
+    var banAkses = allUsers.filter(function(u) { return u.banAkses; }).length;
+    var force = allUsers.filter(function(u) { return u.forceLogout; }).length;
+
+    var elTotal = document.getElementById('webStatTotalUsers');
+    var elActive = document.getElementById('webStatActiveUsers');
+    var elBanned = document.getElementById('webStatBannedUsers');
+    var elBanAkses = document.getElementById('webStatBanAkses');
+    var elForce = document.getElementById('webStatForce');
+    var elTotalLogins = document.getElementById('webStatTotalLogins');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elActive) elActive.textContent = active;
+    if (elBanned) elBanned.textContent = banned;
+    if (elBanAkses) elBanAkses.textContent = banAkses;
+    if (elForce) elForce.textContent = force;
+    if (elTotalLogins) elTotalLogins.textContent = allActivities.filter(function(l) { return l.action === 'login_success'; }).length;
+
+    var distAktif = document.getElementById('distAktif');
+    var distBanned = document.getElementById('distBanned');
+    var distBanAkses = document.getElementById('distBanAkses');
+    var distForce = document.getElementById('distForce');
+    if (distAktif) distAktif.textContent = active;
+    if (distBanned) distBanned.textContent = banned;
+    if (distBanAkses) distBanAkses.textContent = banAkses;
+    if (distForce) distForce.textContent = force;
+}
+
+function updateRingkasan() {
+    var elAktif = document.getElementById('ringkasanAktif');
+    var elBanned = document.getElementById('ringkasanBanned');
+    var elBanAkses = document.getElementById('ringkasanBanAkses');
+    var elForce = document.getElementById('ringkasanForce');
+    if (elAktif) elAktif.textContent = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout; }).length;
+    if (elBanned) elBanned.textContent = allUsers.filter(function(u) { return u.banned; }).length;
+    if (elBanAkses) elBanAkses.textContent = allUsers.filter(function(u) { return u.banAkses; }).length;
+    if (elForce) elForce.textContent = allUsers.filter(function(u) { return u.forceLogout; }).length;
+}
+
+function updateActivityDisplay() {
+    var container = document.getElementById('activityListContainer');
+    if (!container) return;
+    if (allActivities.length === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
+    var recent = allActivities.slice(0, 15);
+    var labels = {
+        sharing_detected: 'SHARING TERDETEKSI', banned: 'Ban User', unbanned: 'Unban User',
+        ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
+        force_logout: 'Force', unforce_logout: 'Unforce',
+        topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
+        login_success: 'Login Sukses', login_failed: 'Gagal Login'
+    };
+    container.innerHTML = recent.map(function(l) {
+        var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+        var label = labels[l.action] || l.action;
+        var isSuspicious = l.action === 'sharing_detected';
+        return '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '"><div class="activity-dot ' + (l.action || '') + '"></div><div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + '</span></div><div class="activity-time">' + time + '</div></div>';
+    }).join('');
+}
+
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', async function() {
-    document.getElementById('closeActionModalBtn').addEventListener('click', closeActionModal);
-    document.getElementById('actionModal').addEventListener('click', function(e) { if (e.target === this) closeActionModal(); });
-    document.getElementById('addUserModal').addEventListener('click', function(e) { if (e.target === this) closeAddUserModal(); });
-    document.getElementById('editUserModal').addEventListener('click', function(e) { if (e.target === this) closeEditUserModal(); });
-    document.getElementById('closeEditModalBtn').addEventListener('click', closeEditUserModal);
-    document.getElementById('loginPassword').addEventListener('keypress', function(e) { if (e.key === 'Enter') login(); });
-    document.getElementById('accessKey').addEventListener('keypress', function(e) { if (e.key === 'Enter') verifyKey(); });
+    var closeActionBtn = document.getElementById('closeActionModalBtn');
+    if (closeActionBtn) closeActionBtn.addEventListener('click', closeActionModal);
+    
+    var actionModal = document.getElementById('actionModal');
+    if (actionModal) actionModal.addEventListener('click', function(e) { if (e.target === this) closeActionModal(); });
+    
+    var addUserModal = document.getElementById('addUserModal');
+    if (addUserModal) addUserModal.addEventListener('click', function(e) { if (e.target === this) closeAddUserModal(); });
+    
+    var editUserModal = document.getElementById('editUserModal');
+    if (editUserModal) editUserModal.addEventListener('click', function(e) { if (e.target === this) closeEditUserModal(); });
+    
+    var closeEditBtn = document.getElementById('closeEditModalBtn');
+    if (closeEditBtn) closeEditBtn.addEventListener('click', closeEditUserModal);
+    
+    var loginPass = document.getElementById('loginPassword');
+    if (loginPass) loginPass.addEventListener('keypress', function(e) { if (e.key === 'Enter') login(); });
+    
+    var accessKey = document.getElementById('accessKey');
+    if (accessKey) accessKey.addEventListener('keypress', function(e) { if (e.key === 'Enter') verifyKey(); });
+
+    // Sidebar navigation
+    document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
+        link.addEventListener('click', function() {
+            var pageName = this.getAttribute('data-page');
+            if (pageName) switchPage(pageName);
+        });
+    });
+    
     document.addEventListener('click', function() {
         if (currentAdmin && sessionTimer) { clearTimeout(sessionTimer); sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); } }, 1800000); }
     });
+    
     if (!fingerprint) fingerprint = await getFingerprint();
     try { var c = await apiCall('check_blocked', 'POST', { fingerprint: fingerprint }); if (c && c.blocked) { showBlockedScreen(); } } catch (e) {}
 });
