@@ -643,7 +643,7 @@
             <a data-page="active-users" onclick="switchPage('active-users')"><i class="fas fa-check-circle"></i> User Aktif</a>
             <a data-page="banned-users" onclick="switchPage('banned-users')"><i class="fas fa-ban"></i> User Banned</a>
             <a data-page="banakses-users" onclick="switchPage('banakses-users')"><i class="fas fa-shield-alt"></i> Ban Akses</a>
-            <a data-page="force-users" onclick="switchPage('force-users')"><i class="fas fa-eject"></i> Force Logout</a>
+            <a data-page="force-users" onclick="switchPage('force-users')"><i class="fas fa-eject"></i> Tangguhkan</a>
             <div class="sidebar-divider"></div>
             <div class="label"><i class="fas fa-chart-line"></i> Log & Statistik</div>
             <a data-page="activity-log" onclick="switchPage('activity-log')"><i class="fas fa-history"></i> Log Aktivitas</a>
@@ -684,7 +684,7 @@
                 <div class="stat">
                     <div class="icon"><i class="fas fa-pause-circle"></i></div>
                     <div class="num" style="color:#ea580c;" id="statForce">0</div>
-                    <div class="label">Force</div>
+                    <div class="label">Tangguhkan</div>
                 </div>
             </div>
 
@@ -694,14 +694,14 @@
                     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-check" style="color:#16a34a;"></i> User Aktif</span><span style="font-weight:700;color:#16a34a;" id="ringkasanAktif">0</span></div>
                     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-slash" style="color:#dc2626;"></i> User Banned</span><span style="font-weight:700;color:#dc2626;" id="ringkasanBanned">0</span></div>
                     <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-shield-alt" style="color:#d97706;"></i> Ban Akses</span><span style="font-weight:700;color:#d97706;" id="ringkasanBanAkses">0</span></div>
-                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:#ea580c;"></i> Force Logout</span><span style="font-weight:700;color:#ea580c;" id="ringkasanForce">0</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:#ea580c;"></i> Tangguhkan</span><span style="font-weight:700;color:#ea580c;" id="ringkasanForce">0</span></div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
                     <span><i class="fas fa-history"></i> Aktivitas Terbaru</span>
-                    <button class="btn btn-danger btn-sm" onclick="clearAllLogs()"><i class="fas fa-trash"></i> Hapus</button>
+                    <button class="btn btn-danger btn-sm" onclick="clearAllLogs()"><i class="fas fa-trash"></i> Hapus Semua</button>
                 </div>
                 <div class="activity-list" id="activityListContainer">
                     <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Memuat...</div>
@@ -765,7 +765,7 @@
         </div>
 
         <div class="page" id="page-force-users">
-            <div class="page-header"><h1><i class="fas fa-eject" style="color:#ea580c;margin-right:8px;"></i>User Force Logout</h1></div>
+            <div class="page-header"><h1><i class="fas fa-eject" style="color:#ea580c;margin-right:8px;"></i>User Tangguhkan</h1></div>
             <div class="card">
                 <div class="table-wrap">
                     <table>
@@ -773,7 +773,7 @@
                         <tbody id="forceUsersTable"></tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="forceUsersEmpty" style="display:none;"><i class="fas fa-eject"></i> Tidak ada user force</div>
+                <div class="empty-state" id="forceUsersEmpty" style="display:none;"><i class="fas fa-eject"></i> Tidak ada user ditangguhkan</div>
             </div>
         </div>
 
@@ -806,7 +806,7 @@
                 <div class="web-stat"><div class="num" style="color:#dc2626;" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
                 <div class="web-stat"><div class="num" id="webStatTotalLogins">0</div><div class="label"><i class="fas fa-sign-in-alt"></i> Total Login</div></div>
                 <div class="web-stat"><div class="num" style="color:#d97706;" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
-                <div class="web-stat"><div class="num" style="color:#ea580c;" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Force Logout</div></div>
+                <div class="web-stat"><div class="num" style="color:#ea580c;" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
             </div>
             <div class="card" style="margin-top:16px;">
                 <div class="card-header"><i class="fas fa-chart-line"></i> Distribusi User</div>
@@ -814,7 +814,7 @@
                     <div class="dist-item" style="background:#ecfdf5;"><div class="num" style="color:#16a34a;" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
                     <div class="dist-item" style="background:#fef2f2;"><div class="num" style="color:#dc2626;" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
                     <div class="dist-item" style="background:#fffbeb;"><div class="num" style="color:#d97706;" id="distBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
-                    <div class="dist-item" style="background:#fff7ed;"><div class="num" style="color:#ea580c;" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Force</div></div>
+                    <div class="dist-item" style="background:#fff7ed;"><div class="num" style="color:#ea580c;" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                 </div>
             </div>
         </div>
@@ -1166,21 +1166,22 @@ function loadActivity() {
             }
         }
         allActivities.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
-        updateActivityDisplay();
-        updateActivityLogPage();
-        updateSuspiciousLogPage();
+        // Hanya ambil 20 log terbaru untuk tampilan
+        var recentLogs = allActivities.slice(0, 20);
+        updateActivityDisplay(recentLogs);
+        updateActivityLogPage(recentLogs);
+        updateSuspiciousLogPage(recentLogs);
     }).catch(function() { activityLoaded = false; });
 }
 
-function updateActivityDisplay() {
+function updateActivityDisplay(logs) {
     var container = document.getElementById('activityListContainer');
     if (!container) return;
-    var logs = allActivities.slice(0, 20);
-    if (!logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
+    if (!logs || !logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
     var labels = {
         sharing_detected: 'SHARING DETEKSI', banned: 'Ban User', unbanned: 'Unban User',
         ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
-        force_logout: 'Force', unforce_logout: 'Unforce',
+        force_logout: 'Tangguhkan', unforce_logout: 'Lepas Tangguh',
         topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
         login_success: 'Login Sukses', login_failed: 'Gagal Login'
     };
@@ -1192,18 +1193,18 @@ function updateActivityDisplay() {
     }).join('');
 }
 
-function updateActivityLogPage() {
+function updateActivityLogPage(logs) {
     var container = document.getElementById('allActivityLog');
     if (!container) return;
-    if (!allActivities.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas</div>'; return; }
+    if (!logs || !logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas</div>'; return; }
     var labels = {
         sharing_detected: 'SHARING DETEKSI', banned: 'Ban User', unbanned: 'Unban User',
         ban_akses: 'Ban Akses', unban_akses: 'Unban Akses',
-        force_logout: 'Force', unforce_logout: 'Unforce',
+        force_logout: 'Tangguhkan', unforce_logout: 'Lepas Tangguh',
         topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama',
         login_success: 'Login Sukses', login_failed: 'Gagal Login'
     };
-    container.innerHTML = allActivities.map(function(l) {
+    container.innerHTML = logs.map(function(l) {
         var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
         var label = labels[l.action] || l.action;
         var isSuspicious = l.action === 'sharing_detected' || l.action === 'login_failed';
@@ -1211,10 +1212,11 @@ function updateActivityLogPage() {
     }).join('');
 }
 
-function updateSuspiciousLogPage() {
+function updateSuspiciousLogPage(logs) {
     var container = document.getElementById('suspiciousActivityLog');
     if (!container) return;
-    var suspicious = allActivities.filter(function(l) { return l.action === 'sharing_detected' || l.action === 'login_failed'; });
+    if (!logs || !logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
+    var suspicious = logs.filter(function(l) { return l.action === 'sharing_detected' || l.action === 'login_failed'; });
     if (!suspicious.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
     container.innerHTML = suspicious.map(function(l) {
         var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
@@ -1342,7 +1344,7 @@ function openActionModal(action) {
     var actionLabels = {
         ban: { title: '🚫 Ban User', list: 'Banned' },
         banakses: { title: '🛡️ Ban Akses', list: 'Ban Akses' },
-        force: { title: '⏸ Force Logout', list: 'Force' }
+        force: { title: '⏸ Tangguhkan User', list: 'Tangguhkan' }
     };
     var al = actionLabels[action] || { title: 'Action', list: '' };
     title.innerHTML = '<i class="fas fa-cog"></i> ' + al.title;
@@ -1399,8 +1401,10 @@ function selectActionUser(id, action) {
 function executeAction(action) {
     if (!selectedActionUser) { showAlert('Error', 'Pilih user dulu!', 'error'); return; }
     var name = selectedActionUser.username;
-    var confirmMsg = action.startsWith('un') ? 'Batalkan ' + action.replace('un', '') + ' untuk "' + name + '"?'
-                                              : 'Terapkan ' + action + ' untuk "' + name + '"?';
+    var label = action === 'ban' ? 'Ban' : action === 'banakses' ? 'Ban Akses' : 'Tangguhkan';
+    var unlabel = action === 'ban' ? 'Unban' : action === 'banakses' ? 'Unban Akses' : 'Lepas Tangguh';
+    var confirmMsg = action.startsWith('un') ? 'Batalkan ' + unlabel + ' untuk "' + name + '"?'
+                                              : 'Terapkan ' + label + ' untuk "' + name + '"?';
     showConfirm(confirmMsg, function() {
         debounce(action + selectedActionUser.id, function() { return doAction(action, selectedActionUser); });
     });
@@ -1415,7 +1419,6 @@ function doAction(action, target) {
     else if (action === 'banakses') { 
         var dur2 = parseInt(document.getElementById('actionDuration').value); 
         patchData = { banAkses: true, banAksesUntil: dur2 === 0 ? 0 : Date.now() + dur2 };
-        // LANGSUNG BLOKIR IP & FINGERPRINT
         if (target.ip && target.ip !== '-') {
             apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function() {});
         }
@@ -1425,7 +1428,6 @@ function doAction(action, target) {
     }
     else if (action === 'unbanakses') { 
         patchData = { banAkses: false, banAksesUntil: 0 };
-        // LEPAS BLOKIR IP & FINGERPRINT
         if (target.ip && target.ip !== '-') {
             apiCall('blocked_ips/' + target.ip.replace(/\./g, '_'), 'DELETE').catch(function() {});
         }
@@ -1478,7 +1480,7 @@ function updateAllUsersTable() {
         var badges = '';
         if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
         if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
-        if (u.forceLogout) badges += '<span class="badge badge-orange">Force</span> ';
+        if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
         var fpDisplay = u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-';
         return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + badges + '</td><td>' + (u.ip || '-') + '</td><td>' + fpDisplay + '</td><td>' + (u.expiry_date || '-') + '</td><td><button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button></td></tr>';
     }).join('');
@@ -1530,7 +1532,7 @@ function updateForceUsersTable() {
     if (!force.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
     if (empty) empty.style.display = 'none';
     tbody.innerHTML = force.map(function(u) {
-        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + (u.ip || '-') + '</td><td>' + (u.fingerprint ? u.fingerprint.substring(0, 16) + '...' : '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unforce\',selectedActionUser)"><i class="fas fa-check"></i> Unforce</button></td></tr>';
+        return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + (u.ip || '-') + '</td><td>' + (u.fingerprint ? u.fingerprint.substring(0, 16) + '...' : '-') + '</td><td><button class="btn btn-success btn-sm" onclick="selectedActionUser=allUsers.find(function(x){return x.id===\'' + u.id + '\'});doAction(\'unforce\',selectedActionUser)"><i class="fas fa-check"></i> Lepas Tangguh</button></td></tr>';
     }).join('');
 }
 
