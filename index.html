@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -1402,6 +1402,25 @@
                     </div>
                     <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
                 </div>
+
+                <!-- ==================== OPSI 2: ADMIN KEY DARI SERVER ==================== -->
+                <div class="card" style="border: 2px solid var(--blue);">
+                    <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> 🔐 Opsi 2: Admin Key dari Server (Lebih Aman)</div>
+                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login, tidak di-hardcode di source code.</p>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-key"></i> Session Key (Dari Server)</label>
+                        <input type="text" id="serverAdminKey" readonly value="Belum login" style="background:#f8fafc;padding:12px;border:1px solid var(--border);border-radius:6px;width:100%;">
+                    </div>
+                    
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-primary btn-sm" onclick="getAdminKeyFromServer()" style="flex:1;"><i class="fas fa-download"></i> Ambil Key dari Server</button>
+                        <button class="btn btn-danger btn-sm" onclick="clearServerKey()" style="flex:1;"><i class="fas fa-trash"></i> Hapus Key</button>
+                    </div>
+                    <div id="serverKeyStatus" style="margin-top:10px;font-size:12px;color:var(--sub);"></div>
+                </div>
+                <!-- ==================== END OPSI 2 ==================== -->
+
             </div>
 
         </main>
@@ -1526,6 +1545,7 @@
         var activityLoaded = false;
         var actionKeyVerified = false;
         var actionKeyChecked = false;
+        var serverAdminKey = null; // KEY DARI SERVER
 
         // ==================== FINGERPRINT ====================
         async function getFingerprint() {
@@ -1564,6 +1584,55 @@
             var result = await res.json();
             if (result.error) throw new Error(result.error);
             return result.data;
+        }
+
+        // ==================== OPSI 2: AMBIL KEY DARI SERVER ====================
+        async function getAdminKeyFromServer() {
+            if (!currentAdmin) {
+                document.getElementById('serverKeyStatus').innerHTML = '⚠️ Login dulu!';
+                showAlert('Error', 'Login terlebih dahulu!', 'error');
+                return;
+            }
+            
+            try {
+                document.getElementById('serverKeyStatus').innerHTML = '⏳ Mengambil key dari server...';
+                
+                var result = await apiCall('admin/get_key', 'GET', {});
+                if (result && result.adminKey) {
+                    // Decrypt key dari server
+                    var decrypted = await decryptData(result.adminKey);
+                    serverAdminKey = decrypted;
+                    document.getElementById('serverAdminKey').value = '✅ Key didapat: ' + serverAdminKey.substring(0, 10) + '...';
+                    document.getElementById('serverKeyStatus').innerHTML = '✅ Key berhasil diambil dari server!';
+                    showAlert('Berhasil', 'Admin Key berhasil diambil dari server!', 'success');
+                    
+                    // Simpan di localStorage (encrypted)
+                    localStorage.setItem('server_admin_key', result.adminKey);
+                } else {
+                    document.getElementById('serverKeyStatus').innerHTML = '❌ Gagal mengambil key!';
+                    showAlert('Error', 'Gagal mengambil key dari server!', 'error');
+                }
+            } catch(e) {
+                document.getElementById('serverKeyStatus').innerHTML = '❌ Error: ' + e.message;
+                showAlert('Error', e.message, 'error');
+            }
+        }
+
+        function clearServerKey() {
+            serverAdminKey = null;
+            localStorage.removeItem('server_admin_key');
+            document.getElementById('serverAdminKey').value = 'Belum login';
+            document.getElementById('serverKeyStatus').innerHTML = '🗑️ Key dihapus dari memori.';
+            showAlert('Info', 'Key berhasil dihapus.', 'info');
+        }
+
+        // Cek session key dari localStorage saat startup
+        function loadServerKeyFromStorage() {
+            var saved = localStorage.getItem('server_admin_key');
+            if (saved) {
+                document.getElementById('serverAdminKey').value = '✅ Key tersedia (dari penyimpanan)';
+                document.getElementById('serverKeyStatus').innerHTML = '💾 Key tersedia di localStorage (terenkripsi)';
+            }
         }
 
         // ==================== ALERT ====================
@@ -1784,6 +1853,11 @@
             activityLoaded = false;
             actionKeyVerified = false;
             actionKeyChecked = false;
+            // HAPUS SESSION KEY SAAT LOGOUT
+            serverAdminKey = null;
+            localStorage.removeItem('server_admin_key');
+            document.getElementById('serverAdminKey').value = 'Belum login';
+            document.getElementById('serverKeyStatus').innerHTML = '';
             if (sessionTimer) clearTimeout(sessionTimer);
             if (clockInterval) clearInterval(clockInterval);
             if (statsInterval) clearInterval(statsInterval);
@@ -2470,6 +2544,7 @@
             loadWhitelistIP();
             loadWhitelistFP();
             checkActionKeyExists();
+            loadServerKeyFromStorage(); // CEK SESSION KEY
         }
 
         function togglePassword() {
