@@ -33,13 +33,17 @@ function checkRateLimit(ip) {
 function decryptData(raw) {
     if (!raw) return raw;
     try {
-        const dec = CryptoJS.AES.decrypt(raw, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        let encryptedData = raw;
+        if (encryptedData.startsWith('admin:')) {
+            encryptedData = encryptedData.replace('admin:', '');
+        }
+        const dec = CryptoJS.AES.decrypt(encryptedData, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         return JSON.parse(dec);
     } catch (e) { return raw; }
 }
 
 function encryptData(data) {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+    return 'admin:' + CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
 }
 
 export default async function handler(req, res) {
@@ -264,7 +268,6 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
-        // ==================== ACTION KEYS ====================
         if (parsed.path === 'action_keys' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -323,7 +326,6 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
-        // ==================== IP WHITELIST ====================
         if (parsed.path === 'ip_whitelist' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -355,7 +357,6 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
-        // ==================== FP WHITELIST ====================
         if (parsed.path === 'fp_whitelist' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -387,7 +388,6 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
-        // ==================== GENERIC CRUD ====================
         if (parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -485,7 +485,6 @@ export default async function handler(req, res) {
     }
 }
 
-// ==================== HELPER FUNCTIONS ====================
 async function isIPBlocked(ip) {
     if (!ip) return false;
     const snap = await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).once('value');
