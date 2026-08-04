@@ -388,6 +388,13 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
+        // ==================== GET ADMIN KEY UNTUK OPSI 2 ====================
+        if (parsed.path === 'admin/get_key' && parsed.method === 'GET') {
+            const result = { adminKey: encryptData(ADMIN_KEY) };
+            return res.status(200).json({ data: encryptData(result) });
+        }
+
+        // ==================== GENERIC CRUD ====================
         if (parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
