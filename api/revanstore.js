@@ -33,13 +33,17 @@ function checkRateLimit(ip) {
 function decryptData(raw) {
     if (!raw) return raw;
     try {
-        const dec = CryptoJS.AES.decrypt(raw, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        let encryptedData = raw;
+        if (encryptedData.startsWith('admin:')) {
+            encryptedData = encryptedData.replace('admin:', '');
+        }
+        const dec = CryptoJS.AES.decrypt(encryptedData, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         return JSON.parse(dec);
     } catch (e) { return raw; }
 }
 
 function encryptData(data) {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+    return 'admin:' + CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
 }
 
 export default async function handler(req, res) {
@@ -64,21 +68,16 @@ export default async function handler(req, res) {
 
     try {
         const body = req.body;
-        if (!body || !body.enc) {
+        if (!body || !body.data) {
             return res.status(400).json({ error: 'No encrypted data' });
         }
 
-        let encryptedData = body.enc;
-        if (encryptedData.startsWith('admin:')) {
-            encryptedData = encryptedData.replace('admin:', '');
-        }
-
-        const decrypted = CryptoJS.AES.decrypt(encryptedData, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const decrypted = decryptData(body.data);
         if (!decrypted) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        const parsed = JSON.parse(decrypted);
+        const parsed = decrypted;
 
         if (!parsed.path || typeof parsed.path !== 'string' || parsed.path.length > 200) {
             return res.status(400).json({ error: 'Invalid path' });
@@ -90,8 +89,7 @@ export default async function handler(req, res) {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
             const result = { blocked: ipBlocked || fpBlocked };
-            const encrypted = 'admin:' + encryptData(result);
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData(result) });
         }
 
         if (parsed.path === 'access_key' && parsed.method === 'GET') {
@@ -104,8 +102,7 @@ export default async function handler(req, res) {
                     result = dec;
                 } catch (e) {}
             }
-            const encrypted = 'admin:' + encryptData(result);
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData(result) });
         }
 
         if (parsed.path === 'admin/auth' && parsed.method === 'GET') {
@@ -113,8 +110,7 @@ export default async function handler(req, res) {
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
             if (ipBlocked || fpBlocked) {
                 const result = { blocked: true };
-                const encrypted = 'admin:' + encryptData(result);
-                return res.status(200).json({ enc: encrypted });
+                return res.status(200).json({ encrypted: true, data: encryptData(result) });
             }
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -125,8 +121,7 @@ export default async function handler(req, res) {
                     result = dec;
                 } catch (e) {}
             }
-            const encrypted = 'admin:' + encryptData(result);
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData(result) });
         }
 
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
@@ -137,19 +132,16 @@ export default async function handler(req, res) {
                 if (fp) await blockFP(fp);
                 await logActivity('system', 'auto_block', 'Auto block setelah ' + attempts + 'x gagal', ip, fp);
                 const result = { blocked: true, message: 'Diblokir permanen setelah 5x gagal' };
-                const encrypted = 'admin:' + encryptData(result);
-                return res.status(200).json({ enc: encrypted });
+                return res.status(200).json({ encrypted: true, data: encryptData(result) });
             }
             const result = { attempts: attempts, remaining: 5 - attempts };
-            const encrypted = 'admin:' + encryptData(result);
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData(result) });
         }
 
         if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
             await resetLoginAttempt(ip, fp);
             const result = { success: true };
-            const encrypted = 'admin:' + encryptData(result);
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData(result) });
         }
 
         if (parsed.path === 'login' && parsed.method === 'POST') {
@@ -261,15 +253,13 @@ export default async function handler(req, res) {
         if (parsed.path === 'block_ip_manual' && parsed.method === 'POST') {
             await blockIP(parsed.data.ip);
             await logActivity('admin', 'block_ip', 'IP ' + parsed.data.ip + ' diblokir manual', ip, fp);
-            const encrypted = 'admin:' + encryptData({ success: true });
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
         }
 
         if (parsed.path === 'block_fp_manual' && parsed.method === 'POST') {
             await blockFP(parsed.data.fp);
             await logActivity('admin', 'block_fp', 'FP diblokir manual', ip, fp);
-            const encrypted = 'admin:' + encryptData({ success: true });
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
         }
 
         if (parsed.method === 'GET') {
@@ -287,8 +277,7 @@ export default async function handler(req, res) {
                     }
                 }
             }
-            const encrypted = 'admin:' + encryptData(result);
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData(result) });
         }
 
         if (parsed.method === 'POST') {
@@ -314,15 +303,13 @@ export default async function handler(req, res) {
             }
 
             const result = { success: true, id: newRef.key };
-            const encrypted = 'admin:' + encryptData(result);
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData(result) });
         }
 
         if (parsed.method === 'PUT') {
             const enc = encryptData(parsed.data);
             await ref.set({ data: enc });
-            const encrypted = 'admin:' + encryptData({ success: true });
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
         }
 
         if (parsed.method === 'PATCH') {
@@ -347,8 +334,7 @@ export default async function handler(req, res) {
             if (parsed.data.forceLogout === true) await logActivity(username, 'force_logout', 'User ditangguhkan (force logout)', ip, fp);
             if (parsed.data.forceLogout === false) await logActivity(username, 'unforce_logout', 'Tangguhan dilepas', ip, fp);
 
-            const encrypted = 'admin:' + encryptData({ success: true });
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
         }
 
         if (parsed.method === 'DELETE') {
@@ -363,8 +349,7 @@ export default async function handler(req, res) {
                 } catch (e) {}
             }
             await ref.remove();
-            const encrypted = 'admin:' + encryptData({ success: true });
-            return res.status(200).json({ enc: encrypted });
+            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
         }
 
         return res.status(400).json({ error: 'Invalid method' });
