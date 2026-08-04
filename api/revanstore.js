@@ -33,17 +33,74 @@ function checkRateLimit(ip) {
 function decryptData(raw) {
     if (!raw) return raw;
     try {
-        let encryptedData = raw;
-        if (encryptedData.startsWith('admin:')) {
-            encryptedData = encryptedData.replace('admin:', '');
-        }
-        const dec = CryptoJS.AES.decrypt(encryptedData, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const dec = CryptoJS.AES.decrypt(raw, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         return JSON.parse(dec);
     } catch (e) { return raw; }
 }
 
 function encryptData(data) {
-    return 'admin:' + CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+    return CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+}
+
+// ==================== SESSION FUNCTIONS ====================
+async function createSession(email, ip, fp) {
+    const sessionId = CryptoJS.lib.WordArray.random(32).toString();
+    
+    const sessionData = {
+        email: email,
+        ip: ip,
+        fingerprint: fp || '',
+        created: Date.now(),
+        expires: Date.now() + 3600000 // 1 JAM
+    };
+    
+    const enc = encryptData(sessionData);
+    await db.ref('sessions/' + sessionId).set({ data: enc });
+    
+    return sessionId;
+}
+
+async function checkSession(sessionId) {
+    if (!sessionId) return null;
+    const snap = await db.ref('sessions/' + sessionId).once('value');
+    const raw = snap.val();
+    if (!raw || !raw.data) return null;
+    
+    try {
+        const session = decryptData(raw.data);
+        if (session.expires && Date.now() > session.expires) {
+            await db.ref('sessions/' + sessionId).remove();
+            return null;
+        }
+        return session;
+    } catch(e) {
+        return null;
+    }
+}
+
+async function destroySession(sessionId) {
+    if (sessionId) {
+        await db.ref('sessions/' + sessionId).remove();
+    }
+}
+
+async function cleanupExpiredSessions() {
+    try {
+        const snap = await db.ref('sessions').once('value');
+        const data = snap.val();
+        if (!data) return;
+        const now = Date.now();
+        for (const key in data) {
+            if (data[key] && data[key].data) {
+                try {
+                    const session = decryptData(data[key].data);
+                    if (session.expires && now > session.expires) {
+                        await db.ref('sessions/' + key).remove();
+                    }
+                } catch (e) {}
+            }
+        }
+    } catch (e) {}
 }
 
 export default async function handler(req, res) {
@@ -52,7 +109,7 @@ export default async function handler(req, res) {
     if (origin && allowedOrigins.includes(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
     else if (allowedOrigins.includes('*')) res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Fingerprint, X-Operator');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Fingerprint, X-Operator, X-Session');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
@@ -83,8 +140,29 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Invalid path' });
         }
 
+        // ==================== CHECK SESSION (EXCEPT LOGIN & AUTH) ====================
+        if (parsed.path !== 'admin/login_success' && parsed.path !== 'admin/auth' && parsed.path !== 'check_blocked' && parsed.path !== 'access_key' && parsed.path !== 'logout') {
+            const sessionId = req.headers['x-session'];
+            if (!sessionId) {
+                return res.status(401).json({ error: 'Session required', data: encryptData({ error: 'Unauthorized' }) });
+            }
+            
+            const session = await checkSession(sessionId);
+            if (!session) {
+                return res.status(401).json({ error: 'Invalid or expired session', data: encryptData({ error: 'Unauthorized' }) });
+            }
+            
+            // EXTEND SESSION
+            if (session.expires && Date.now() > session.expires - 300000) {
+                session.expires = Date.now() + 3600000;
+                const enc = encryptData(session);
+                await db.ref('sessions/' + sessionId).update({ data: enc });
+            }
+        }
+
         const ref = db.ref(parsed.path);
 
+        // ==================== CHECK BLOCKED ====================
         if (parsed.path === 'check_blocked' && parsed.method === 'POST') {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
@@ -92,6 +170,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData(result) });
         }
 
+        // ==================== ACCESS KEY ====================
         if (parsed.path === 'access_key' && parsed.method === 'GET') {
             const snap = await db.ref('access_key').once('value');
             const raw = snap.val();
@@ -105,6 +184,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData(result) });
         }
 
+        // ==================== ADMIN AUTH ====================
         if (parsed.path === 'admin/auth' && parsed.method === 'GET') {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
@@ -124,6 +204,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData(result) });
         }
 
+        // ==================== LOGIN FAILED ====================
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
             const attempts = await trackLoginAttempt(ip, fp);
             await new Promise(r => setTimeout(r, Math.min(attempts * 500, 3000)));
@@ -138,12 +219,41 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData(result) });
         }
 
+        // ==================== LOGIN SUCCESS (BUAT SESSION) ====================
         if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
             await resetLoginAttempt(ip, fp);
-            const result = { success: true };
+            
+            const email = parsed.data.email || parsed.data.username || 'admin';
+            
+            // BUAT SESSION
+            const sessionId = await createSession(email, ip, fp);
+            
+            // HAPUS SESSION LAMA KALO ADA
+            const oldSession = req.headers['x-session'];
+            if (oldSession) {
+                await destroySession(oldSession);
+            }
+            
+            const result = { 
+                success: true, 
+                sessionId: sessionId,
+                email: email
+            };
+            
             return res.status(200).json({ data: encryptData(result) });
         }
 
+        // ==================== LOGOUT ====================
+        if (parsed.path === 'logout' && parsed.method === 'POST') {
+            const sessionId = req.headers['x-session'];
+            if (sessionId) {
+                await destroySession(sessionId);
+            }
+            const result = { success: true, message: 'Logout berhasil' };
+            return res.status(200).json({ data: encryptData(result) });
+        }
+
+        // ==================== USER LOGIN ====================
         if (parsed.path === 'login' && parsed.method === 'POST') {
             if (await isIPBlocked(ip) || (fp && await isFPBlocked(fp))) {
                 const result = { blocked: true, message: 'IP atau Fingerprint diblokir.' };
@@ -235,8 +345,12 @@ export default async function handler(req, res) {
                     await logActivity(username, 'login_success', 'Login berhasil. IP: ' + currentIP, currentIP, currentFP);
                     await resetLoginAttempt(ip, fp);
 
+                    // BUAT SESSION UNTUK USER
+                    const sessionId = await createSession(username, currentIP, currentFP);
+
                     const result = {
                         success: true,
+                        sessionId: sessionId,
                         data: {
                             id: key,
                             username: userData.username,
@@ -256,18 +370,21 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData(result) });
         }
 
+        // ==================== BLOCK IP MANUAL ====================
         if (parsed.path === 'block_ip_manual' && parsed.method === 'POST') {
             await blockIP(parsed.data.ip);
             await logActivity('admin', 'block_ip', 'IP ' + parsed.data.ip + ' diblokir manual', ip, fp);
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
+        // ==================== BLOCK FP MANUAL ====================
         if (parsed.path === 'block_fp_manual' && parsed.method === 'POST') {
             await blockFP(parsed.data.fp);
             await logActivity('admin', 'block_fp', 'FP diblokir manual', ip, fp);
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
+        // ==================== ACTION KEYS ====================
         if (parsed.path === 'action_keys' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -326,6 +443,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
+        // ==================== IP WHITELIST ====================
         if (parsed.path === 'ip_whitelist' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -357,6 +475,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
+        // ==================== FP WHITELIST ====================
         if (parsed.path === 'fp_whitelist' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
