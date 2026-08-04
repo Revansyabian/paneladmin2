@@ -165,7 +165,6 @@ async function logActivity(username, action, details, ip, fp) {
 }
 
 async function checkSharingDetection(userData, currentIP, currentFP, userId) {
-    // Cek apakah IP dan FP berbeda dari data sebelumnya
     const prevIP = userData.ip || '';
     const prevFP = userData.fingerprint || '';
     
@@ -173,7 +172,6 @@ async function checkSharingDetection(userData, currentIP, currentFP, userId) {
     const fpChanged = prevFP && currentFP && prevFP !== currentFP;
     
     if (ipChanged || fpChanged) {
-        // Log perubahan
         await logActivity(
             userData.username,
             fpChanged ? 'fp_changed' : 'ip_changed',
@@ -182,9 +180,7 @@ async function checkSharingDetection(userData, currentIP, currentFP, userId) {
             currentFP
         );
         
-        // Jika IP DAN FP berbeda → SHARING TERDETEKSI
         if (ipChanged && fpChanged) {
-            // Auto force logout
             const updatedData = { ...userData, forceLogout: true };
             const enc = CryptoJS.AES.encrypt(JSON.stringify(updatedData), ADMIN_KEY).toString();
             await db.ref('users/' + userId).update({ data: enc });
@@ -197,7 +193,7 @@ async function checkSharingDetection(userData, currentIP, currentFP, userId) {
                 currentFP
             );
             
-            return true; // Force logout detected
+            return true;
         }
     }
     
@@ -217,10 +213,8 @@ export default async function handler(req, res) {
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    const apiKey = req.headers['x-api-key'];
-    if (!apiKey || apiKey !== process.env.API_KEY) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
+    // ❌ API KEY CHECK DIHAPUS - Karena sekarang pakai /api/crypto
+    // Keamanan tetap ada lewat ADMIN_KEY + Fingerprint + Rate Limiting
 
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
     const fp = req.headers['x-fingerprint'] || '';
@@ -229,7 +223,6 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Terlalu banyak request. Coba lagi nanti.' });
     }
 
-    // Cleanup old attempts periodically
     if (Math.random() < 0.05) cleanupOldAttempts().catch(() => {});
 
     try {
@@ -297,7 +290,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ encrypted: true, data: encrypted });
         }
 
-        // ==================== LOGIN FAILED (TRACKING) ====================
+        // ==================== LOGIN FAILED ====================
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
             const attempts = await trackLoginAttempt(ip, fp);
             await new Promise(r => setTimeout(r, Math.min(attempts * 500, 3000)));
@@ -314,7 +307,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ encrypted: true, data: encrypted });
         }
 
-        // ==================== LOGIN SUCCESS (RESET ATTEMPTS) ====================
+        // ==================== LOGIN SUCCESS ====================
         if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
             await resetLoginAttempt(ip, fp);
             const result = { success: true };
@@ -324,7 +317,6 @@ export default async function handler(req, res) {
 
         // ==================== USER LOGIN ====================
         if (parsed.path === 'login' && parsed.method === 'POST') {
-            // Check IP/FP blocked
             if (await isIPBlocked(ip) || (fp && await isFPBlocked(fp))) {
                 const result = { blocked: true, message: 'IP atau Fingerprint diblokir.' };
                 return res.status(200).json(result);
@@ -345,7 +337,6 @@ export default async function handler(req, res) {
                 const decryptedUser = await decryptData(users[key]);
                 if (decryptedUser && decryptedUser.username === username && decryptedUser.password === password) {
 
-                    // Check banned
                     if (decryptedUser.banned) {
                         return res.status(200).json({
                             success: false,
@@ -355,7 +346,6 @@ export default async function handler(req, res) {
                         });
                     }
 
-                    // Check ban akses
                     if (decryptedUser.banAkses) {
                         if (decryptedUser.banAksesUntil === 0 || decryptedUser.banAksesUntil > Date.now()) {
                             return res.status(200).json({
@@ -365,7 +355,6 @@ export default async function handler(req, res) {
                                 message: 'Akses diblokir.'
                             });
                         } else {
-                            // Ban akses expired, auto unban
                             const updatedData = { ...decryptedUser, banAkses: false, banAksesUntil: 0 };
                             await db.ref('users/' + key).update({
                                 data: CryptoJS.AES.encrypt(JSON.stringify(updatedData), ADMIN_KEY).toString()
@@ -374,7 +363,6 @@ export default async function handler(req, res) {
                         }
                     }
 
-                    // Check force logout
                     if (decryptedUser.forceLogout) {
                         return res.status(200).json({
                             success: false,
@@ -383,7 +371,6 @@ export default async function handler(req, res) {
                         });
                     }
 
-                    // DETEKSI SHARING
                     const sharingDetected = await checkSharingDetection(decryptedUser, currentIP, currentFP, key);
                     if (sharingDetected) {
                         return res.status(200).json({
@@ -393,7 +380,6 @@ export default async function handler(req, res) {
                         });
                     }
 
-                    // Update IP, FP, last login
                     const ipHistory = decryptedUser.ipHistory || [];
                     if (currentIP && (!ipHistory.length || ipHistory[ipHistory.length - 1] !== currentIP)) {
                         ipHistory.push(currentIP);
@@ -423,10 +409,7 @@ export default async function handler(req, res) {
                         data: CryptoJS.AES.encrypt(JSON.stringify(updatedData), ADMIN_KEY).toString()
                     });
 
-                    // Log login success (HANYA SEKALI)
                     await logActivity(username, 'login_success', 'Login berhasil. IP: ' + currentIP, currentIP, currentFP);
-
-                    // Reset login attempts
                     await resetLoginAttempt(ip, fp);
 
                     return res.status(200).json({
@@ -444,7 +427,6 @@ export default async function handler(req, res) {
                 }
             }
 
-            // User not found or password wrong
             await logActivity(username, 'login_failed', 'Password salah atau user tidak ditemukan', currentIP, currentFP);
             return res.status(200).json({ success: false, message: 'User tidak ditemukan atau password salah' });
         }
@@ -491,7 +473,6 @@ export default async function handler(req, res) {
             const newRef = ref.push();
             await newRef.set({ data: enc });
 
-            // Log aktivitas untuk transaksi
             if (parsed.path === 'transactions') {
                 const operator = parsed.data.operator || 'unknown';
                 const type = parsed.data.type || 'topup';
@@ -500,7 +481,6 @@ export default async function handler(req, res) {
                 await logActivity(operator, type, typeText + ' Rp ' + amount.toLocaleString() + ' ke ' + (parsed.data.accountName || ''), ip, fp);
             }
 
-            // Log aktivitas untuk activity_logs
             if (parsed.path === 'activity_logs') {
                 await logActivity(
                     parsed.data.username || 'unknown',
@@ -538,7 +518,6 @@ export default async function handler(req, res) {
             const enc = CryptoJS.AES.encrypt(JSON.stringify(merged), ADMIN_KEY).toString();
             await ref.update({ data: enc });
 
-            // Log changes
             const username = existingData.username || 'unknown';
             if (parsed.data.banned === true) await logActivity(username, 'banned', 'User dibanned', ip, fp);
             if (parsed.data.banned === false) await logActivity(username, 'unbanned', 'User di-unban', ip, fp);
