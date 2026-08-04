@@ -33,17 +33,13 @@ function checkRateLimit(ip) {
 function decryptData(raw) {
     if (!raw) return raw;
     try {
-        let encryptedData = raw;
-        if (encryptedData.startsWith('admin:')) {
-            encryptedData = encryptedData.replace('admin:', '');
-        }
-        const dec = CryptoJS.AES.decrypt(encryptedData, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        const dec = CryptoJS.AES.decrypt(raw, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
         return JSON.parse(dec);
     } catch (e) { return raw; }
 }
 
 function encryptData(data) {
-    return 'admin:' + CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+    return CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
 }
 
 export default async function handler(req, res) {
@@ -69,7 +65,7 @@ export default async function handler(req, res) {
     try {
         const body = req.body;
         if (!body || !body.data) {
-            return res.status(400).json({ error: 'No encrypted data' });
+            return res.status(400).json({ error: 'No data' });
         }
 
         const decrypted = decryptData(body.data);
@@ -89,7 +85,7 @@ export default async function handler(req, res) {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
             const result = { blocked: ipBlocked || fpBlocked };
-            return res.status(200).json({ encrypted: true, data: encryptData(result) });
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if (parsed.path === 'access_key' && parsed.method === 'GET') {
@@ -102,7 +98,7 @@ export default async function handler(req, res) {
                     result = dec;
                 } catch (e) {}
             }
-            return res.status(200).json({ encrypted: true, data: encryptData(result) });
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if (parsed.path === 'admin/auth' && parsed.method === 'GET') {
@@ -110,7 +106,7 @@ export default async function handler(req, res) {
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
             if (ipBlocked || fpBlocked) {
                 const result = { blocked: true };
-                return res.status(200).json({ encrypted: true, data: encryptData(result) });
+                return res.status(200).json({ data: encryptData(result) });
             }
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -121,7 +117,7 @@ export default async function handler(req, res) {
                     result = dec;
                 } catch (e) {}
             }
-            return res.status(200).json({ encrypted: true, data: encryptData(result) });
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
@@ -132,28 +128,29 @@ export default async function handler(req, res) {
                 if (fp) await blockFP(fp);
                 await logActivity('system', 'auto_block', 'Auto block setelah ' + attempts + 'x gagal', ip, fp);
                 const result = { blocked: true, message: 'Diblokir permanen setelah 5x gagal' };
-                return res.status(200).json({ encrypted: true, data: encryptData(result) });
+                return res.status(200).json({ data: encryptData(result) });
             }
             const result = { attempts: attempts, remaining: 5 - attempts };
-            return res.status(200).json({ encrypted: true, data: encryptData(result) });
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
             await resetLoginAttempt(ip, fp);
             const result = { success: true };
-            return res.status(200).json({ encrypted: true, data: encryptData(result) });
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if (parsed.path === 'login' && parsed.method === 'POST') {
             if (await isIPBlocked(ip) || (fp && await isFPBlocked(fp))) {
                 const result = { blocked: true, message: 'IP atau Fingerprint diblokir.' };
-                return res.status(200).json(result);
+                return res.status(200).json({ data: encryptData(result) });
             }
 
             const snap = await db.ref('users').once('value');
             const users = snap.val();
             if (!users) {
-                return res.status(200).json({ success: false, message: 'User tidak ditemukan' });
+                const result = { success: false, message: 'User tidak ditemukan' };
+                return res.status(200).json({ data: encryptData(result) });
             }
 
             const username = parsed.data.username;
@@ -166,22 +163,24 @@ export default async function handler(req, res) {
                 if (userData && userData.username === username && userData.password === password) {
 
                     if (userData.banned) {
-                        return res.status(200).json({
+                        const result = {
                             success: false,
                             banned: true,
                             bannedUntil: userData.bannedUntil || 0,
                             message: 'Akun dibanned.'
-                        });
+                        };
+                        return res.status(200).json({ data: encryptData(result) });
                     }
 
                     if (userData.banAkses) {
                         if (userData.banAksesUntil === 0 || userData.banAksesUntil > Date.now()) {
-                            return res.status(200).json({
+                            const result = {
                                 success: false,
                                 banAkses: true,
                                 banAksesUntil: userData.banAksesUntil || 0,
                                 message: 'Akses diblokir.'
-                            });
+                            };
+                            return res.status(200).json({ data: encryptData(result) });
                         } else {
                             const updatedData = { ...userData, banAkses: false, banAksesUntil: 0 };
                             await db.ref('users/' + key).update({
@@ -192,11 +191,12 @@ export default async function handler(req, res) {
                     }
 
                     if (userData.forceLogout) {
-                        return res.status(200).json({
+                        const result = {
                             success: false,
                             forceLogout: true,
                             message: 'Akun dikunci admin karena indikasi sharing akun.'
-                        });
+                        };
+                        return res.status(200).json({ data: encryptData(result) });
                     }
 
                     const ipHistory = userData.ipHistory || [];
@@ -231,7 +231,7 @@ export default async function handler(req, res) {
                     await logActivity(username, 'login_success', 'Login berhasil. IP: ' + currentIP, currentIP, currentFP);
                     await resetLoginAttempt(ip, fp);
 
-                    return res.status(200).json({
+                    const result = {
                         success: true,
                         data: {
                             id: key,
@@ -242,26 +242,152 @@ export default async function handler(req, res) {
                             ip: currentIP,
                             fingerprint: currentFP
                         }
-                    });
+                    };
+                    return res.status(200).json({ data: encryptData(result) });
                 }
             }
 
             await logActivity(username, 'login_failed', 'Password salah atau user tidak ditemukan', currentIP, currentFP);
-            return res.status(200).json({ success: false, message: 'User tidak ditemukan atau password salah' });
+            const result = { success: false, message: 'User tidak ditemukan atau password salah' };
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if (parsed.path === 'block_ip_manual' && parsed.method === 'POST') {
             await blockIP(parsed.data.ip);
             await logActivity('admin', 'block_ip', 'IP ' + parsed.data.ip + ' diblokir manual', ip, fp);
-            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
+            return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
         if (parsed.path === 'block_fp_manual' && parsed.method === 'POST') {
             await blockFP(parsed.data.fp);
             await logActivity('admin', 'block_fp', 'FP diblokir manual', ip, fp);
-            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
+            return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
+        // ==================== ACTION KEYS ====================
+        if (parsed.path === 'action_keys' && parsed.method === 'GET') {
+            const snap = await ref.once('value');
+            const raw = snap.val();
+            const result = {};
+            if (raw) {
+                for (const key in raw) {
+                    if (raw[key] && raw[key].data) {
+                        try {
+                            const dec = decryptData(raw[key].data);
+                            result[key] = dec;
+                            result[key].id = key;
+                        } catch (e) {}
+                    }
+                }
+            }
+            return res.status(200).json({ data: encryptData(result) });
+        }
+
+        if (parsed.path === 'action_keys' && parsed.method === 'POST') {
+            const decryptedKey = decryptData(parsed.data.key);
+            const keyValue = decryptedKey.key;
+            
+            const enc = encryptData({ key: keyValue, createdAt: Date.now() });
+            const newRef = ref.push();
+            await newRef.set({ data: enc });
+            
+            return res.status(200).json({ data: encryptData({ success: true, id: newRef.key }) });
+        }
+
+        if (parsed.path === 'action_keys/verify' && parsed.method === 'POST') {
+            const decryptedKey = decryptData(parsed.data.key);
+            const inputKey = decryptedKey.key;
+            
+            const snap = await db.ref('action_keys').once('value');
+            const raw = snap.val();
+            let valid = false;
+            if (raw) {
+                for (const key in raw) {
+                    if (raw[key] && raw[key].data) {
+                        try {
+                            const dec = decryptData(raw[key].data);
+                            if (dec && dec.key === inputKey) {
+                                valid = true;
+                                break;
+                            }
+                        } catch (e) {}
+                    }
+                }
+            }
+            return res.status(200).json({ data: encryptData({ valid: valid }) });
+        }
+
+        if (parsed.path.startsWith('action_keys/') && parsed.method === 'DELETE') {
+            const id = parsed.path.replace('action_keys/', '');
+            await db.ref('action_keys/' + id).remove();
+            return res.status(200).json({ data: encryptData({ success: true }) });
+        }
+
+        // ==================== IP WHITELIST ====================
+        if (parsed.path === 'ip_whitelist' && parsed.method === 'GET') {
+            const snap = await ref.once('value');
+            const raw = snap.val();
+            const result = {};
+            if (raw) {
+                for (const key in raw) {
+                    if (raw[key] && raw[key].data) {
+                        try {
+                            const dec = decryptData(raw[key].data);
+                            result[key] = dec;
+                            result[key].id = key;
+                        } catch (e) {}
+                    }
+                }
+            }
+            return res.status(200).json({ data: encryptData(result) });
+        }
+
+        if (parsed.path === 'ip_whitelist' && parsed.method === 'POST') {
+            const enc = encryptData({ ip: parsed.data.ip, createdAt: Date.now() });
+            const newRef = ref.push();
+            await newRef.set({ data: enc });
+            return res.status(200).json({ data: encryptData({ success: true, id: newRef.key }) });
+        }
+
+        if (parsed.path.startsWith('ip_whitelist/') && parsed.method === 'DELETE') {
+            const id = parsed.path.replace('ip_whitelist/', '');
+            await db.ref('ip_whitelist/' + id).remove();
+            return res.status(200).json({ data: encryptData({ success: true }) });
+        }
+
+        // ==================== FP WHITELIST ====================
+        if (parsed.path === 'fp_whitelist' && parsed.method === 'GET') {
+            const snap = await ref.once('value');
+            const raw = snap.val();
+            const result = {};
+            if (raw) {
+                for (const key in raw) {
+                    if (raw[key] && raw[key].data) {
+                        try {
+                            const dec = decryptData(raw[key].data);
+                            result[key] = dec;
+                            result[key].id = key;
+                        } catch (e) {}
+                    }
+                }
+            }
+            return res.status(200).json({ data: encryptData(result) });
+        }
+
+        if (parsed.path === 'fp_whitelist' && parsed.method === 'POST') {
+            const enc = encryptData({ fp: parsed.data.fp, createdAt: Date.now() });
+            const newRef = ref.push();
+            await newRef.set({ data: enc });
+            return res.status(200).json({ data: encryptData({ success: true, id: newRef.key }) });
+        }
+
+        if (parsed.path.startsWith('fp_whitelist/') && parsed.method === 'DELETE') {
+            const id = parsed.path.replace('fp_whitelist/', '');
+            await db.ref('fp_whitelist/' + id).remove();
+            return res.status(200).json({ data: encryptData({ success: true }) });
+        }
+
+        // ==================== GENERIC CRUD ====================
         if (parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -277,7 +403,7 @@ export default async function handler(req, res) {
                     }
                 }
             }
-            return res.status(200).json({ encrypted: true, data: encryptData(result) });
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if (parsed.method === 'POST') {
@@ -303,13 +429,13 @@ export default async function handler(req, res) {
             }
 
             const result = { success: true, id: newRef.key };
-            return res.status(200).json({ encrypted: true, data: encryptData(result) });
+            return res.status(200).json({ data: encryptData(result) });
         }
 
         if (parsed.method === 'PUT') {
             const enc = encryptData(parsed.data);
             await ref.set({ data: enc });
-            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
+            return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
         if (parsed.method === 'PATCH') {
@@ -334,7 +460,7 @@ export default async function handler(req, res) {
             if (parsed.data.forceLogout === true) await logActivity(username, 'force_logout', 'User ditangguhkan (force logout)', ip, fp);
             if (parsed.data.forceLogout === false) await logActivity(username, 'unforce_logout', 'Tangguhan dilepas', ip, fp);
 
-            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
+            return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
         if (parsed.method === 'DELETE') {
@@ -349,7 +475,7 @@ export default async function handler(req, res) {
                 } catch (e) {}
             }
             await ref.remove();
-            return res.status(200).json({ encrypted: true, data: encryptData({ success: true }) });
+            return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
         return res.status(400).json({ error: 'Invalid method' });
@@ -359,6 +485,7 @@ export default async function handler(req, res) {
     }
 }
 
+// ==================== HELPER FUNCTIONS ====================
 async function isIPBlocked(ip) {
     if (!ip) return false;
     const snap = await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).once('value');
