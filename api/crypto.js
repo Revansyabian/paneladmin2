@@ -14,12 +14,16 @@ export default async function handler(req, res) {
         if (action === 'encrypt') {
             if (!payload) return res.status(400).json({ error: 'Payload required' });
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(payload), ADMIN_KEY).toString();
-            return res.status(200).json({ data: encrypted });
+            return res.status(200).json({ data: 'admin:' + encrypted });
         }
 
         if (action === 'decrypt') {
             if (!data) return res.status(400).json({ error: 'Data required' });
-            const decrypted = CryptoJS.AES.decrypt(data, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+            let encryptedData = data;
+            if (encryptedData.startsWith('admin:')) {
+                encryptedData = encryptedData.replace('admin:', '');
+            }
+            const decrypted = CryptoJS.AES.decrypt(encryptedData, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
             if (!decrypted) return res.status(400).json({ error: 'Invalid' });
             return res.status(200).json({ data: JSON.parse(decrypted) });
         }
