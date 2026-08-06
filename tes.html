@@ -957,6 +957,26 @@
                     </div>
                 </div>
 
+                <!-- ====== KOLOM ADMIN KEY ====== -->
+                <div class="card" style="border: 2px solid var(--blue);">
+                    <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> 🔑 Admin Key</div>
+                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Masukkan Admin Key untuk mengakses semua fitur di Settings.</p>
+                    <div class="input-group">
+                        <label><i class="fas fa-key"></i> Admin Key</label>
+                        <div class="input-with-btn">
+                            <input type="password" id="adminKeyInput" placeholder="Masukkan Admin Key...">
+                            <button class="btn btn-primary btn-sm" onclick="verifyAdminKey()"><i class="fas fa-check"></i> Verifikasi</button>
+                        </div>
+                    </div>
+                    <div id="adminKeyStatus" style="margin-top:10px;font-size:12px;color:var(--sub);"></div>
+                    <div id="adminKeyVerified" class="key-verified" style="display:none;">
+                        <div class="label"><i class="fas fa-check-circle" style="color:#10b981;"></i> Admin Key Terverifikasi</div>
+                        <div style="margin-top:8px;">
+                            <div class="input-group"><label>Admin Key Active</label><input type="text" id="displayAdminKeyActive" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="✅ Aktif"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header"><i class="fas fa-key"></i> Key Aksi</div>
                     <div class="input-group">
@@ -1009,36 +1029,6 @@
                         </div>
                     </div>
                     <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
-                </div>
-
-                <div class="card" style="border: 2px solid var(--blue);">
-                    <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> 🔐 Opsi 2: Admin Key dari Server (Lebih Aman)</div>
-                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login, tidak di-hardcode di source code.</p>
-                    
-                    <div class="input-group">
-                        <label><i class="fas fa-key"></i> Session Key (Dari Server)</label>
-                        <input type="text" id="serverAdminKey" readonly value="Belum login" style="background:#f8fafc;padding:12px;border:1px solid var(--border);border-radius:6px;width:100%;">
-                    </div>
-                    
-                    <div style="display:flex;gap:8px;">
-                        <button class="btn btn-primary btn-sm" onclick="getAdminKeyFromServer()" style="flex:1;"><i class="fas fa-download"></i> Ambil Key dari Server</button>
-                        <button class="btn btn-danger btn-sm" onclick="clearServerKey()" style="flex:1;"><i class="fas fa-trash"></i> Hapus Key</button>
-                    </div>
-                    <div id="serverKeyStatus" style="margin-top:10px;font-size:12px;color:var(--sub);"></div>
-                </div>
-
-                <!-- Verifikasi Key Aksi -->
-                <div class="card" style="border: 2px solid #d97706;">
-                    <div class="card-header"><i class="fas fa-check-circle" style="color:#d97706;"></i> 🔑 Verifikasi Key Aksi</div>
-                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Masukkan key aksi untuk mengakses fitur sensitif.</p>
-                    <div class="input-group">
-                        <label><i class="fas fa-key"></i> Key Aksi</label>
-                        <div class="input-with-btn">
-                            <input type="password" id="verifyActionKeyInput" placeholder="Masukkan key aksi...">
-                            <button class="btn btn-primary btn-sm" onclick="verifyActionKeyFromSettings()"><i class="fas fa-check"></i> Verifikasi</button>
-                        </div>
-                    </div>
-                    <div id="verifyKeyStatus" style="margin-top:10px;font-size:12px;color:var(--sub);"></div>
                 </div>
 
             </div>
@@ -1162,8 +1152,7 @@
         var statsInterval = null;
         var activityLoaded = false;
         var actionKeyVerified = false;
-        var actionKeyChecked = false;
-        var serverAdminKey = null;
+        var adminKeyVerified = false;
 
         // ==================== FINGERPRINT ====================
         async function getFingerprint() {
@@ -1179,7 +1168,7 @@
             return CryptoJS.MD5(fp).toString();
         }
 
-        // ==================== CRYPTO FUNCTIONS (LANGSUNG PAKE CryptoJS) ====================
+        // ==================== CRYPTO FUNCTIONS ====================
         function encryptData(payload) {
             return CryptoJS.AES.encrypt(JSON.stringify(payload), 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b').toString();
         }
@@ -1189,95 +1178,26 @@
             return JSON.parse(dec);
         }
 
-        // ==================== OPSI 2: AMBIL KEY DARI SERVER ====================
-        async function getAdminKeyFromServer() {
-            if (!currentAdmin) {
-                document.getElementById('serverKeyStatus').innerHTML = '⚠️ Login dulu!';
-                showAlert('Error', 'Login terlebih dahulu!', 'error');
-                return;
-            }
-            
-            try {
-                document.getElementById('serverKeyStatus').innerHTML = '⏳ Mengambil key dari server...';
-                
-                var result = await apiCall('admin/get_key', 'GET', {});
-                if (result && result.adminKey) {
-                    serverAdminKey = result.adminKey;
-                    document.getElementById('serverAdminKey').value = '✅ Key didapat dari server!';
-                    document.getElementById('serverKeyStatus').innerHTML = '✅ Key berhasil diambil dari server!';
-                    showAlert('Berhasil', 'Admin Key berhasil diambil dari server!', 'success');
-                    localStorage.setItem('server_admin_key', result.adminKey);
-                } else {
-                    document.getElementById('serverKeyStatus').innerHTML = '❌ Gagal mengambil key!';
-                    showAlert('Error', 'Gagal mengambil key dari server!', 'error');
-                }
-            } catch(e) {
-                document.getElementById('serverKeyStatus').innerHTML = '❌ Error: ' + e.message;
-                showAlert('Error', e.message, 'error');
-            }
-        }
-
-        function clearServerKey() {
-            serverAdminKey = null;
-            localStorage.removeItem('server_admin_key');
-            document.getElementById('serverAdminKey').value = 'Belum login';
-            document.getElementById('serverKeyStatus').innerHTML = '🗑️ Key dihapus dari memori.';
-            showAlert('Info', 'Key berhasil dihapus.', 'info');
-        }
-
-        function loadServerKeyFromStorage() {
-            var saved = localStorage.getItem('server_admin_key');
-            if (saved) {
-                document.getElementById('serverAdminKey').value = '✅ Key tersedia (dari penyimpanan)';
-                document.getElementById('serverKeyStatus').innerHTML = '💾 Key tersedia di localStorage (terenkripsi)';
-            }
-        }
-
-        // ==================== VERIFIKASI KEY AKSI DARI SETTINGS ====================
-        function verifyActionKeyFromSettings() {
-            var key = document.getElementById('verifyActionKeyInput').value.trim();
+        // ==================== VERIFY ADMIN KEY ====================
+        function verifyAdminKey() {
+            var key = document.getElementById('adminKeyInput').value.trim();
             if (!key) {
-                document.getElementById('verifyKeyStatus').innerHTML = '❌ Masukkan key aksi!';
-                showAlert('Error', 'Masukkan key aksi!', 'error');
+                document.getElementById('adminKeyStatus').innerHTML = '❌ Masukkan Admin Key!';
+                showAlert('Error', 'Masukkan Admin Key!', 'error');
                 return;
             }
 
-            document.getElementById('verifyKeyStatus').innerHTML = '⏳ Memeriksa...';
-
-            apiCall('action_keys', 'GET').then(function(data) {
-                var valid = false;
-                for (var k in data) {
-                    if (data[k] && data[k].key === key) {
-                        valid = true;
-                        break;
-                    }
-                }
-                if (valid) {
-                    actionKeyVerified = true;
-                    document.getElementById('actionKeyVerified').style.display = 'block';
-                    document.getElementById('verifyKeyStatus').innerHTML = '✅ Key aksi valid!';
-                    showAlert('Berhasil', 'Key aksi valid!', 'success');
-                    
-                    apiCall('admin/auth', 'GET').then(function(r) {
-                        if (r) {
-                            var pass = r.password || '••••••••';
-                            document.getElementById('displayAdminKey').value = pass;
-                            document.getElementById('settingsPassword').value = pass;
-                            document.getElementById('displayApiKey').value = '🔑 API Key tersedia di environment variables';
-                        }
-                    });
-                    
-                    loadActionKeys();
-                    loadWhitelistIP();
-                    loadWhitelistFP();
-                } else {
-                    document.getElementById('verifyKeyStatus').innerHTML = '❌ Key aksi salah!';
-                    showAlert('Error', 'Key aksi salah!', 'error');
-                }
-            }).catch(function(e) {
-                document.getElementById('verifyKeyStatus').innerHTML = '❌ Error: ' + e.message;
-                showAlert('Error', e.message, 'error');
-            });
+            // Cek apakah key sama dengan ADMIN_KEY yang di-hardcode
+            if (key === 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b') {
+                adminKeyVerified = true;
+                document.getElementById('adminKeyVerified').style.display = 'block';
+                document.getElementById('adminKeyStatus').innerHTML = '✅ Admin Key valid!';
+                showAlert('Berhasil', 'Admin Key valid!', 'success');
+            } else {
+                adminKeyVerified = false;
+                document.getElementById('adminKeyStatus').innerHTML = '❌ Admin Key salah!';
+                showAlert('Error', 'Admin Key salah!', 'error');
+            }
         }
 
         // ==================== ALERT ====================
@@ -1342,9 +1262,16 @@
             if (m) m.classList.remove('show');
         }
 
-        // ==================== API CALL (PAKE SESSION) ====================
+        // ==================== API CALL ====================
         async function apiCall(path, method, data) {
             if (!fingerprint) fingerprint = await getFingerprint();
+
+            // Cek admin key verified untuk aksi sensitif
+            if (!adminKeyVerified && (path === 'admin/update_email' || path === 'admin/update_password' || 
+                path === 'ip_whitelist' || path === 'fp_whitelist' || path === 'action_keys')) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return null;
+            }
 
             var payload = {
                 path: path,
@@ -1464,7 +1391,7 @@
                 '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:rgba(30,41,59,0.9);border-radius:20px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid rgba(239,68,68,0.3);"><div style="font-size:70px;margin-bottom:20px;">🔒</div><h1 style="color:#ef4444;font-size:24px;">AKSES DITOLAK</h1><p style="color:#94a3b8;">Akses Anda telah diblokir permanen.</p></div></div>';
         }
 
-        // ==================== LOGIN (PAKE SESSION) ====================
+        // ==================== LOGIN ====================
         function login() {
             var email = document.getElementById('loginEmail').value.trim();
             var pass = document.getElementById('loginPassword').value.trim();
@@ -1517,11 +1444,7 @@
             currentAdmin = null;
             activityLoaded = false;
             actionKeyVerified = false;
-            actionKeyChecked = false;
-            serverAdminKey = null;
-            localStorage.removeItem('server_admin_key');
-            document.getElementById('serverAdminKey').value = 'Belum login';
-            document.getElementById('serverKeyStatus').innerHTML = '';
+            adminKeyVerified = false;
             
             if (sessionTimer) clearTimeout(sessionTimer);
             if (clockInterval) clearInterval(clockInterval);
@@ -1533,6 +1456,7 @@
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginEmail').value = '';
             document.getElementById('actionKeyVerified').style.display = 'none';
+            document.getElementById('adminKeyVerified').style.display = 'none';
             showAlert('Logout', 'Anda telah logout.', 'info');
         }
 
@@ -1783,7 +1707,6 @@
             document.getElementById('editIP').value = u.ip || '-';
             document.getElementById('editFP').value = u.fingerprint ? u.fingerprint.substring(0, 20) + '...' : '-';
             
-            // LAST ACTIVITY
             var lastAct = '-';
             if (u.lastActivity) {
                 var time = new Date(u.lastActivity.timestamp);
@@ -2010,7 +1933,6 @@
                 if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
                 var fpDisplay = u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-';
                 
-                // LAST ACTIVITY
                 var lastAct = '-';
                 if (u.lastActivity) {
                     var time = new Date(u.lastActivity.timestamp);
@@ -2217,7 +2139,6 @@
             loadWhitelistIP();
             loadWhitelistFP();
             checkActionKeyExists();
-            loadServerKeyFromStorage();
         }
 
         function togglePassword() {
@@ -2240,8 +2161,8 @@
 
         // ==================== CHANGE EMAIL ====================
         function openChangeEmailModal() {
-            if (!actionKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
                 return;
             }
             document.getElementById('newEmail').value = '';
@@ -2251,7 +2172,7 @@
         function changeEmail() {
             var email = document.getElementById('newEmail').value.trim();
             if (!email) { showAlert('Error', 'Email baru wajib diisi!', 'error'); return; }
-            if (!actionKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
+            if (!adminKeyVerified) { showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error'); return; }
 
             showAlert('Proses', 'Mengupdate email...', 'loading');
             apiCall('admin/update_email', 'PATCH', { email: email }).then(function() {
@@ -2263,8 +2184,8 @@
 
         // ==================== CHANGE PASSWORD ====================
         function openChangePasswordModal() {
-            if (!actionKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
                 return;
             }
             document.getElementById('newPasswordSettings').value = '';
@@ -2278,7 +2199,7 @@
             if (!pass) { showAlert('Error', 'Password baru wajib diisi!', 'error'); return; }
             if (pass.length < 6) { showAlert('Error', 'Password minimal 6 karakter!', 'error'); return; }
             if (pass !== confirm) { showAlert('Error', 'Password tidak cocok!', 'error'); return; }
-            if (!actionKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
+            if (!adminKeyVerified) { showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error'); return; }
 
             showAlert('Proses', 'Mengupdate password...', 'loading');
             apiCall('admin/update_password', 'PATCH', { password: pass }).then(function() {
@@ -2308,8 +2229,13 @@
                 actionKeyChecked = true;
             });
         }
+        var actionKeyChecked = false;
 
         function verifyActionKey() {
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return;
+            }
             var key = document.getElementById('actionKeyInput').value.trim();
             if (!key) { showAlert('Error', 'Masukkan key aksi!', 'error'); return; }
 
@@ -2343,6 +2269,10 @@
         }
 
         function addActionKey() {
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return;
+            }
             if (!actionKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
@@ -2384,6 +2314,10 @@
         }
 
         function deleteActionKey(id) {
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return;
+            }
             if (!actionKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
@@ -2398,6 +2332,10 @@
 
         // ==================== IP WHITELIST ====================
         function addWhitelistIP() {
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return;
+            }
             if (!actionKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
@@ -2430,6 +2368,10 @@
         }
 
         function deleteWhitelistIP(id) {
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return;
+            }
             if (!actionKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
@@ -2444,6 +2386,10 @@
 
         // ==================== FP WHITELIST ====================
         function addWhitelistFP() {
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return;
+            }
             if (!actionKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
@@ -2477,6 +2423,10 @@
         }
 
         function deleteWhitelistFP(id) {
+            if (!adminKeyVerified) {
+                showAlert('Error', 'Verifikasi Admin Key terlebih dahulu!', 'error');
+                return;
+            }
             if (!actionKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
