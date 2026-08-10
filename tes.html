@@ -621,49 +621,6 @@
             letter-spacing: 2px;
             color: #94a3b8;
         }
-        /* Maintenance Switch Style */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background: #f59e0b;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .maintenance-status {
-            font-weight: 600;
-            color: var(--sub);
-        }
-        .maintenance-status.active {
-            color: #f59e0b;
-        }
         @media (max-width: 1024px) {
             .stats { grid-template-columns: repeat(2, 1fr); }
             .web-stats { grid-template-columns: repeat(2, 1fr); }
@@ -762,6 +719,8 @@
                 <a data-page="web-stats" onclick="switchPage('web-stats')"><i class="fas fa-chart-bar"></i> Statistik Web</a>
                 <div class="sidebar-divider"></div>
                 <div class="label"><i class="fas fa-cog"></i> Pengaturan</div>
+                <a data-page="maintenance" onclick="switchPage('maintenance')"><i class="fas fa-tools"></i> Maintenance</a>
+                <a data-page="path-manager" onclick="switchPage('path-manager')"><i class="fas fa-route"></i> Path Manager</a>
                 <a data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Settings</a>
             </nav>
             <div class="sidebar-footer">
@@ -771,6 +730,7 @@
 
         <main class="main-content" id="mainContent">
 
+            <!-- DASHBOARD -->
             <div class="page active" id="page-dashboard">
                 <div class="page-header">
                     <div>
@@ -807,6 +767,7 @@
                 </div>
             </div>
 
+            <!-- ALL USERS -->
             <div class="page" id="page-all-users">
                 <div class="page-header">
                     <div><h1><i class="fas fa-users"></i>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
@@ -823,6 +784,7 @@
                 </div>
             </div>
 
+            <!-- BAN USER -->
             <div class="page" id="page-ban-user">
                 <div class="page-header"><h1><i class="fas fa-ban"></i>Banned User</h1><p>Ban user yang bermasalah</p></div>
                 <div class="card">
@@ -847,6 +809,7 @@
                 </div>
             </div>
 
+            <!-- UNBAN USER -->
             <div class="page" id="page-unbanned-users">
                 <div class="page-header"><h1><i class="fas fa-check-circle"></i>Unban User</h1><p>User yang sedang di-ban</p></div>
                 <div class="card">
@@ -860,6 +823,7 @@
                 </div>
             </div>
 
+            <!-- BAN AKSES -->
             <div class="page" id="page-banakses-users">
                 <div class="page-header"><h1><i class="fas fa-shield-alt"></i>Ban Akses</h1><p>User yang belum di-ban akses</p></div>
                 <div class="card">
@@ -873,6 +837,7 @@
                 </div>
             </div>
 
+            <!-- UNBAN AKSES -->
             <div class="page" id="page-unbanakses-users">
                 <div class="page-header"><h1><i class="fas fa-check-circle"></i>Unban Akses</h1><p>User yang sedang di-ban akses</p></div>
                 <div class="card">
@@ -886,6 +851,7 @@
                 </div>
             </div>
 
+            <!-- TANGGUHKAN -->
             <div class="page" id="page-force-users">
                 <div class="page-header"><h1><i class="fas fa-eject"></i>Tangguhkan User</h1><p>User yang belum ditangguhkan</p></div>
                 <div class="card">
@@ -899,6 +865,7 @@
                 </div>
             </div>
 
+            <!-- LEPAS TANGGUH -->
             <div class="page" id="page-unforce-users">
                 <div class="page-header"><h1><i class="fas fa-check-circle"></i>Lepas Tangguh</h1><p>User yang sedang ditangguhkan</p></div>
                 <div class="card">
@@ -912,6 +879,7 @@
                 </div>
             </div>
 
+            <!-- USER BERMASALAH -->
             <div class="page" id="page-problem-users">
                 <div class="page-header"><h1><i class="fas fa-exclamation-triangle"></i>User Bermasalah</h1><p>User yang memiliki masalah (Banned / Ban Akses / Tangguhkan)</p></div>
                 <div class="card">
@@ -925,6 +893,7 @@
                 </div>
             </div>
 
+            <!-- LOG AKTIVITAS -->
             <div class="page" id="page-activity-log">
                 <div class="page-header">
                     <div><h1><i class="fas fa-history"></i>Log Aktivitas</h1></div>
@@ -937,6 +906,7 @@
                 </div>
             </div>
 
+            <!-- LOG MENCURIGAKAN -->
             <div class="page" id="page-suspicious-log">
                 <div class="page-header"><h1><i class="fas fa-exclamation-triangle"></i>Log Mencurigakan</h1></div>
                 <div class="card">
@@ -946,6 +916,7 @@
                 </div>
             </div>
 
+            <!-- STATISTIK WEB -->
             <div class="page" id="page-web-stats">
                 <div class="page-header"><h1><i class="fas fa-chart-bar"></i>Statistik Web</h1></div>
                 <div class="web-stats">
@@ -967,30 +938,66 @@
                 </div>
             </div>
 
-            <!-- Settings Page with Key Page -->
+            <!-- MAINTENANCE -->
+            <div class="page" id="page-maintenance">
+                <div class="page-header"><h1><i class="fas fa-tools"></i>Maintenance</h1><p>Atur mode perbaikan website</p></div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-toggle-on"></i> Status Maintenance</div>
+                    <div style="margin-bottom:12px;">
+                        <span id="maintenanceStatusBadge" class="badge badge-green">OFF</span>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-heading"></i> Judul Halaman</label>
+                        <input type="text" id="maintenanceTitle" placeholder="SEDANG PERBAIKAN SISTEM">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-align-left"></i> Pesan</label>
+                        <input type="text" id="maintenanceMessage" placeholder="Website sedang dalam perbaikan...">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Estimasi Selesai (Timestamp, 0 = tidak ada)</label>
+                        <input type="number" id="maintenanceUntil" placeholder="0" value="0">
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-success" onclick="enableMaintenance()" style="flex:1;"><i class="fas fa-play"></i> Aktifkan</button>
+                        <button class="btn btn-danger" onclick="disableMaintenance()" style="flex:1;"><i class="fas fa-stop"></i> Nonaktifkan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PATH MANAGER -->
+            <div class="page" id="page-path-manager">
+                <div class="page-header"><h1><i class="fas fa-route"></i>Path Manager</h1><p>Lihat dan ganti nama path API</p></div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-list"></i> Daftar Path</div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Nama Path</th><th>Path Saat Ini</th><th>Path Baru</th><th>Aksi</th></tr></thead>
+                            <tbody id="pathManagerTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS -->
             <div class="page" id="page-settings">
                 <div class="page-header"><h1><i class="fas fa-cog"></i>Settings</h1></div>
 
-                <!-- Key Page Verification for Settings -->
-                <div class="card" style="border: 2px solid var(--blue);">
-                    <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> 🔐 Verifikasi Key Aksi untuk Settings</div>
-                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Masukkan key aksi untuk mengakses seluruh menu di Settings.</p>
-
+                <!-- VERIFIKASI KEY AKSI -->
+                <div class="card" id="settingsKeyCard">
+                    <div class="card-header"><i class="fas fa-key"></i> Verifikasi Key Aksi</div>
+                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Masukkan key aksi untuk mengakses pengaturan.</p>
                     <div class="input-group">
-                        <label><i class="fas fa-key"></i> Key Aksi</label>
+                        <label>Key Aksi</label>
                         <div class="input-with-btn">
-                            <input type="password" id="settingsAccessKey" placeholder="Masukkan key aksi...">
-                            <button class="btn btn-primary btn-sm" onclick="verifySettingsAccessKey()"><i class="fas fa-check"></i> Verifikasi</button>
+                            <input type="password" id="settingsActionKey" placeholder="Masukkan key aksi...">
+                            <button class="btn btn-primary btn-sm" onclick="verifySettingsActionKey()"><i class="fas fa-check"></i> Verifikasi</button>
                         </div>
-                    </div>
-                    <div id="settingsKeyStatus" style="font-size:13px;color:var(--sub);margin-top:6px;"></div>
-                    <div id="settingsKeyVerified" class="key-verified">
-                        <div class="label"><i class="fas fa-check-circle" style="color:#10b981;"></i> Key Aksi Terverifikasi - Menu Settings Terbuka</div>
                     </div>
                 </div>
 
-                <!-- Settings Menus (Hidden by default, shown after key verification) -->
-                <div id="settingsMenus" style="display:none;">
+                <!-- SETTINGS CONTENT (HIDDEN UNTIL KEY VERIFIED) -->
+                <div id="settingsContent" style="display:none;">
 
                     <div class="card">
                         <div class="card-header"><i class="fas fa-user-shield"></i> Admin Info</div>
@@ -1013,7 +1020,15 @@
 
                     <div class="card">
                         <div class="card-header"><i class="fas fa-key"></i> Key Aksi</div>
-
+                        <div class="input-group">
+                            <label>Admin Key</label>
+                            <input type="text" id="displayAdminKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="••••••••">
+                        </div>
+                        <div class="input-group">
+                            <label>API Key</label>
+                            <input type="text" id="displayApiKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="🔑 API Key tersedia di environment variables">
+                        </div>
+                        <hr style="margin:16px 0;border-color:var(--border);">
                         <div class="card-header"><i class="fas fa-list"></i> Daftar Key Aksi</div>
                         <div class="input-group">
                             <label>Tambah Key Aksi Baru</label>
@@ -1022,7 +1037,7 @@
                                 <button class="btn btn-success btn-sm" onclick="addActionKey()"><i class="fas fa-plus"></i> Tambah</button>
                             </div>
                         </div>
-                        <div class="table-wrap"><table><thead><tr><th>Key</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="actionKeysTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
+                        <div class="table-wrap"><table><thead><tr><th>Key</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="actionKeysTable"></tbody></table></div>
                     </div>
 
                     <div class="card">
@@ -1034,7 +1049,7 @@
                                 <button class="btn btn-success btn-sm" onclick="addWhitelistIP()"><i class="fas fa-plus"></i> Tambah</button>
                             </div>
                         </div>
-                        <div class="table-wrap"><table><thead><tr><th>IP</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="ipWhitelistTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
+                        <div class="table-wrap"><table><thead><tr><th>IP</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="ipWhitelistTable"></tbody></table></div>
                     </div>
 
                     <div class="card">
@@ -1046,48 +1061,23 @@
                                 <button class="btn btn-success btn-sm" onclick="addWhitelistFP()"><i class="fas fa-plus"></i> Tambah</button>
                             </div>
                         </div>
-                        <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
+                        <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"></tbody></table></div>
                     </div>
 
-                </div>
-                <!-- End Settings Menus -->
-            </div>
-
-            <!-- Maintenance Page (Outside Settings) -->
-            <div class="page" id="page-maintenance">
-                <div class="page-header">
-                    <h1><i class="fas fa-tools"></i>Maintenance</h1>
-                    <p>Kelola mode maintenance situs</p>
-                </div>
-
-                <div class="card" style="border: 2px solid #f59e0b;">
-                    <div class="card-header"><i class="fas fa-tools" style="color:#f59e0b;"></i> Mode Maintenance</div>
-
-                    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-                        <label class="switch">
-                            <input type="checkbox" id="maintenanceSwitch" onchange="toggleMaintenance()">
-                            <span class="slider round"></span>
-                        </label>
-                        <span id="maintenanceStatus" class="maintenance-status">Mode Normal</span>
-                        <span id="maintenanceMessage" style="font-size:13px;color:var(--sub);">(Situs berjalan normal)</span>
-                    </div>
-
-                    <div style="margin-top:16px;">
-                        <label style="font-size:13px;font-weight:600;color:var(--sub);">Pesan Khusus Maintenance</label>
-                        <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
-                            <input type="text" id="maintenanceCustomMessage" placeholder="Ketik pesan khusus..." style="flex:1;padding:10px;border:1px solid var(--border);border-radius:var(--radius);min-width:200px;">
-                            <button class="btn btn-primary btn-sm" onclick="updateMaintenanceMessage()"><i class="fas fa-save"></i> Simpan Pesan</button>
+                    <div class="card" style="border: 2px solid var(--blue);">
+                        <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> Admin Key dari Server</div>
+                        <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login.</p>
+                        <div class="input-group">
+                            <label>Session Key (Dari Server)</label>
+                            <input type="text" id="serverAdminKey" readonly value="Belum login" style="background:#f8fafc;padding:12px;border:1px solid var(--border);border-radius:6px;width:100%;">
                         </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-primary btn-sm" onclick="getAdminKeyFromServer()" style="flex:1;"><i class="fas fa-download"></i> Ambil Key dari Server</button>
+                            <button class="btn btn-danger btn-sm" onclick="clearServerKey()" style="flex:1;"><i class="fas fa-trash"></i> Hapus Key</button>
+                        </div>
+                        <div id="serverKeyStatus" style="margin-top:10px;font-size:12px;color:var(--sub);"></div>
                     </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-info-circle"></i> Informasi</div>
-                    <p style="font-size:14px;color:var(--sub);">
-                        <i class="fas fa-check-circle" style="color:#10b981;"></i> Saat mode maintenance aktif, semua pengunjung akan melihat halaman maintenance.
-                        <br>
-                        <i class="fas fa-shield-alt" style="color:var(--blue);"></i> Admin tetap dapat mengakses panel ini.
-                    </p>
                 </div>
             </div>
 
@@ -1210,6 +1200,7 @@
         var activityLoaded = false;
         var actionKeyVerified = false;
         var actionKeyChecked = false;
+        var serverAdminKey = null;
         var settingsKeyVerified = false;
 
         // ==================== FINGERPRINT ====================
@@ -1226,7 +1217,7 @@
             return CryptoJS.MD5(fp).toString();
         }
 
-        // ==================== CRYPTO FUNCTIONS (LANGSUNG PAKE CryptoJS) ====================
+        // ==================== CRYPTO FUNCTIONS ====================
         function encryptData(payload) {
             return CryptoJS.AES.encrypt(JSON.stringify(payload), 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b').toString();
         }
@@ -1234,37 +1225,6 @@
         function decryptData(encryptedData) {
             var dec = CryptoJS.AES.decrypt(encryptedData, 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b').toString(CryptoJS.enc.Utf8);
             return JSON.parse(dec);
-        }
-
-        // ==================== MAINTENANCE FUNCTIONS ====================
-        function toggleMaintenance() {
-            const switchEl = document.getElementById('maintenanceSwitch');
-            const statusEl = document.getElementById('maintenanceStatus');
-            const msgEl = document.getElementById('maintenanceMessage');
-            const isChecked = switchEl.checked;
-
-            if (isChecked) {
-                statusEl.textContent = 'Mode Maintenance Aktif';
-                statusEl.className = 'maintenance-status active';
-                msgEl.textContent = '⚠️ Situs dalam perbaikan!';
-                showAlert('Maintenance', 'Mode Maintenance diaktifkan!', 'info');
-            } else {
-                statusEl.textContent = 'Mode Normal';
-                statusEl.className = 'maintenance-status';
-                msgEl.textContent = '(Situs berjalan normal)';
-                showAlert('Maintenance', 'Mode Maintenance dinonaktifkan.', 'info');
-            }
-        }
-
-        function updateMaintenanceMessage() {
-            const customMsg = document.getElementById('maintenanceCustomMessage').value.trim();
-            const msgEl = document.getElementById('maintenanceMessage');
-            if (customMsg) {
-                msgEl.textContent = '📌 ' + customMsg;
-                showAlert('Pesan Maintenance', 'Pesan berhasil diperbarui!', 'success');
-            } else {
-                showAlert('Error', 'Pesan tidak boleh kosong!', 'error');
-            }
         }
 
         // ==================== ALERT ====================
@@ -1329,7 +1289,7 @@
             if (m) m.classList.remove('show');
         }
 
-        // ==================== API CALL (PAKE SESSION) ====================
+        // ==================== API CALL ====================
         async function apiCall(path, method, data) {
             if (!fingerprint) fingerprint = await getFingerprint();
 
@@ -1400,6 +1360,17 @@
             var sidebar = document.getElementById('sidebar');
             if (sidebar && window.innerWidth <= 768) sidebar.classList.remove('open');
 
+            if (pageName === 'settings') {
+                if (!settingsKeyVerified) {
+                    document.getElementById('settingsContent').style.display = 'none';
+                    document.getElementById('settingsKeyCard').style.display = 'block';
+                } else {
+                    document.getElementById('settingsKeyCard').style.display = 'none';
+                    document.getElementById('settingsContent').style.display = 'block';
+                    loadSettings();
+                }
+            }
+
             if (pageName === 'all-users') renderAllUsersTable();
             if (pageName === 'ban-user') searchBanUser();
             if (pageName === 'unbanned-users') renderUnbannedTable();
@@ -1411,8 +1382,8 @@
             if (pageName === 'activity-log') renderActivityLogPage();
             if (pageName === 'suspicious-log') renderSuspiciousLogPage();
             if (pageName === 'web-stats') renderWebStats();
-            if (pageName === 'settings') loadSettings();
-            if (pageName === 'maintenance') { /* nothing to load */ }
+            if (pageName === 'maintenance') loadMaintenanceStatus();
+            if (pageName === 'path-manager') loadPathManager();
             if (pageName === 'dashboard') { updateRingkasan(); loadUsers(); loadActivity(); }
         }
 
@@ -1452,7 +1423,7 @@
                 '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:rgba(30,41,59,0.9);border-radius:20px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid rgba(239,68,68,0.3);"><div style="font-size:70px;margin-bottom:20px;">🔒</div><h1 style="color:#ef4444;font-size:24px;">AKSES DITOLAK</h1><p style="color:#94a3b8;">Akses Anda telah diblokir permanen.</p></div></div>';
         }
 
-        // ==================== LOGIN (PAKE SESSION) ====================
+        // ==================== LOGIN ====================
         function login() {
             var email = document.getElementById('loginEmail').value.trim();
             var pass = document.getElementById('loginPassword').value.trim();
@@ -1465,7 +1436,7 @@
                         if (loginResult && loginResult.success && loginResult.sessionId) {
                             sessionId = loginResult.sessionId;
                             localStorage.setItem('sessionId', sessionId);
-
+                            
                             currentAdmin = email;
                             document.getElementById('loggedUser').textContent = email;
                             document.getElementById('navbarUserName').textContent = email;
@@ -1507,7 +1478,14 @@
             actionKeyVerified = false;
             actionKeyChecked = false;
             settingsKeyVerified = false;
-
+            serverAdminKey = null;
+            localStorage.removeItem('server_admin_key');
+            document.getElementById('serverAdminKey').value = 'Belum login';
+            document.getElementById('serverKeyStatus').innerHTML = '';
+            document.getElementById('settingsContent').style.display = 'none';
+            document.getElementById('settingsKeyCard').style.display = 'block';
+            document.getElementById('settingsActionKey').value = '';
+            
             if (sessionTimer) clearTimeout(sessionTimer);
             if (clockInterval) clearInterval(clockInterval);
             if (statsInterval) clearInterval(statsInterval);
@@ -1517,10 +1495,6 @@
             document.getElementById('keyScreen').style.display = 'none';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginEmail').value = '';
-            document.getElementById('settingsKeyVerified').style.display = 'none';
-            document.getElementById('settingsMenus').style.display = 'none';
-            document.getElementById('settingsKeyStatus').innerHTML = '';
-            document.getElementById('actionKeyVerified').style.display = 'none';
             showAlert('Logout', 'Anda telah logout.', 'info');
         }
 
@@ -1630,7 +1604,7 @@
 
         function buildLogHTML(logs) {
             var labels = {
-                sharing_detected: '🔴 SHARING DETEKSI',
+                sharing_detected: 'SHARING DETEKSI',
                 banned: 'Ban User',
                 unbanned: 'Unban User',
                 ban_akses: 'Ban Akses',
@@ -1862,7 +1836,7 @@
         function selectBanUser(id) {
             selectedBanUser = allUsers.find(function(u) { return u.id === id; });
             var el = document.getElementById('banSelectedUser');
-            if (el) el.innerHTML = selectedBanUser ? '✅ Dipilih: <b>' + esc(selectedBanUser.username) + '</b>' : '';
+            if (el) el.innerHTML = selectedBanUser ? 'Dipilih: <b>' + esc(selectedBanUser.username) + '</b>' : '';
 
             document.querySelectorAll('#banUserList .user-check').forEach(function(el) {
                 el.classList.remove('selected');
@@ -2160,12 +2134,107 @@
             document.getElementById('ringkasanForce').textContent = force;
         }
 
+        // ==================== MAINTENANCE ====================
+        function loadMaintenanceStatus() {
+            apiCall('maintenance_status', 'GET').then(function(data) {
+                if (data && data.maintenance) {
+                    document.getElementById('maintenanceStatusBadge').textContent = 'ON';
+                    document.getElementById('maintenanceStatusBadge').className = 'badge badge-red';
+                    document.getElementById('maintenanceTitle').value = data.title || '';
+                    document.getElementById('maintenanceMessage').value = data.message || '';
+                    document.getElementById('maintenanceUntil').value = data.until || 0;
+                } else {
+                    document.getElementById('maintenanceStatusBadge').textContent = 'OFF';
+                    document.getElementById('maintenanceStatusBadge').className = 'badge badge-green';
+                }
+            });
+        }
+
+        function enableMaintenance() {
+            var title = document.getElementById('maintenanceTitle').value.trim();
+            var message = document.getElementById('maintenanceMessage').value.trim();
+            var until = parseInt(document.getElementById('maintenanceUntil').value) || 0;
+
+            if (!title) { showAlert('Error', 'Judul wajib diisi!', 'error'); return; }
+
+            showAlert('Proses', 'Mengaktifkan maintenance...', 'loading');
+            apiCall('maintenance_status', 'PUT', {
+                maintenance: true,
+                title: title,
+                message: message,
+                until: until
+            }).then(function() {
+                showAlert('Berhasil', 'Maintenance diaktifkan!', 'success');
+                loadMaintenanceStatus();
+            }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+        }
+
+        function disableMaintenance() {
+            showConfirm('Nonaktifkan maintenance?', function() {
+                showAlert('Proses', 'Menonaktifkan...', 'loading');
+                apiCall('maintenance_status', 'PUT', { maintenance: false }).then(function() {
+                    showAlert('Berhasil', 'Maintenance dinonaktifkan!', 'success');
+                    loadMaintenanceStatus();
+                }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+            });
+        }
+
+        // ==================== PATH MANAGER ====================
+        var pathList = [
+            { name: 'Check Blocked', current: 'check_blocked' },
+            { name: 'Check Account Status', current: 'check_account_status' },
+            { name: 'Login', current: 'login' },
+            { name: 'Login Failed', current: 'login_failed' },
+            { name: 'Login Success', current: 'login_success' },
+            { name: 'Users', current: 'users' },
+            { name: 'Blocked IPs', current: 'blocked_ips' },
+            { name: 'Blocked FP', current: 'blocked_fp' },
+            { name: 'Login Attempts', current: 'login_attempts' },
+            { name: 'Activity Logs', current: 'activity_logs' },
+            { name: 'Transactions', current: 'transactions' },
+            { name: 'Maintenance Status', current: 'maintenance_status' },
+            { name: 'Access Key', current: 'access_key' },
+            { name: 'Action Keys', current: 'action_keys' },
+            { name: 'IP Whitelist', current: 'ip_whitelist' },
+            { name: 'FP Whitelist', current: 'fp_whitelist' },
+            { name: 'Block IP Manual', current: 'block_ip_manual' },
+            { name: 'Block FP Manual', current: 'block_fp_manual' }
+        ];
+
+        function loadPathManager() {
+            var tbody = document.getElementById('pathManagerTable');
+            if (!tbody) return;
+
+            tbody.innerHTML = pathList.map(function(p) {
+                return '<tr>' +
+                    '<td><b>' + p.name + '</b></td>' +
+                    '<td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">' + p.current + '</code></td>' +
+                    '<td><input type="text" id="newPath_' + p.current.replace(/\./g, '_') + '" placeholder="Path baru..." style="padding:6px;border:1px solid var(--border);border-radius:4px;width:100%;"></td>' +
+                    '<td><button class="btn btn-primary btn-xs" onclick="updatePath(\'' + p.current + '\')"><i class="fas fa-save"></i> Simpan</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function updatePath(oldPath) {
+            var inputId = 'newPath_' + oldPath.replace(/\./g, '_');
+            var newPath = document.getElementById(inputId).value.trim();
+            if (!newPath) { showAlert('Error', 'Path baru wajib diisi!', 'error'); return; }
+
+            showConfirm('Ganti path "' + oldPath + '" menjadi "' + newPath + '"?', function() {
+                showAlert('Proses', 'Mengupdate path...', 'loading');
+                apiCall('path_aliases', 'POST', { oldPath: oldPath, newPath: newPath }).then(function() {
+                    showAlert('Berhasil', 'Path berhasil diupdate!', 'success');
+                    var item = pathList.find(function(p) { return p.current === oldPath; });
+                    if (item) item.current = newPath;
+                    loadPathManager();
+                }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+            });
+        }
+
         // ==================== SETTINGS ====================
-        // Verify Settings Access Key
-        function verifySettingsAccessKey() {
-            var key = document.getElementById('settingsAccessKey').value.trim();
+        function verifySettingsActionKey() {
+            var key = document.getElementById('settingsActionKey').value.trim();
             if (!key) { showAlert('Error', 'Masukkan key aksi!', 'error'); return; }
-            document.getElementById('settingsKeyStatus').innerHTML = '⏳ Memverifikasi...';
 
             apiCall('action_keys', 'GET').then(function(data) {
                 var valid = false;
@@ -2177,57 +2246,40 @@
                 }
                 if (valid) {
                     settingsKeyVerified = true;
-                    document.getElementById('settingsKeyVerified').style.display = 'block';
-                    document.getElementById('settingsMenus').style.display = 'block';
-                    document.getElementById('settingsKeyStatus').innerHTML = '✅ Key aksi valid! Menu settings terbuka.';
-                    showAlert('Berhasil', 'Key aksi valid!', 'success');
-                    loadActionKeys();
-                    loadWhitelistIP();
-                    loadWhitelistFP();
-                    loadAdminInfo();
+                    document.getElementById('settingsKeyCard').style.display = 'none';
+                    document.getElementById('settingsContent').style.display = 'block';
+                    document.getElementById('settingsActionKey').value = '';
+                    showAlert('Berhasil', 'Key aksi valid! Pengaturan terbuka.', 'success');
+                    loadSettings();
                 } else {
-                    settingsKeyVerified = false;
-                    document.getElementById('settingsKeyStatus').innerHTML = '❌ Key aksi salah!';
                     showAlert('Error', 'Key aksi salah!', 'error');
                 }
-            }).catch(function(e) {
-                document.getElementById('settingsKeyStatus').innerHTML = '❌ Error: ' + e.message;
-                showAlert('Error', e.message, 'error');
             });
         }
 
-        function loadAdminInfo() {
+        function loadSettings() {
+            if (!settingsKeyVerified) return;
             apiCall('admin/auth', 'GET').then(function(r) {
                 if (r) {
                     var email = r.email || '••••••••@••••••••';
                     var pass = r.password || '••••••••';
                     document.getElementById('settingsEmail').value = email;
                     document.getElementById('settingsPassword').value = pass;
+                    document.getElementById('displayAdminKey').value = pass;
                 }
             });
-        }
-
-        function loadSettings() {
-            if (settingsKeyVerified) {
-                loadAdminInfo();
-                loadActionKeys();
-                loadWhitelistIP();
-                loadWhitelistFP();
-                document.getElementById('settingsMenus').style.display = 'block';
-                document.getElementById('settingsKeyVerified').style.display = 'block';
-            } else {
-                document.getElementById('settingsMenus').style.display = 'none';
-                document.getElementById('settingsKeyVerified').style.display = 'none';
-                document.getElementById('settingsKeyStatus').innerHTML = '';
-            }
+            loadActionKeys();
+            loadWhitelistIP();
+            loadWhitelistFP();
             checkActionKeyExists();
+            loadServerKeyFromStorage();
         }
 
         function togglePassword() {
             var el = document.getElementById('settingsPassword');
             var icon = document.getElementById('togglePassIcon');
             if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu untuk melihat password!', 'error');
+                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
             if (el.type === 'password') {
@@ -2241,7 +2293,6 @@
             }
         }
 
-        // ==================== CHANGE EMAIL ====================
         function openChangeEmailModal() {
             if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
@@ -2260,11 +2311,10 @@
             apiCall('admin/update_email', 'PATCH', { email: email }).then(function() {
                 showAlert('Berhasil', 'Email berhasil diupdate!', 'success');
                 closeModal('changeEmailModal');
-                loadAdminInfo();
+                loadSettings();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
-        // ==================== CHANGE PASSWORD ====================
         function openChangePasswordModal() {
             if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
@@ -2287,11 +2337,10 @@
             apiCall('admin/update_password', 'PATCH', { password: pass }).then(function() {
                 showAlert('Berhasil', 'Password berhasil diupdate!', 'success');
                 closeModal('changePasswordModal');
-                loadAdminInfo();
+                loadSettings();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
-        // ==================== KEY AKSI ====================
         function checkActionKeyExists() {
             if (actionKeyChecked) return;
             apiCall('action_keys', 'GET').then(function(data) {
@@ -2329,7 +2378,7 @@
 
         function loadActionKeys() {
             if (!settingsKeyVerified) {
-                document.getElementById('actionKeysTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr>';
+                document.getElementById('actionKeysTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
                 return;
             }
             apiCall('action_keys', 'GET').then(function(data) {
@@ -2366,7 +2415,6 @@
             });
         }
 
-        // ==================== IP WHITELIST ====================
         function addWhitelistIP() {
             if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
@@ -2384,7 +2432,7 @@
 
         function loadWhitelistIP() {
             if (!settingsKeyVerified) {
-                document.getElementById('ipWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr>';
+                document.getElementById('ipWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
                 return;
             }
             apiCall('ip_whitelist', 'GET').then(function(data) {
@@ -2412,7 +2460,6 @@
             });
         }
 
-        // ==================== FP WHITELIST ====================
         function addWhitelistFP() {
             if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
@@ -2430,7 +2477,7 @@
 
         function loadWhitelistFP() {
             if (!settingsKeyVerified) {
-                document.getElementById('fpWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr>';
+                document.getElementById('fpWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
                 return;
             }
             apiCall('fp_whitelist', 'GET').then(function(data) {
@@ -2459,6 +2506,50 @@
             });
         }
 
+        function getAdminKeyFromServer() {
+            if (!currentAdmin) {
+                document.getElementById('serverKeyStatus').innerHTML = 'Login dulu!';
+                showAlert('Error', 'Login terlebih dahulu!', 'error');
+                return;
+            }
+            
+            try {
+                document.getElementById('serverKeyStatus').innerHTML = 'Mengambil key dari server...';
+                
+                apiCall('admin/get_key', 'GET', {}).then(function(result) {
+                    if (result && result.adminKey) {
+                        serverAdminKey = result.adminKey;
+                        document.getElementById('serverAdminKey').value = 'Key didapat dari server!';
+                        document.getElementById('serverKeyStatus').innerHTML = 'Key berhasil diambil dari server!';
+                        showAlert('Berhasil', 'Admin Key berhasil diambil dari server!', 'success');
+                        localStorage.setItem('server_admin_key', result.adminKey);
+                    } else {
+                        document.getElementById('serverKeyStatus').innerHTML = 'Gagal mengambil key!';
+                        showAlert('Error', 'Gagal mengambil key dari server!', 'error');
+                    }
+                });
+            } catch(e) {
+                document.getElementById('serverKeyStatus').innerHTML = 'Error: ' + e.message;
+                showAlert('Error', e.message, 'error');
+            }
+        }
+
+        function clearServerKey() {
+            serverAdminKey = null;
+            localStorage.removeItem('server_admin_key');
+            document.getElementById('serverAdminKey').value = 'Belum login';
+            document.getElementById('serverKeyStatus').innerHTML = 'Key dihapus dari memori.';
+            showAlert('Info', 'Key berhasil dihapus.', 'info');
+        }
+
+        function loadServerKeyFromStorage() {
+            var saved = localStorage.getItem('server_admin_key');
+            if (saved) {
+                document.getElementById('serverAdminKey').value = 'Key tersedia (dari penyimpanan)';
+                document.getElementById('serverKeyStatus').innerHTML = 'Key tersedia di localStorage (terenkripsi)';
+            }
+        }
+
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', async function() {
             document.querySelectorAll('.modal').forEach(function(m) {
@@ -2475,10 +2566,6 @@
                 if (e.key === 'Enter') verifyKey();
             });
 
-            document.getElementById('settingsAccessKey').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') verifySettingsAccessKey();
-            });
-
             document.addEventListener('click', function() {
                 if (currentAdmin && sessionTimer) {
                     clearTimeout(sessionTimer);
@@ -2491,7 +2578,6 @@
                 }
             });
 
-            // CEK SESSION SAVED
             var savedSession = localStorage.getItem('sessionId');
             if (savedSession) {
                 sessionId = savedSession;
