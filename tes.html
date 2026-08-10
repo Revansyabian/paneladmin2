@@ -35,7 +35,7 @@
             background: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 50%, #7dd3fc 100%);
             padding: 20px;
         }
-        #keyScreen, #loginScreen {
+        #keyScreen, #loginScreen, #settingsKeyScreen {
             background: #ffffff;
             border-radius: 24px;
             padding: 40px 36px;
@@ -44,20 +44,20 @@
             box-shadow: 0 20px 60px rgba(0, 191, 255, 0.2);
             border: 1px solid rgba(0, 191, 255, 0.1);
         }
-        #keyScreen .logo, #loginScreen .logo {
+        #keyScreen .logo, #loginScreen .logo, #settingsKeyScreen .logo {
             text-align: center;
             font-size: 32px;
             color: var(--blue);
             margin-bottom: 8px;
         }
-        #keyScreen h2, #loginScreen h2 {
+        #keyScreen h2, #loginScreen h2, #settingsKeyScreen h2 {
             text-align: center;
             font-size: 24px;
             font-weight: 700;
             color: #0c4a6e;
             margin-bottom: 4px;
         }
-        #keyScreen p, #loginScreen p {
+        #keyScreen p, #loginScreen p, #settingsKeyScreen p {
             text-align: center;
             font-size: 14px;
             color: #64748b;
@@ -601,25 +601,21 @@
         .status-badge.banned { background: #fef2f2; color: #dc2626; border: 1px solid #dc2626; }
         .status-badge.banakses { background: #fffbeb; color: #d97706; border: 1px solid #d97706; }
         .status-badge.force { background: #fff7ed; color: #ea580c; border: 1px solid #ea580c; }
-        .key-verified {
-            background: #ecfdf5;
-            border: 1px solid #10b981;
-            border-radius: var(--radius);
-            padding: 12px;
-            margin-top: 12px;
+        .settings-key-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            z-index: 500;
             display: none;
+            align-items: center;
+            justify-content: center;
         }
-        .key-verified .label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #059669;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .sensor-text {
-            font-family: 'Inter', monospace;
-            letter-spacing: 2px;
-            color: #94a3b8;
+        .settings-key-overlay.show {
+            display: flex;
         }
         @media (max-width: 1024px) {
             .stats { grid-template-columns: repeat(2, 1fr); }
@@ -651,11 +647,26 @@
             .page-header h1 { font-size: 18px; }
             .card { padding: 14px; }
             .modal-box { padding: 18px; }
-            #keyScreen, #loginScreen { padding: 28px 20px; }
+            #keyScreen, #loginScreen, #settingsKeyScreen { padding: 28px 20px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- SETTINGS KEY OVERLAY -->
+    <div class="settings-key-overlay" id="settingsKeyOverlay">
+        <div id="settingsKeyScreen">
+            <div class="logo"><i class="fas fa-key"></i></div>
+            <h2>Verifikasi Key Aksi</h2>
+            <p>Masukkan key aksi untuk mengakses pengaturan</p>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Key Aksi</label>
+                <input type="password" id="settingsActionKeyInput" placeholder="Masukkan key aksi...">
+            </div>
+            <button class="btn btn-primary" onclick="verifySettingsActionKey()"><i class="fas fa-check"></i> Verifikasi</button>
+            <button class="btn btn-outline btn-block" onclick="closeSettingsKeyOverlay()" style="margin-top:8px;"><i class="fas fa-times"></i> Batal</button>
+        </div>
+    </div>
 
     <div id="loginWrapper">
         <div id="keyScreen">
@@ -983,101 +994,83 @@
             <div class="page" id="page-settings">
                 <div class="page-header"><h1><i class="fas fa-cog"></i>Settings</h1></div>
 
-                <!-- VERIFIKASI KEY AKSI -->
-                <div class="card" id="settingsKeyCard">
-                    <div class="card-header"><i class="fas fa-key"></i> Verifikasi Key Aksi</div>
-                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Masukkan key aksi untuk mengakses pengaturan.</p>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-user-shield"></i> Admin Info</div>
                     <div class="input-group">
-                        <label>Key Aksi</label>
+                        <label><i class="fas fa-envelope"></i> Email</label>
                         <div class="input-with-btn">
-                            <input type="password" id="settingsActionKey" placeholder="Masukkan key aksi...">
-                            <button class="btn btn-primary btn-sm" onclick="verifySettingsActionKey()"><i class="fas fa-check"></i> Verifikasi</button>
+                            <input type="text" id="settingsEmail" readonly value="••••••••@••••••••">
+                            <button class="btn btn-outline btn-sm" onclick="openChangeEmailModal()"><i class="fas fa-edit"></i></button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <div class="input-with-btn">
+                            <input type="password" id="settingsPassword" readonly value="••••••••">
+                            <button class="btn btn-outline btn-sm" onclick="togglePassword()"><i class="fas fa-eye" id="togglePassIcon"></i></button>
+                            <button class="btn btn-outline btn-sm" onclick="openChangePasswordModal()"><i class="fas fa-edit"></i></button>
                         </div>
                     </div>
                 </div>
 
-                <!-- SETTINGS CONTENT (HIDDEN UNTIL KEY VERIFIED) -->
-                <div id="settingsContent" style="display:none;">
-
-                    <div class="card">
-                        <div class="card-header"><i class="fas fa-user-shield"></i> Admin Info</div>
-                        <div class="input-group">
-                            <label><i class="fas fa-envelope"></i> Email</label>
-                            <div class="input-with-btn">
-                                <input type="text" id="settingsEmail" readonly value="••••••••@••••••••">
-                                <button class="btn btn-outline btn-sm" onclick="openChangeEmailModal()"><i class="fas fa-edit"></i></button>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label><i class="fas fa-lock"></i> Password</label>
-                            <div class="input-with-btn">
-                                <input type="password" id="settingsPassword" readonly value="••••••••">
-                                <button class="btn btn-outline btn-sm" onclick="togglePassword()"><i class="fas fa-eye" id="togglePassIcon"></i></button>
-                                <button class="btn btn-outline btn-sm" onclick="openChangePasswordModal()"><i class="fas fa-edit"></i></button>
-                            </div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-key"></i> Key Aksi</div>
+                    <div class="input-group">
+                        <label>Admin Key</label>
+                        <input type="text" id="displayAdminKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="••••••••">
+                    </div>
+                    <div class="input-group">
+                        <label>API Key</label>
+                        <input type="text" id="displayApiKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="🔑 API Key tersedia di environment variables">
+                    </div>
+                    <hr style="margin:16px 0;border-color:var(--border);">
+                    <div class="card-header"><i class="fas fa-list"></i> Daftar Key Aksi</div>
+                    <div class="input-group">
+                        <label>Tambah Key Aksi Baru</label>
+                        <div class="input-with-btn">
+                            <input type="text" id="newActionKey" placeholder="Key aksi baru...">
+                            <button class="btn btn-success btn-sm" onclick="addActionKey()"><i class="fas fa-plus"></i> Tambah</button>
                         </div>
                     </div>
+                    <div class="table-wrap"><table><thead><tr><th>Key</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="actionKeysTable"></tbody></table></div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-header"><i class="fas fa-key"></i> Key Aksi</div>
-                        <div class="input-group">
-                            <label>Admin Key</label>
-                            <input type="text" id="displayAdminKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="••••••••">
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-network-wired"></i> IP Whitelist</div>
+                    <div class="input-group">
+                        <label>Tambah IP</label>
+                        <div class="input-with-btn">
+                            <input type="text" id="newWhitelistIP" placeholder="192.168.1.1">
+                            <button class="btn btn-success btn-sm" onclick="addWhitelistIP()"><i class="fas fa-plus"></i> Tambah</button>
                         </div>
-                        <div class="input-group">
-                            <label>API Key</label>
-                            <input type="text" id="displayApiKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="🔑 API Key tersedia di environment variables">
-                        </div>
-                        <hr style="margin:16px 0;border-color:var(--border);">
-                        <div class="card-header"><i class="fas fa-list"></i> Daftar Key Aksi</div>
-                        <div class="input-group">
-                            <label>Tambah Key Aksi Baru</label>
-                            <div class="input-with-btn">
-                                <input type="text" id="newActionKey" placeholder="Key aksi baru...">
-                                <button class="btn btn-success btn-sm" onclick="addActionKey()"><i class="fas fa-plus"></i> Tambah</button>
-                            </div>
-                        </div>
-                        <div class="table-wrap"><table><thead><tr><th>Key</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="actionKeysTable"></tbody></table></div>
                     </div>
+                    <div class="table-wrap"><table><thead><tr><th>IP</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="ipWhitelistTable"></tbody></table></div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-header"><i class="fas fa-network-wired"></i> IP Whitelist</div>
-                        <div class="input-group">
-                            <label>Tambah IP</label>
-                            <div class="input-with-btn">
-                                <input type="text" id="newWhitelistIP" placeholder="192.168.1.1">
-                                <button class="btn btn-success btn-sm" onclick="addWhitelistIP()"><i class="fas fa-plus"></i> Tambah</button>
-                            </div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-fingerprint"></i> Fingerprint Whitelist</div>
+                    <div class="input-group">
+                        <label>Tambah Fingerprint</label>
+                        <div class="input-with-btn">
+                            <input type="text" id="newWhitelistFP" placeholder="a1b2c3d4...">
+                            <button class="btn btn-success btn-sm" onclick="addWhitelistFP()"><i class="fas fa-plus"></i> Tambah</button>
                         </div>
-                        <div class="table-wrap"><table><thead><tr><th>IP</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="ipWhitelistTable"></tbody></table></div>
                     </div>
+                    <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"></tbody></table></div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-header"><i class="fas fa-fingerprint"></i> Fingerprint Whitelist</div>
-                        <div class="input-group">
-                            <label>Tambah Fingerprint</label>
-                            <div class="input-with-btn">
-                                <input type="text" id="newWhitelistFP" placeholder="a1b2c3d4...">
-                                <button class="btn btn-success btn-sm" onclick="addWhitelistFP()"><i class="fas fa-plus"></i> Tambah</button>
-                            </div>
-                        </div>
-                        <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"></tbody></table></div>
+                <div class="card" style="border: 2px solid var(--blue);">
+                    <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> Admin Key dari Server</div>
+                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login.</p>
+                    <div class="input-group">
+                        <label>Session Key (Dari Server)</label>
+                        <input type="text" id="serverAdminKey" readonly value="Belum login" style="background:#f8fafc;padding:12px;border:1px solid var(--border);border-radius:6px;width:100%;">
                     </div>
-
-                    <div class="card" style="border: 2px solid var(--blue);">
-                        <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> Admin Key dari Server</div>
-                        <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login.</p>
-                        <div class="input-group">
-                            <label>Session Key (Dari Server)</label>
-                            <input type="text" id="serverAdminKey" readonly value="Belum login" style="background:#f8fafc;padding:12px;border:1px solid var(--border);border-radius:6px;width:100%;">
-                        </div>
-                        <div style="display:flex;gap:8px;">
-                            <button class="btn btn-primary btn-sm" onclick="getAdminKeyFromServer()" style="flex:1;"><i class="fas fa-download"></i> Ambil Key dari Server</button>
-                            <button class="btn btn-danger btn-sm" onclick="clearServerKey()" style="flex:1;"><i class="fas fa-trash"></i> Hapus Key</button>
-                        </div>
-                        <div id="serverKeyStatus" style="margin-top:10px;font-size:12px;color:var(--sub);"></div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-primary btn-sm" onclick="getAdminKeyFromServer()" style="flex:1;"><i class="fas fa-download"></i> Ambil Key dari Server</button>
+                        <button class="btn btn-danger btn-sm" onclick="clearServerKey()" style="flex:1;"><i class="fas fa-trash"></i> Hapus Key</button>
                     </div>
-
+                    <div id="serverKeyStatus" style="margin-top:10px;font-size:12px;color:var(--sub);"></div>
                 </div>
             </div>
 
@@ -1289,6 +1282,40 @@
             if (m) m.classList.remove('show');
         }
 
+        // ==================== SETTINGS KEY OVERLAY ====================
+        function showSettingsKeyOverlay() {
+            document.getElementById('settingsActionKeyInput').value = '';
+            document.getElementById('settingsKeyOverlay').classList.add('show');
+        }
+
+        function closeSettingsKeyOverlay() {
+            document.getElementById('settingsKeyOverlay').classList.remove('show');
+            document.getElementById('settingsActionKeyInput').value = '';
+        }
+
+        function verifySettingsActionKey() {
+            var key = document.getElementById('settingsActionKeyInput').value.trim();
+            if (!key) { showAlert('Error', 'Masukkan key aksi!', 'error'); return; }
+
+            apiCall('action_keys', 'GET').then(function(data) {
+                var valid = false;
+                for (var k in data) {
+                    if (data[k] && data[k].key === key) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if (valid) {
+                    settingsKeyVerified = true;
+                    closeSettingsKeyOverlay();
+                    showAlert('Berhasil', 'Key aksi valid! Pengaturan terbuka.', 'success');
+                    loadSettings();
+                } else {
+                    showAlert('Error', 'Key aksi salah!', 'error');
+                }
+            });
+        }
+
         // ==================== API CALL ====================
         async function apiCall(path, method, data) {
             if (!fingerprint) fingerprint = await getFingerprint();
@@ -1362,11 +1389,8 @@
 
             if (pageName === 'settings') {
                 if (!settingsKeyVerified) {
-                    document.getElementById('settingsContent').style.display = 'none';
-                    document.getElementById('settingsKeyCard').style.display = 'block';
+                    showSettingsKeyOverlay();
                 } else {
-                    document.getElementById('settingsKeyCard').style.display = 'none';
-                    document.getElementById('settingsContent').style.display = 'block';
                     loadSettings();
                 }
             }
@@ -1482,9 +1506,7 @@
             localStorage.removeItem('server_admin_key');
             document.getElementById('serverAdminKey').value = 'Belum login';
             document.getElementById('serverKeyStatus').innerHTML = '';
-            document.getElementById('settingsContent').style.display = 'none';
-            document.getElementById('settingsKeyCard').style.display = 'block';
-            document.getElementById('settingsActionKey').value = '';
+            document.getElementById('settingsKeyOverlay').classList.remove('show');
             
             if (sessionTimer) clearTimeout(sessionTimer);
             if (clockInterval) clearInterval(clockInterval);
@@ -2232,31 +2254,6 @@
         }
 
         // ==================== SETTINGS ====================
-        function verifySettingsActionKey() {
-            var key = document.getElementById('settingsActionKey').value.trim();
-            if (!key) { showAlert('Error', 'Masukkan key aksi!', 'error'); return; }
-
-            apiCall('action_keys', 'GET').then(function(data) {
-                var valid = false;
-                for (var k in data) {
-                    if (data[k] && data[k].key === key) {
-                        valid = true;
-                        break;
-                    }
-                }
-                if (valid) {
-                    settingsKeyVerified = true;
-                    document.getElementById('settingsKeyCard').style.display = 'none';
-                    document.getElementById('settingsContent').style.display = 'block';
-                    document.getElementById('settingsActionKey').value = '';
-                    showAlert('Berhasil', 'Key aksi valid! Pengaturan terbuka.', 'success');
-                    loadSettings();
-                } else {
-                    showAlert('Error', 'Key aksi salah!', 'error');
-                }
-            });
-        }
-
         function loadSettings() {
             if (!settingsKeyVerified) return;
             apiCall('admin/auth', 'GET').then(function(r) {
@@ -2564,6 +2561,10 @@
 
             document.getElementById('accessKey').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') verifyKey();
+            });
+
+            document.getElementById('settingsActionKeyInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') verifySettingsActionKey();
             });
 
             document.addEventListener('click', function() {
