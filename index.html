@@ -12,36 +12,26 @@
         :root {
             --sidebar: 240px;
             --nav-height: 60px;
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #eef2ff;
+            --primary: #00BFFF;
+            --primary-dark: #0099CC;
+            --primary-light: #E6F9FF;
             --success: #10b981;
             --success-light: #ecfdf5;
             --danger: #ef4444;
             --danger-light: #fef2f2;
             --warning: #f59e0b;
             --warning-light: #fffbeb;
-            --info: #06b6d4;
-            --info-light: #ecfeff;
-            --purple: #8b5cf6;
-            --purple-light: #f5f3ff;
-            --pink: #ec4899;
-            --pink-light: #fdf2f8;
-            --orange: #f97316;
-            --orange-light: #fff7ed;
-            --teal: #14b8a6;
-            --teal-light: #f0fdfa;
             --border: #e2e8f0;
             --text: #1e293b;
             --sub: #64748b;
-            --radius: 12px;
-            --shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
-            --shadow-lg: 0 20px 60px rgba(99, 102, 241, 0.15);
+            --radius: 10px;
+            --shadow: 0 2px 8px rgba(0, 191, 255, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 191, 255, 0.12);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 50%, #ecfeff 100%);
+            background: #ffffff;
             color: var(--text);
             min-height: 100vh;
         }
@@ -50,40 +40,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 25%, #ec4899 50%, #f59e0b 75%, #10b981 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
+            background: #f8fafc;
             padding: 20px;
         }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
         #keyScreen, #loginScreen, #settingsKeyScreen {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
+            background: #ffffff;
+            border-radius: 16px;
             padding: 40px 36px;
             width: 100%;
             max-width: 400px;
             box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--border);
         }
         #keyScreen .logo, #loginScreen .logo, #settingsKeyScreen .logo {
             text-align: center;
-            font-size: 40px;
+            font-size: 36px;
             color: var(--primary);
             margin-bottom: 8px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
         }
         #keyScreen h2, #loginScreen h2, #settingsKeyScreen h2 {
             text-align: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--text);
             margin-bottom: 4px;
@@ -108,18 +85,18 @@
         .input-group input, .input-group select {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             border-radius: var(--radius);
             font-size: 15px;
             background: #fff;
-            transition: 0.3s;
+            transition: 0.2s;
             font-family: 'Inter', sans-serif;
             outline: none;
             color: var(--text);
         }
         .input-group input:focus, .input-group select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
         }
         .input-group select {
             appearance: none;
@@ -149,27 +126,27 @@
             font-size: 14px;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            transition: 0.3s;
+            transition: 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
-        .btn:hover { transform: translateY(-2px); }
+        .btn:hover { transform: translateY(-1px); }
         .btn:active { transform: translateY(0); }
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            background: var(--primary);
             color: #fff;
             width: 100%;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 191, 255, 0.3);
         }
-        .btn-primary:hover { box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4); }
-        .btn-success { background: linear-gradient(135deg, var(--success) 0%, var(--teal) 100%); color: #fff; }
-        .btn-danger { background: linear-gradient(135deg, var(--danger) 0%, var(--pink) 100%); color: #fff; }
-        .btn-warning { background: linear-gradient(135deg, var(--warning) 0%, var(--orange) 100%); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 16px rgba(0, 191, 255, 0.4); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-warning { background: var(--warning); color: #fff; }
         .btn-outline {
             background: #fff;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             color: var(--text);
         }
         .btn-outline:hover { border-color: var(--primary); background: var(--primary-light); }
@@ -179,7 +156,7 @@
         #appContainer {
             display: none;
             min-height: 100vh;
-            background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 50%, #ecfeff 100%);
+            background: #ffffff;
         }
         .navbar {
             position: fixed;
@@ -187,15 +164,14 @@
             left: 0;
             right: 0;
             height: var(--nav-height);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: #ffffff;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 20px;
             z-index: 100;
-            box-shadow: var(--shadow);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         }
         .navbar-brand {
             font-weight: 700;
@@ -207,13 +183,8 @@
             cursor: pointer;
             text-decoration: none;
         }
-        .navbar-brand i { color: var(--primary); font-size: 22px; }
-        .navbar-brand span { 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        .navbar-brand i { color: var(--primary); font-size: 20px; }
+        .navbar-brand span { color: var(--primary); }
         .navbar-right {
             display: flex;
             align-items: center;
@@ -235,13 +206,13 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            background: var(--primary-light);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
             font-weight: 600;
-            color: #fff;
+            color: var(--primary);
         }
         .navbar-toggle {
             display: none;
@@ -257,8 +228,7 @@
             left: 0;
             width: var(--sidebar);
             height: calc(100vh - var(--nav-height));
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: #ffffff;
             border-right: 1px solid var(--border);
             overflow-y: auto;
             padding: 12px 10px;
@@ -291,18 +261,16 @@
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
         }
         .sidebar-nav a:hover { 
             background: var(--primary-light); 
             color: var(--primary);
-            transform: translateX(4px);
         }
         .sidebar-nav a.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            background: var(--primary);
             color: #fff;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
         .sidebar-nav a i { width: 18px; font-size: 14px; text-align: center; }
         .sidebar-divider {
@@ -325,7 +293,7 @@
             font-size: 13px;
             cursor: pointer;
             border-radius: var(--radius);
-            transition: 0.3s;
+            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -342,9 +310,9 @@
             padding: calc(var(--nav-height) + 20px) 24px 24px;
         }
         .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .page-header {
@@ -374,25 +342,18 @@
             padding: 18px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
-            transition: 0.3s;
+            transition: 0.2s;
         }
         .stat:hover {
-            transform: translateY(-4px);
+            transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        .stat:nth-child(1) { border-top: 3px solid var(--primary); }
-        .stat:nth-child(2) { border-top: 3px solid var(--success); }
-        .stat:nth-child(3) { border-top: 3px solid var(--danger); }
-        .stat:nth-child(4) { border-top: 3px solid var(--warning); }
         .stat .num {
             font-size: 26px;
             font-weight: 700;
             line-height: 1.2;
+            color: var(--primary);
         }
-        .stat:nth-child(1) .num { color: var(--primary); }
-        .stat:nth-child(2) .num { color: var(--success); }
-        .stat:nth-child(3) .num { color: var(--danger); }
-        .stat:nth-child(4) .num { color: var(--warning); }
         .stat .label {
             font-size: 12px;
             color: var(--sub);
@@ -449,11 +410,8 @@
         }
         .badge-red { background: var(--danger-light); color: var(--danger); }
         .badge-yellow { background: var(--warning-light); color: var(--warning); }
-        .badge-orange { background: var(--orange-light); color: var(--orange); }
         .badge-green { background: var(--success-light); color: var(--success); }
         .badge-blue { background: var(--primary-light); color: var(--primary); }
-        .badge-purple { background: var(--purple-light); color: var(--purple); }
-        .badge-pink { background: var(--pink-light); color: var(--pink); }
         .activity-list {
             max-height: 400px;
             overflow-y: auto;
@@ -509,16 +467,10 @@
             border: 1px solid var(--border);
             text-align: center;
             box-shadow: var(--shadow);
-            transition: 0.3s;
+            transition: 0.2s;
         }
-        .web-stat:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .web-stat:nth-child(1) { border-top: 3px solid var(--primary); }
-        .web-stat:nth-child(2) { border-top: 3px solid var(--success); }
-        .web-stat:nth-child(3) { border-top: 3px solid var(--danger); }
-        .web-stat:nth-child(4) { border-top: 3px solid var(--warning); }
-        .web-stat:nth-child(5) { border-top: 3px solid var(--purple); }
-        .web-stat:nth-child(6) { border-top: 3px solid var(--pink); }
-        .web-stat .num { font-size: 22px; font-weight: 700; }
+        .web-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .web-stat .num { font-size: 22px; font-weight: 700; color: var(--primary); }
         .web-stat .label { font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.04em; }
         .dist-grid {
             display: flex;
@@ -531,12 +483,9 @@
             padding: 14px;
             border-radius: var(--radius);
             text-align: center;
+            background: #f8fafc;
         }
-        .dist-item:nth-child(1) { background: var(--success-light); }
-        .dist-item:nth-child(2) { background: var(--danger-light); }
-        .dist-item:nth-child(3) { background: var(--warning-light); }
-        .dist-item:nth-child(4) { background: var(--orange-light); }
-        .dist-item .num { font-size: 20px; font-weight: 700; }
+        .dist-item .num { font-size: 20px; font-weight: 700; color: var(--primary); }
         .dist-item .label { font-size: 11px; color: var(--sub); }
         .modal {
             position: fixed;
@@ -544,15 +493,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.4);
             z-index: 200;
             display: flex;
             align-items: center;
             justify-content: center;
             visibility: hidden;
             opacity: 0;
-            transition: 0.25s;
+            transition: 0.2s;
         }
         .modal.show { visibility: visible; opacity: 1; }
         .modal-box {
@@ -587,7 +535,7 @@
         .modal-close:hover { color: var(--danger); }
         .user-check {
             padding: 10px 12px;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             border-radius: var(--radius);
             cursor: pointer;
             font-size: 13px;
@@ -603,20 +551,19 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.4);
             z-index: 300;
             display: flex;
             align-items: center;
             justify-content: center;
             visibility: hidden;
             opacity: 0;
-            transition: 0.25s;
+            transition: 0.2s;
         }
         .alert-overlay.show { visibility: visible; opacity: 1; }
         .alert-box {
             background: #fff;
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 32px;
             text-align: center;
             width: 92%;
@@ -624,7 +571,7 @@
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--border);
         }
-        .alert-box .icon { font-size: 56px; margin-bottom: 12px; }
+        .alert-box .icon { font-size: 48px; margin-bottom: 12px; }
         .alert-box .title { font-weight: 700; font-size: 18px; margin-bottom: 4px; color: var(--text); }
         .alert-box .msg { font-size: 14px; color: var(--sub); }
         .confirm-overlay {
@@ -633,8 +580,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.4);
             z-index: 250;
             display: none;
             align-items: center;
@@ -672,15 +618,14 @@
         }
         .status-badge.banned { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); }
         .status-badge.banakses { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); }
-        .status-badge.force { background: var(--orange-light); color: var(--orange); border: 1px solid var(--orange); }
+        .status-badge.force { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); }
         .settings-key-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(6px);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 500;
             display: none;
             align-items: center;
@@ -759,7 +704,7 @@
 
     <div id="loginWrapper">
         <div id="keyScreen">
-            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo"><i class="fas fa-key"></i></div>
             <h2>Admin Access</h2>
             <p>Masukkan key untuk melanjutkan</p>
             <div class="input-group">
@@ -769,7 +714,7 @@
             <button class="btn btn-primary" onclick="verifyKey()"><i class="fas fa-arrow-right"></i> Verifikasi</button>
         </div>
         <div id="loginScreen" style="display:none;">
-            <div class="logo"><i class="fas fa-user-shield"></i></div>
+            <div class="logo"><i class="fas fa-user"></i></div>
             <h2>Admin Login</h2>
             <p>Masukkan email & password</p>
             <div class="input-group">
@@ -788,7 +733,7 @@
 
         <nav class="navbar">
             <button class="navbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <a href="#" class="navbar-brand" onclick="switchPage('dashboard')"><i class="fas fa-shield-alt"></i> Revan<span>Store</span></a>
+            <a href="#" class="navbar-brand" onclick="switchPage('dashboard')"><i class="fas fa-cube"></i> Revan<span>Store</span></a>
             <div class="navbar-right">
                 <span class="navbar-clock" id="clockDisplay"><i class="far fa-clock"></i> --:--</span>
                 <div class="navbar-user">
@@ -807,9 +752,9 @@
                 <div class="label"><i class="fas fa-user-cog"></i> Manajemen</div>
                 <a data-page="ban-user" onclick="switchPage('ban-user')"><i class="fas fa-ban"></i> Banned User</a>
                 <a data-page="unbanned-users" onclick="switchPage('unbanned-users')"><i class="fas fa-check-circle"></i> Unban User</a>
-                <a data-page="banakses-users" onclick="switchPage('banakses-users')"><i class="fas fa-shield-alt"></i> Ban Akses</a>
+                <a data-page="banakses-users" onclick="switchPage('banakses-users')"><i class="fas fa-lock"></i> Ban Akses</a>
                 <a data-page="unbanakses-users" onclick="switchPage('unbanakses-users')"><i class="fas fa-check-circle"></i> Unban Akses</a>
-                <a data-page="force-users" onclick="switchPage('force-users')"><i class="fas fa-eject"></i> Tangguhkan</a>
+                <a data-page="force-users" onclick="switchPage('force-users')"><i class="fas fa-pause-circle"></i> Tangguhkan</a>
                 <a data-page="unforce-users" onclick="switchPage('unforce-users')"><i class="fas fa-check-circle"></i> Lepas Tangguh</a>
                 <a data-page="problem-users" onclick="switchPage('problem-users')"><i class="fas fa-exclamation-triangle"></i> User Bermasalah</a>
                 <div class="sidebar-divider"></div>
@@ -842,9 +787,9 @@
                 </div>
                 <div class="stats">
                     <div class="stat"><div class="num" id="statTotal">0</div><div class="label"><i class="fas fa-users"></i> Total User</div></div>
-                    <div class="stat"><div class="num" id="statActive">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
-                    <div class="stat"><div class="num" id="statBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
-                    <div class="stat"><div class="num" id="statForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                    <div class="stat"><div class="num" style="color:var(--success);" id="statActive">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
+                    <div class="stat"><div class="num" style="color:var(--danger);" id="statBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
+                    <div class="stat"><div class="num" style="color:var(--warning);" id="statForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                 </div>
 
                 <div class="card">
@@ -852,8 +797,8 @@
                     <div style="display:flex;flex-direction:column;gap:6px;">
                         <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-check" style="color:var(--success);"></i> User Aktif</span><span style="font-weight:700;color:var(--success);" id="ringkasanAktif">0</span></div>
                         <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-slash" style="color:var(--danger);"></i> User Banned</span><span style="font-weight:700;color:var(--danger);" id="ringkasanBanned">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-shield-alt" style="color:var(--warning);"></i> Ban Akses</span><span style="font-weight:700;color:var(--warning);" id="ringkasanBanAkses">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:var(--orange);"></i> Tangguhkan</span><span style="font-weight:700;color:var(--orange);" id="ringkasanForce">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-lock" style="color:var(--warning);"></i> Ban Akses</span><span style="font-weight:700;color:var(--warning);" id="ringkasanBanAkses">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:var(--warning);"></i> Tangguhkan</span><span style="font-weight:700;color:var(--warning);" id="ringkasanForce">0</span></div>
                     </div>
                 </div>
 
@@ -926,7 +871,7 @@
 
             <!-- BAN AKSES -->
             <div class="page" id="page-banakses-users">
-                <div class="page-header"><h1><i class="fas fa-shield-alt"></i>Ban Akses</h1><p>User yang belum di-ban akses</p></div>
+                <div class="page-header"><h1><i class="fas fa-lock"></i>Ban Akses</h1><p>User yang belum di-ban akses</p></div>
                 <div class="card">
                     <div class="table-wrap">
                         <table>
@@ -934,7 +879,7 @@
                             <tbody id="banaksesUsersTable"></tbody>
                         </table>
                     </div>
-                    <div class="empty-state" id="banaksesUsersEmpty" style="display:none;"><i class="fas fa-shield-alt"></i> Semua user sudah di-ban akses</div>
+                    <div class="empty-state" id="banaksesUsersEmpty" style="display:none;"><i class="fas fa-lock"></i> Semua user sudah di-ban akses</div>
                 </div>
             </div>
 
@@ -954,7 +899,7 @@
 
             <!-- TANGGUHKAN -->
             <div class="page" id="page-force-users">
-                <div class="page-header"><h1><i class="fas fa-eject"></i>Tangguhkan User</h1><p>User yang belum ditangguhkan</p></div>
+                <div class="page-header"><h1><i class="fas fa-pause-circle"></i>Tangguhkan User</h1><p>User yang belum ditangguhkan</p></div>
                 <div class="card">
                     <div class="table-wrap">
                         <table>
@@ -962,7 +907,7 @@
                             <tbody id="forceUsersTable"></tbody>
                         </table>
                     </div>
-                    <div class="empty-state" id="forceUsersEmpty" style="display:none;"><i class="fas fa-eject"></i> Semua user sudah ditangguhkan</div>
+                    <div class="empty-state" id="forceUsersEmpty" style="display:none;"><i class="fas fa-pause-circle"></i> Semua user sudah ditangguhkan</div>
                 </div>
             </div>
 
@@ -1022,19 +967,19 @@
                 <div class="page-header"><h1><i class="fas fa-chart-bar"></i>Statistik Web</h1></div>
                 <div class="web-stats">
                     <div class="web-stat"><div class="num" id="webStatTotalUsers">0</div><div class="label"><i class="fas fa-users"></i> Total User</div></div>
-                    <div class="web-stat"><div class="num" id="webStatActiveUsers">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
-                    <div class="web-stat"><div class="num" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
+                    <div class="web-stat"><div class="num" style="color:var(--success);" id="webStatActiveUsers">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
+                    <div class="web-stat"><div class="num" style="color:var(--danger);" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
                     <div class="web-stat"><div class="num" id="webStatTotalLogins">0</div><div class="label"><i class="fas fa-sign-in-alt"></i> Total Login</div></div>
-                    <div class="web-stat"><div class="num" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
-                    <div class="web-stat"><div class="num" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                    <div class="web-stat"><div class="num" style="color:var(--warning);" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-lock"></i> Ban Akses</div></div>
+                    <div class="web-stat"><div class="num" style="color:var(--warning);" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                 </div>
                 <div class="card" style="margin-top:16px;">
                     <div class="card-header"><i class="fas fa-chart-line"></i> Distribusi User</div>
                     <div class="dist-grid">
-                        <div class="dist-item"><div class="num" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
-                        <div class="dist-item"><div class="num" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
-                        <div class="dist-item"><div class="num" id="distBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
-                        <div class="dist-item"><div class="num" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                        <div class="dist-item"><div class="num" style="color:var(--success);" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
+                        <div class="dist-item"><div class="num" style="color:var(--danger);" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
+                        <div class="dist-item"><div class="num" style="color:var(--warning);" id="distBanAkses">0</div><div class="label"><i class="fas fa-lock"></i> Ban Akses</div></div>
+                        <div class="dist-item"><div class="num" style="color:var(--warning);" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                     </div>
                 </div>
             </div>
@@ -1108,7 +1053,7 @@
                 <div class="page-header"><h1><i class="fas fa-cog"></i>Settings</h1></div>
 
                 <div class="card">
-                    <div class="card-header"><i class="fas fa-user-shield"></i> Admin Info</div>
+                    <div class="card-header"><i class="fas fa-user"></i> Admin Info</div>
                     <div class="input-group">
                         <label><i class="fas fa-envelope"></i> Email</label>
                         <div class="input-with-btn">
@@ -1134,7 +1079,7 @@
                     </div>
                     <div class="input-group">
                         <label>API Key</label>
-                        <input type="text" id="displayApiKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="🔑 API Key tersedia di environment variables">
+                        <input type="text" id="displayApiKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="API Key tersedia di environment variables">
                     </div>
                     <hr style="margin:16px 0;border-color:var(--border);">
                     <div class="card-header"><i class="fas fa-list"></i> Daftar Key Aksi</div>
@@ -1313,7 +1258,7 @@
                     icon: type === 'success' ? 'success' : type === 'error' ? 'error' : 'info',
                     title: title,
                     text: msg,
-                    confirmButtonColor: '#6366f1'
+                    confirmButtonColor: '#00BFFF'
                 });
                 return;
             }
@@ -1322,7 +1267,7 @@
             if (type === 'loading') icon.innerHTML = '<div class="spinner"></div>';
             else if (type === 'success') icon.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i>';
             else if (type === 'error') icon.innerHTML = '<i class="fas fa-times-circle" style="color:#ef4444;"></i>';
-            else icon.innerHTML = '<i class="fas fa-info-circle" style="color:#6366f1;"></i>';
+            else icon.innerHTML = '<i class="fas fa-info-circle" style="color:#00BFFF;"></i>';
             overlay.classList.add('show');
             if (type !== 'loading') setTimeout(function() { overlay.classList.remove('show'); }, 2000);
         }
@@ -1523,7 +1468,7 @@
 
         function showBlockedScreen() {
             document.body.innerHTML =
-                '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:rgba(30,41,59,0.9);border-radius:20px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid rgba(239,68,68,0.3);"><div style="font-size:70px;margin-bottom:20px;">🔒</div><h1 style="color:#ef4444;font-size:24px;">AKSES DITOLAK</h1><p style="color:#94a3b8;">Akses Anda telah diblokir permanen.</p></div></div>';
+                '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow-lg);"><div style="font-size:48px;margin-bottom:20px;">🔒</div><h1 style="color:var(--danger);font-size:24px;">AKSES DITOLAK</h1><p style="color:var(--sub);">Akses Anda telah diblokir permanen.</p></div></div>';
         }
 
         // ==================== LOGIN ====================
@@ -1697,7 +1642,7 @@
                 return ['sharing_detected', 'ip_changed', 'fp_changed', 'login_failed'].includes(l.action);
             });
             if (!suspicious.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada aktivitas mencurigakan</div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas mencurigakan</div>';
                 return;
             }
             container.innerHTML = buildLogHTML(suspicious);
@@ -1756,7 +1701,7 @@
                         activityLoaded = false;
                         document.getElementById('activityListContainer').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Log kosong</div>';
                         document.getElementById('allActivityLog').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Log kosong</div>';
-                        document.getElementById('suspiciousActivityLog').innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i> Tidak ada</div>';
+                        document.getElementById('suspiciousActivityLog').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada</div>';
                         hideAlert();
                         showAlert('Berhasil', count + ' log berhasil dihapus permanen!', 'success');
                     });
@@ -1928,7 +1873,7 @@
                 var isSel = selectedBanUser && selectedBanUser.id === u.id;
                 var badges = '';
                 if (u.banAkses) badges += ' <span class="badge badge-yellow">AKSES</span>';
-                if (u.forceLogout) badges += ' <span class="badge badge-orange">FORCE</span>';
+                if (u.forceLogout) badges += ' <span class="badge badge-yellow">FORCE</span>';
                 return '<div class="user-check' + (isSel ? ' selected' : '') + '" onclick="selectBanUser(\'' + u.id + '\')">' +
                     esc(u.username) + ' · ' + esc(u.role) + badges + '</div>';
             }).join('');
@@ -2054,7 +1999,7 @@
                 var badges = '';
                 if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
                 if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
-                if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
+                if (u.forceLogout) badges += '<span class="badge badge-yellow">Tangguh</span> ';
                 var fpDisplay = u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-';
                 return '<tr>' +
                     '<td><b>' + esc(u.username) + '</b></td>' +
@@ -2192,7 +2137,7 @@
                 var badges = '';
                 if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
                 if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
-                if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
+                if (u.forceLogout) badges += '<span class="badge badge-yellow">Tangguh</span> ';
                 return '<tr>' +
                     '<td><b>' + esc(u.username) + '</b></td>' +
                     '<td>' + esc(u.role || '-') + '</td>' +
@@ -2349,9 +2294,9 @@
                         resultEl.className = 'migration-result success';
                         resultEl.style.display = 'block';
                         resultEl.innerHTML = '<i class="fas fa-check-circle"></i> <b>Migrasi berhasil!</b><br>' +
-                            '✅ Berhasil di-hash: <b>' + (result.migrated || 0) + '</b><br>' +
-                            '⏭️ Dilewati (sudah hash): <b>' + (result.skipped || 0) + '</b><br>' +
-                            '❌ Gagal: <b>' + (result.failed || 0) + '</b>';
+                            'Berhasil di-hash: <b>' + (result.migrated || 0) + '</b><br>' +
+                            'Dilewati (sudah hash): <b>' + (result.skipped || 0) + '</b><br>' +
+                            'Gagal: <b>' + (result.failed || 0) + '</b>';
                         showAlert('Berhasil', 'Migrasi password selesai!', 'success');
                         loadUsers();
                     } else {
