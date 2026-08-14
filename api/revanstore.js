@@ -1,7 +1,17 @@
 import CryptoJS from 'crypto-js';
 import admin from 'firebase-admin';
+import bcrypt from 'bcryptjs';
 
 const ADMIN_KEY = process.env.ADMIN_KEY;
+if (!ADMIN_KEY) {
+    throw new Error('ADMIN_KEY is required!');
+}
+
+const SALT_ROUNDS = 12;
+const SESSION_DURATION = 3600000; // 1 jam
+const SESSION_EXTEND_THRESHOLD = 300000; // 5 menit
+const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_WINDOW = 60000;
 
 if (!admin.apps.length) {
     const key = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
@@ -16,17 +26,76 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
-const rateLimitMap = new Map();
-const RATE_LIMIT_MAX = 30;
-const RATE_LIMIT_WINDOW = 60000;
 
-function checkRateLimit(ip) {
+// ==================== PASSWORD FUNCTIONS ====================
+async function hashPassword(password) {
+    try {
+        const salt = await bcrypt.genSalt(SALT_ROUNDS);
+        return await bcrypt.hash(password, salt);
+    } catch (e) {
+        console.error('Error hashing password:', e);
+        return null;
+    }
+}
+
+async function verifyPassword(password, hash) {
+    try {
+        return await bcrypt.compare(password, hash);
+    } catch (e) {
+        console.error('Error verifying password:', e);
+        return false;
+    }
+}
+
+// ==================== RATE LIMITING (FIREBASE-BASED) ====================
+async function checkRateLimit(ip) {
+    const key = ip.replace(/\./g, '_');
+    const ref = db.ref('rate_limits/' + key);
+    const snap = await ref.once('value');
+    const raw = snap.val();
     const now = Date.now();
-    if (!rateLimitMap.has(ip)) rateLimitMap.set(ip, []);
-    const requests = rateLimitMap.get(ip).filter(t => now - t < RATE_LIMIT_WINDOW);
-    if (requests.length >= RATE_LIMIT_MAX) return false;
-    requests.push(now);
-    rateLimitMap.set(ip, requests);
+    
+    if (raw && raw.data) {
+        try {
+            const data = decryptData(raw.data);
+            if (now - (data.timestamp || 0) < RATE_LIMIT_WINDOW) {
+                if ((data.count || 0) >= RATE_LIMIT_MAX) return false;
+                data.count = (data.count || 0) + 1;
+                await ref.set({ data: encryptData(data) });
+                return true;
+            }
+        } catch (e) {}
+    }
+    
+    await ref.set({ data: encryptData({ count: 1, timestamp: now }) });
+    return true;
+}
+
+// ==================== INPUT SANITIZATION ====================
+function sanitizeInput(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .replace(/`/g, '&#96;');
+}
+
+// ==================== DATA VALIDATION ====================
+function validateData(path, data) {
+    if (!data || typeof data !== 'object') return false;
+    
+    if (path === 'users' || path.startsWith('users/')) {
+        if (data.username !== undefined && (typeof data.username !== 'string' || data.username.length < 3)) return false;
+        if (data.password !== undefined && (typeof data.password !== 'string' || data.password.length < 6)) return false;
+    }
+    
+    if (path === 'transactions') {
+        if (data.amount !== undefined && (typeof data.amount !== 'number' || data.amount <= 0)) return false;
+        if (data.type !== undefined && !['topup', 'kuras', 'gantinama'].includes(data.type)) return false;
+    }
+    
     return true;
 }
 
@@ -51,7 +120,7 @@ async function createSession(email, ip, fp) {
         ip: ip,
         fingerprint: fp || '',
         created: Date.now(),
-        expires: Date.now() + 3600000 // 1 JAM
+        expires: Date.now() + SESSION_DURATION
     };
     
     const enc = encryptData(sessionData);
@@ -103,23 +172,60 @@ async function cleanupExpiredSessions() {
     } catch (e) {}
 }
 
+async function cleanupOldAttempts() {
+    try {
+        const snap = await db.ref('login_attempts').once('value');
+        const data = snap.val();
+        if (!data) return;
+        const now = Date.now();
+        for (const key in data) {
+            if (data[key] && data[key].data) {
+                try {
+                    const parsed = decryptData(data[key].data);
+                    if (now - (parsed.last_attempt || 0) > 86400000) {
+                        await db.ref('login_attempts/' + key).remove();
+                    }
+                } catch (e) {}
+            }
+        }
+    } catch (e) {}
+}
+
+// ==================== SCHEDULER ====================
+setInterval(cleanupExpiredSessions, 3600000); // Setiap 1 jam
+setInterval(cleanupOldAttempts, 86400000); // Setiap 24 jam
+
 export default async function handler(req, res) {
-    const allowedOrigins = (process.env.ALLOWED_ORIGINS || '*').split(',');
+    const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',');
     const origin = req.headers.origin;
-    if (origin && allowedOrigins.includes(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
-    else if (allowedOrigins.includes('*')) res.setHeader('Access-Control-Allow-Origin', '*');
+    
+    // CORS - Hanya izinkan origin yang terdaftar
+    if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    } else if (!origin) {
+        // Allow same-origin requests (no Origin header)
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    } else {
+        // Tolak origin yang tidak dikenal
+        return res.status(403).json({ error: 'Origin not allowed' });
+    }
+    
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Fingerprint, X-Operator, X-Session');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
     const fp = req.headers['x-fingerprint'] || '';
 
-    if (!checkRateLimit(ip)) {
+    if (!await checkRateLimit(ip)) {
         return res.status(429).json({ error: 'Terlalu banyak request. Coba lagi nanti.' });
     }
 
@@ -140,8 +246,10 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Invalid path' });
         }
 
-        // ==================== CHECK SESSION (EXCEPT LOGIN & AUTH) ====================
-        if (parsed.path !== 'admin/login_success' && parsed.path !== 'admin/auth' && parsed.path !== 'check_blocked' && parsed.path !== 'access_key' && parsed.path !== 'logout') {
+        // ==================== CHECK SESSION ====================
+        const publicPaths = ['admin/login_success', 'admin/auth', 'check_blocked', 'access_key', 'logout', 'login', 'login_failed', 'login_success'];
+        
+        if (!publicPaths.includes(parsed.path)) {
             const sessionId = req.headers['x-session'];
             if (!sessionId) {
                 return res.status(401).json({ error: 'Session required', data: encryptData({ error: 'Unauthorized' }) });
@@ -152,9 +260,9 @@ export default async function handler(req, res) {
                 return res.status(401).json({ error: 'Invalid or expired session', data: encryptData({ error: 'Unauthorized' }) });
             }
             
-            // EXTEND SESSION
-            if (session.expires && Date.now() > session.expires - 300000) {
-                session.expires = Date.now() + 3600000;
+            // Extend session
+            if (session.expires && Date.now() > session.expires - SESSION_EXTEND_THRESHOLD) {
+                session.expires = Date.now() + SESSION_DURATION;
                 const enc = encryptData(session);
                 await db.ref('sessions/' + sessionId).update({ data: enc });
             }
@@ -219,16 +327,14 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData(result) });
         }
 
-        // ==================== LOGIN SUCCESS (BUAT SESSION) ====================
+        // ==================== LOGIN SUCCESS ====================
         if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
             await resetLoginAttempt(ip, fp);
             
-            const email = parsed.data.email || parsed.data.username || 'admin';
+            const email = sanitizeInput(parsed.data.email || parsed.data.username || 'admin');
             
-            // BUAT SESSION
             const sessionId = await createSession(email, ip, fp);
             
-            // HAPUS SESSION LAMA KALO ADA
             const oldSession = req.headers['x-session'];
             if (oldSession) {
                 await destroySession(oldSession);
@@ -253,7 +359,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData(result) });
         }
 
-        // ==================== USER LOGIN ====================
+        // ==================== USER LOGIN (DENGAN BCRYPT) ====================
         if (parsed.path === 'login' && parsed.method === 'POST') {
             if (await isIPBlocked(ip) || (fp && await isFPBlocked(fp))) {
                 const result = { blocked: true, message: 'IP atau Fingerprint diblokir.' };
@@ -267,14 +373,38 @@ export default async function handler(req, res) {
                 return res.status(200).json({ data: encryptData(result) });
             }
 
-            const username = parsed.data.username;
+            const username = sanitizeInput(parsed.data.username);
             const password = parsed.data.password;
             const currentIP = parsed.data.ip || ip;
             const currentFP = parsed.data.fingerprint || fp;
 
             for (const key in users) {
                 const userData = decryptData(users[key].data);
-                if (userData && userData.username === username && userData.password === password) {
+                
+                if (userData && userData.username === username) {
+                    let isPasswordValid = false;
+                    
+                    // Verifikasi password - support hash dan legacy plaintext
+                    if (userData.password_hash) {
+                        isPasswordValid = await verifyPassword(password, userData.password_hash);
+                    } else if (userData.password) {
+                        // Legacy plaintext - temporary support + auto-migrasi
+                        isPasswordValid = (password === userData.password);
+                        
+                        if (isPasswordValid) {
+                            const hashedPassword = await hashPassword(password);
+                            if (hashedPassword) {
+                                const updatedData = { ...userData, password_hash: hashedPassword };
+                                delete updatedData.password;
+                                await db.ref('users/' + key).update({ data: encryptData(updatedData) });
+                                await logActivity(username, 'password_migrated', 'Password di-hash otomatis', currentIP, currentFP);
+                            }
+                        }
+                    }
+                    
+                    if (!isPasswordValid) {
+                        continue; // Password salah, coba user lain
+                    }
 
                     if (userData.banned) {
                         const result = {
@@ -345,7 +475,6 @@ export default async function handler(req, res) {
                     await logActivity(username, 'login_success', 'Login berhasil. IP: ' + currentIP, currentIP, currentFP);
                     await resetLoginAttempt(ip, fp);
 
-                    // BUAT SESSION UNTUK USER
                     const sessionId = await createSession(username, currentIP, currentFP);
 
                     const result = {
@@ -367,6 +496,79 @@ export default async function handler(req, res) {
 
             await logActivity(username, 'login_failed', 'Password salah atau user tidak ditemukan', currentIP, currentFP);
             const result = { success: false, message: 'User tidak ditemukan atau password salah' };
+            return res.status(200).json({ data: encryptData(result) });
+        }
+
+        // ==================== MIGRASI PASSWORD ====================
+        if (parsed.path === 'migrate_passwords' && parsed.method === 'POST') {
+            const snap = await db.ref('users').once('value');
+            const users = snap.val();
+            
+            if (!users) {
+                const result = { success: false, error: 'Tidak ada user untuk dimigrasi' };
+                return res.status(200).json({ data: encryptData(result) });
+            }
+            
+            let migrated = 0;
+            let skipped = 0;
+            let failed = 0;
+            const migratedUsers = [];
+            
+            for (const key in users) {
+                try {
+                    const userData = decryptData(users[key].data);
+                    
+                    if (!userData || !userData.username) {
+                        skipped++;
+                        continue;
+                    }
+                    
+                    // Cek apakah sudah di-hash
+                    if (userData.password_hash) {
+                        skipped++;
+                        continue;
+                    }
+                    
+                    // Cek apakah ada password plaintext
+                    if (!userData.password) {
+                        skipped++;
+                        continue;
+                    }
+                    
+                    // Hash password
+                    const hashedPassword = await hashPassword(userData.password);
+                    if (!hashedPassword) {
+                        failed++;
+                        continue;
+                    }
+                    
+                    // Update data user
+                    const updatedData = { ...userData };
+                    updatedData.password_hash = hashedPassword;
+                    delete updatedData.password;
+                    
+                    await db.ref('users/' + key).update({ data: encryptData(updatedData) });
+                    
+                    migrated++;
+                    migratedUsers.push(userData.username);
+                    
+                    await logActivity(userData.username, 'password_migrated', 'Password di-hash (migrasi massal)', ip, fp);
+                    
+                } catch (e) {
+                    failed++;
+                    console.error('Migrasi error untuk user:', e.message);
+                }
+            }
+            
+            const result = {
+                success: true,
+                migrated: migrated,
+                skipped: skipped,
+                failed: failed,
+                total: Object.keys(users).length,
+                migratedUsers: migratedUsers
+            };
+            
             return res.status(200).json({ data: encryptData(result) });
         }
 
@@ -404,37 +606,13 @@ export default async function handler(req, res) {
         }
 
         if (parsed.path === 'action_keys' && parsed.method === 'POST') {
-            const decryptedKey = decryptData(parsed.data.key);
-            const keyValue = decryptedKey.key;
+            const keyValue = parsed.data.key;
             
             const enc = encryptData({ key: keyValue, createdAt: Date.now() });
             const newRef = ref.push();
             await newRef.set({ data: enc });
             
             return res.status(200).json({ data: encryptData({ success: true, id: newRef.key }) });
-        }
-
-        if (parsed.path === 'action_keys/verify' && parsed.method === 'POST') {
-            const decryptedKey = decryptData(parsed.data.key);
-            const inputKey = decryptedKey.key;
-            
-            const snap = await db.ref('action_keys').once('value');
-            const raw = snap.val();
-            let valid = false;
-            if (raw) {
-                for (const key in raw) {
-                    if (raw[key] && raw[key].data) {
-                        try {
-                            const dec = decryptData(raw[key].data);
-                            if (dec && dec.key === inputKey) {
-                                valid = true;
-                                break;
-                            }
-                        } catch (e) {}
-                    }
-                }
-            }
-            return res.status(200).json({ data: encryptData({ valid: valid }) });
         }
 
         if (parsed.path.startsWith('action_keys/') && parsed.method === 'DELETE') {
@@ -463,7 +641,7 @@ export default async function handler(req, res) {
         }
 
         if (parsed.path === 'ip_whitelist' && parsed.method === 'POST') {
-            const enc = encryptData({ ip: parsed.data.ip, createdAt: Date.now() });
+            const enc = encryptData({ ip: sanitizeInput(parsed.data.ip), createdAt: Date.now() });
             const newRef = ref.push();
             await newRef.set({ data: enc });
             return res.status(200).json({ data: encryptData({ success: true, id: newRef.key }) });
@@ -495,7 +673,7 @@ export default async function handler(req, res) {
         }
 
         if (parsed.path === 'fp_whitelist' && parsed.method === 'POST') {
-            const enc = encryptData({ fp: parsed.data.fp, createdAt: Date.now() });
+            const enc = encryptData({ fp: sanitizeInput(parsed.data.fp), createdAt: Date.now() });
             const newRef = ref.push();
             await newRef.set({ data: enc });
             return res.status(200).json({ data: encryptData({ success: true, id: newRef.key }) });
@@ -507,9 +685,9 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
 
-        // ==================== GET ADMIN KEY UNTUK OPSI 2 ====================
+        // ==================== GET ADMIN KEY ====================
         if (parsed.path === 'admin/get_key' && parsed.method === 'GET') {
-            const result = { adminKey: encryptData(ADMIN_KEY) };
+            const result = { adminKey: ADMIN_KEY };
             return res.status(200).json({ data: encryptData(result) });
         }
 
@@ -533,6 +711,11 @@ export default async function handler(req, res) {
         }
 
         if (parsed.method === 'POST') {
+            // Validasi data
+            if (!validateData(parsed.path, parsed.data)) {
+                return res.status(400).json({ error: 'Invalid data', data: encryptData({ error: 'Data tidak valid' }) });
+            }
+            
             const enc = encryptData(parsed.data);
             const newRef = ref.push();
             await newRef.set({ data: enc });
@@ -543,15 +726,6 @@ export default async function handler(req, res) {
                 const typeText = type === 'topup' ? 'Top Up' : type === 'kuras' ? 'Kuras' : 'Ganti Nama';
                 const amount = parsed.data.amount || 0;
                 await logActivity(operator, type, typeText + ' Rp ' + amount.toLocaleString() + ' ke ' + (parsed.data.accountName || ''), ip, fp);
-            }
-
-            if (parsed.path === 'activity_logs') {
-                await logActivity(
-                    parsed.data.username || 'unknown',
-                    parsed.data.action || 'unknown',
-                    parsed.data.details || '',
-                    ip, fp
-                );
             }
 
             const result = { success: true, id: newRef.key };
@@ -574,6 +748,16 @@ export default async function handler(req, res) {
                     existingData = dec;
                 } catch (e) {}
             }
+            
+            // Jika ada password baru, hash dulu
+            if (parsed.data.password) {
+                const hashedPassword = await hashPassword(parsed.data.password);
+                if (hashedPassword) {
+                    parsed.data.password_hash = hashedPassword;
+                    delete parsed.data.password;
+                }
+            }
+            
             const merged = Object.assign({}, existingData, parsed.data);
             const enc = encryptData(merged);
             await ref.update({ data: enc });
@@ -581,10 +765,11 @@ export default async function handler(req, res) {
             const username = existingData.username || 'unknown';
             if (parsed.data.banned === true) await logActivity(username, 'banned', 'User dibanned', ip, fp);
             if (parsed.data.banned === false) await logActivity(username, 'unbanned', 'User di-unban', ip, fp);
-            if (parsed.data.banAkses === true) await logActivity(username, 'ban_akses', 'Akses user dibanned. Durasi: ' + (parsed.data.banAksesUntil === 0 ? 'Permanen' : new Date(parsed.data.banAksesUntil).toLocaleString('id-ID')), ip, fp);
+            if (parsed.data.banAkses === true) await logActivity(username, 'ban_akses', 'Akses user dibanned', ip, fp);
             if (parsed.data.banAkses === false) await logActivity(username, 'unban_akses', 'Akses user di-unban', ip, fp);
-            if (parsed.data.forceLogout === true) await logActivity(username, 'force_logout', 'User ditangguhkan (force logout)', ip, fp);
+            if (parsed.data.forceLogout === true) await logActivity(username, 'force_logout', 'User ditangguhkan', ip, fp);
             if (parsed.data.forceLogout === false) await logActivity(username, 'unforce_logout', 'Tangguhan dilepas', ip, fp);
+            if (parsed.data.password_hash) await logActivity(username, 'password_changed', 'Password diubah', ip, fp);
 
             return res.status(200).json({ data: encryptData({ success: true }) });
         }
@@ -611,6 +796,7 @@ export default async function handler(req, res) {
     }
 }
 
+// ==================== HELPER FUNCTIONS ====================
 async function isIPBlocked(ip) {
     if (!ip) return false;
     const snap = await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).once('value');
@@ -700,9 +886,9 @@ async function resetLoginAttempt(ip, fp) {
 async function logActivity(username, action, details, ip, fp) {
     try {
         const enc = encryptData({
-            username: username,
-            action: action,
-            details: details || '',
+            username: sanitizeInput(username),
+            action: sanitizeInput(action),
+            details: sanitizeInput(details || ''),
             ip: ip || '',
             fingerprint: fp || '',
             timestamp: Date.now()
@@ -710,59 +896,4 @@ async function logActivity(username, action, details, ip, fp) {
         const newRef = db.ref('activity_logs').push();
         await newRef.set({ data: enc });
     } catch (e) {}
-}
-
-async function cleanupOldAttempts() {
-    try {
-        const snap = await db.ref('login_attempts').once('value');
-        const data = snap.val();
-        if (!data) return;
-        const now = Date.now();
-        for (const key in data) {
-            if (data[key] && data[key].data) {
-                try {
-                    const parsed = decryptData(data[key].data);
-                    if (now - (parsed.last_attempt || 0) > 86400000) {
-                        await db.ref('login_attempts/' + key).remove();
-                    }
-                } catch (e) {}
-            }
-        }
-    } catch (e) {}
-}
-
-async function checkSharingDetection(userData, currentIP, currentFP, userId) {
-    const prevIP = userData.ip || '';
-    const prevFP = userData.fingerprint || '';
-    
-    const ipChanged = prevIP && currentIP && prevIP !== currentIP;
-    const fpChanged = prevFP && currentFP && prevFP !== currentFP;
-    
-    if (ipChanged || fpChanged) {
-        await logActivity(
-            userData.username,
-            fpChanged ? 'fp_changed' : 'ip_changed',
-            'IP: ' + currentIP + ' | FP: ' + (currentFP ? currentFP.substring(0, 12) + '...' : 'none'),
-            currentIP,
-            currentFP
-        );
-        
-        if (ipChanged && fpChanged) {
-            const updatedData = { ...userData, forceLogout: true };
-            const enc = encryptData(updatedData);
-            await db.ref('users/' + userId).update({ data: enc });
-            
-            await logActivity(
-                userData.username,
-                'sharing_detected',
-                'IP & FP berbeda! Auto force logout. IP: ' + currentIP + ', FP: ' + (currentFP ? currentFP.substring(0, 12) + '...' : 'none'),
-                currentIP,
-                currentFP
-            );
-            
-            return true;
-        }
-    }
-    
-    return false;
 }
