@@ -12,19 +12,37 @@
         :root {
             --sidebar: 240px;
             --nav-height: 60px;
-            --blue: #00BFFF;
-            --blue-dark: #0099CC;
-            --blue-light: #E6F9FF;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #eef2ff;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --info: #06b6d4;
+            --info-light: #ecfeff;
+            --purple: #8b5cf6;
+            --purple-light: #f5f3ff;
+            --pink: #ec4899;
+            --pink-light: #fdf2f8;
+            --orange: #f97316;
+            --orange-light: #fff7ed;
+            --teal: #14b8a6;
+            --teal-light: #f0fdfa;
             --border: #e2e8f0;
-            --text: #0c4a6e;
+            --text: #1e293b;
             --sub: #64748b;
-            --radius: 10px;
+            --radius: 12px;
+            --shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+            --shadow-lg: 0 20px 60px rgba(99, 102, 241, 0.15);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: #f0f9ff;
-            color: #0c4a6e;
+            background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 50%, #ecfeff 100%);
+            color: var(--text);
             min-height: 100vh;
         }
         #loginWrapper {
@@ -32,35 +50,48 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 50%, #7dd3fc 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 25%, #ec4899 50%, #f59e0b 75%, #10b981 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
             padding: 20px;
         }
-        #keyScreen, #loginScreen {
-            background: #ffffff;
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        #keyScreen, #loginScreen, #settingsKeyScreen {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             border-radius: 24px;
             padding: 40px 36px;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0, 191, 255, 0.2);
-            border: 1px solid rgba(0, 191, 255, 0.1);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        #keyScreen .logo, #loginScreen .logo {
+        #keyScreen .logo, #loginScreen .logo, #settingsKeyScreen .logo {
             text-align: center;
-            font-size: 32px;
-            color: var(--blue);
+            font-size: 40px;
+            color: var(--primary);
             margin-bottom: 8px;
+            animation: pulse 2s ease-in-out infinite;
         }
-        #keyScreen h2, #loginScreen h2 {
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        #keyScreen h2, #loginScreen h2, #settingsKeyScreen h2 {
             text-align: center;
             font-size: 24px;
             font-weight: 700;
-            color: #0c4a6e;
+            color: var(--text);
             margin-bottom: 4px;
         }
-        #keyScreen p, #loginScreen p {
+        #keyScreen p, #loginScreen p, #settingsKeyScreen p {
             text-align: center;
             font-size: 14px;
-            color: #64748b;
+            color: var(--sub);
             margin-bottom: 24px;
         }
         .input-group { margin-bottom: 16px; }
@@ -68,39 +99,40 @@
             display: block;
             font-size: 12px;
             font-weight: 600;
-            color: #64748b;
+            color: var(--sub);
             margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
-        .input-group label i { margin-right: 6px; color: var(--blue); }
+        .input-group label i { margin-right: 6px; color: var(--primary); }
         .input-group input, .input-group select {
             width: 100%;
-            padding: 12px 0;
-            border: none;
-            border-bottom: 2px solid #e2e8f0;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
             font-size: 15px;
-            background: transparent;
-            transition: 0.2s;
+            background: #fff;
+            transition: 0.3s;
             font-family: 'Inter', sans-serif;
             outline: none;
-            color: #0c4a6e;
+            color: var(--text);
         }
         .input-group input:focus, .input-group select:focus {
-            border-bottom-color: var(--blue);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
         .input-group select {
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
         }
         .input-group input[readonly] {
             background: #f8fafc;
             color: #94a3b8;
             cursor: not-allowed;
-            border-radius: 6px;
-            padding: 12px;
-            border: 1px solid var(--border);
         }
         .input-with-btn {
             display: flex;
@@ -117,40 +149,37 @@
             font-size: 14px;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            transition: 0.2s;
+            transition: 0.3s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
         .btn-primary {
-            background: var(--blue);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
             color: #fff;
             width: 100%;
-            box-shadow: 0 4px 16px rgba(0, 191, 255, 0.3);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
         }
-        .btn-primary:hover {
-            background: var(--blue-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(0, 191, 255, 0.4);
-        }
-        .btn-success { background: #10b981; color: #fff; }
-        .btn-success:hover { background: #059669; transform: translateY(-1px); }
-        .btn-danger { background: #ef4444; color: #fff; }
-        .btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
+        .btn-primary:hover { box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4); }
+        .btn-success { background: linear-gradient(135deg, var(--success) 0%, var(--teal) 100%); color: #fff; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger) 0%, var(--pink) 100%); color: #fff; }
+        .btn-warning { background: linear-gradient(135deg, var(--warning) 0%, var(--orange) 100%); color: #fff; }
         .btn-outline {
             background: #fff;
-            border: 1.5px solid var(--border);
+            border: 2px solid var(--border);
             color: var(--text);
         }
-        .btn-outline:hover { background: var(--blue-light); border-color: var(--blue); }
+        .btn-outline:hover { border-color: var(--primary); background: var(--primary-light); }
         .btn-sm { padding: 6px 14px; font-size: 12px; }
         .btn-xs { padding: 4px 10px; font-size: 11px; }
         .btn-block { width: 100%; }
         #appContainer {
             display: none;
             min-height: 100vh;
-            background: #f0f9ff;
+            background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 50%, #ecfeff 100%);
         }
         .navbar {
             position: fixed;
@@ -158,14 +187,15 @@
             left: 0;
             right: 0;
             height: var(--nav-height);
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 20px;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 191, 255, 0.08);
+            box-shadow: var(--shadow);
         }
         .navbar-brand {
             font-weight: 700;
@@ -177,8 +207,13 @@
             cursor: pointer;
             text-decoration: none;
         }
-        .navbar-brand i { color: var(--blue); font-size: 22px; }
-        .navbar-brand span { color: var(--blue); }
+        .navbar-brand i { color: var(--primary); font-size: 22px; }
+        .navbar-brand span { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
         .navbar-right {
             display: flex;
             align-items: center;
@@ -188,7 +223,7 @@
             font-size: 13px;
             color: var(--sub);
         }
-        .navbar-clock i { margin-right: 4px; color: var(--blue); }
+        .navbar-clock i { margin-right: 4px; color: var(--primary); }
         .navbar-user {
             display: flex;
             align-items: center;
@@ -200,13 +235,13 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: var(--blue-light);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
             font-weight: 600;
-            color: var(--blue);
+            color: #fff;
         }
         .navbar-toggle {
             display: none;
@@ -222,7 +257,8 @@
             left: 0;
             width: var(--sidebar);
             height: calc(100vh - var(--nav-height));
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             border-right: 1px solid var(--border);
             overflow-y: auto;
             padding: 12px 10px;
@@ -241,27 +277,32 @@
             letter-spacing: 0.06em;
             color: var(--sub);
             padding: 10px 12px 4px;
-            opacity: 0.5;
+            opacity: 0.6;
         }
         .sidebar-nav .label i { margin-right: 4px; }
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-radius: var(--radius);
             color: var(--sub);
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s;
         }
-        .sidebar-nav a:hover { background: var(--blue-light); color: var(--blue); }
+        .sidebar-nav a:hover { 
+            background: var(--primary-light); 
+            color: var(--primary);
+            transform: translateX(4px);
+        }
         .sidebar-nav a.active {
-            background: var(--blue-light);
-            color: var(--blue);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            color: #fff;
             font-weight: 600;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
         .sidebar-nav a i { width: 18px; font-size: 14px; text-align: center; }
         .sidebar-divider {
@@ -276,7 +317,7 @@
         }
         .sidebar-footer .logout-btn {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: none;
             background: transparent;
             color: var(--sub);
@@ -284,15 +325,15 @@
             font-size: 13px;
             cursor: pointer;
             border-radius: var(--radius);
-            transition: 0.2s;
+            transition: 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
         }
         .sidebar-footer .logout-btn:hover {
-            background: #fef2f2;
-            color: #dc2626;
+            background: var(--danger-light);
+            color: var(--danger);
         }
         .main-content {
             margin-left: var(--sidebar);
@@ -301,7 +342,11 @@
             padding: calc(var(--nav-height) + 20px) 24px 24px;
         }
         .page { display: none; }
-        .page.active { display: block; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .page-header {
             display: flex;
             align-items: center;
@@ -315,7 +360,7 @@
             font-weight: 700;
             color: var(--text);
         }
-        .page-header h1 i { color: var(--blue); margin-right: 8px; }
+        .page-header h1 i { color: var(--primary); margin-right: 8px; }
         .page-header p { font-size: 14px; color: var(--sub); }
         .stats {
             display: grid;
@@ -324,18 +369,30 @@
             margin-bottom: 20px;
         }
         .stat {
-            background: #ffffff;
+            background: #fff;
             border-radius: var(--radius);
-            padding: 16px 18px;
+            padding: 18px;
             border: 1px solid var(--border);
-            box-shadow: 0 2px 8px rgba(0, 191, 255, 0.06);
+            box-shadow: var(--shadow);
+            transition: 0.3s;
         }
+        .stat:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat:nth-child(1) { border-top: 3px solid var(--primary); }
+        .stat:nth-child(2) { border-top: 3px solid var(--success); }
+        .stat:nth-child(3) { border-top: 3px solid var(--danger); }
+        .stat:nth-child(4) { border-top: 3px solid var(--warning); }
         .stat .num {
             font-size: 26px;
             font-weight: 700;
             line-height: 1.2;
-            color: var(--blue);
         }
+        .stat:nth-child(1) .num { color: var(--primary); }
+        .stat:nth-child(2) .num { color: var(--success); }
+        .stat:nth-child(3) .num { color: var(--danger); }
+        .stat:nth-child(4) .num { color: var(--warning); }
         .stat .label {
             font-size: 12px;
             color: var(--sub);
@@ -344,12 +401,12 @@
             letter-spacing: 0.04em;
         }
         .card {
-            background: #ffffff;
+            background: #fff;
             border-radius: var(--radius);
             padding: 18px 20px;
             border: 1px solid var(--border);
             margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0, 191, 255, 0.06);
+            box-shadow: var(--shadow);
         }
         .card-header {
             font-weight: 600;
@@ -362,38 +419,41 @@
             gap: 8px;
             color: var(--text);
         }
-        .card-header i { margin-right: 6px; color: var(--blue); }
+        .card-header i { margin-right: 6px; color: var(--primary); }
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th {
             text-align: left;
-            padding: 8px 10px;
+            padding: 10px 12px;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             color: var(--sub);
             border-bottom: 2px solid var(--border);
+            background: #f8fafc;
         }
         td {
-            padding: 8px 10px;
+            padding: 10px 12px;
             font-size: 13px;
             border-bottom: 1px solid var(--border);
         }
-        tr:hover { background: var(--blue-light); }
+        tr:hover { background: var(--primary-light); }
         .badge {
             display: inline-block;
-            padding: 2px 10px;
+            padding: 3px 12px;
             border-radius: 20px;
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
         }
-        .badge-red { background: #fef2f2; color: #dc2626; }
-        .badge-yellow { background: #fffbeb; color: #d97706; }
-        .badge-orange { background: #fff7ed; color: #ea580c; }
-        .badge-green { background: #ecfdf5; color: #16a34a; }
-        .badge-blue { background: var(--blue-light); color: var(--blue); }
+        .badge-red { background: var(--danger-light); color: var(--danger); }
+        .badge-yellow { background: var(--warning-light); color: var(--warning); }
+        .badge-orange { background: var(--orange-light); color: var(--orange); }
+        .badge-green { background: var(--success-light); color: var(--success); }
+        .badge-blue { background: var(--primary-light); color: var(--primary); }
+        .badge-purple { background: var(--purple-light); color: var(--purple); }
+        .badge-pink { background: var(--pink-light); color: var(--pink); }
         .activity-list {
             max-height: 400px;
             overflow-y: auto;
@@ -405,27 +465,28 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-radius: var(--radius);
             background: #f8fafc;
             font-size: 13px;
+            transition: 0.2s;
         }
-        .activity-item:hover { background: var(--blue-light); }
-        .activity-item.suspicious { background: #fef2f2; }
+        .activity-item:hover { background: var(--primary-light); }
+        .activity-item.suspicious { background: var(--danger-light); }
         .activity-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .activity-dot.login_success { background: #10b981; }
-        .activity-dot.login_failed { background: #ef4444; }
-        .activity-dot.banned, .activity-dot.ban_akses { background: #ef4444; }
-        .activity-dot.unbanned, .activity-dot.unban_akses { background: #10b981; }
-        .activity-dot.force_logout { background: #f59e0b; }
-        .activity-dot.unforce_logout { background: #10b981; }
-        .activity-dot.sharing_detected { background: #ef4444; }
-        .activity-dot.topup { background: var(--blue); }
+        .activity-dot.login_success { background: var(--success); }
+        .activity-dot.login_failed { background: var(--danger); }
+        .activity-dot.banned, .activity-dot.ban_akses { background: var(--danger); }
+        .activity-dot.unbanned, .activity-dot.unban_akses { background: var(--success); }
+        .activity-dot.force_logout { background: var(--warning); }
+        .activity-dot.unforce_logout { background: var(--success); }
+        .activity-dot.sharing_detected { background: var(--danger); }
+        .activity-dot.topup { background: var(--primary); }
         .activity-info { flex: 1; }
         .activity-user { font-weight: 600; }
         .activity-desc { color: var(--sub); }
@@ -435,21 +496,29 @@
             padding: 40px 20px;
             color: var(--sub);
         }
-        .empty-state i { font-size: 32px; opacity: 0.3; display: block; margin-bottom: 8px; color: var(--blue); }
+        .empty-state i { font-size: 32px; opacity: 0.3; display: block; margin-bottom: 8px; color: var(--primary); }
         .web-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 14px;
         }
         .web-stat {
-            background: #ffffff;
+            background: #fff;
             border-radius: var(--radius);
-            padding: 16px;
+            padding: 18px;
             border: 1px solid var(--border);
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 191, 255, 0.06);
+            box-shadow: var(--shadow);
+            transition: 0.3s;
         }
-        .web-stat .num { font-size: 22px; font-weight: 700; color: var(--blue); }
+        .web-stat:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .web-stat:nth-child(1) { border-top: 3px solid var(--primary); }
+        .web-stat:nth-child(2) { border-top: 3px solid var(--success); }
+        .web-stat:nth-child(3) { border-top: 3px solid var(--danger); }
+        .web-stat:nth-child(4) { border-top: 3px solid var(--warning); }
+        .web-stat:nth-child(5) { border-top: 3px solid var(--purple); }
+        .web-stat:nth-child(6) { border-top: 3px solid var(--pink); }
+        .web-stat .num { font-size: 22px; font-weight: 700; }
         .web-stat .label { font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.04em; }
         .dist-grid {
             display: flex;
@@ -459,11 +528,14 @@
         .dist-item {
             flex: 1;
             min-width: 80px;
-            padding: 12px;
+            padding: 14px;
             border-radius: var(--radius);
             text-align: center;
-            background: #f8fafc;
         }
+        .dist-item:nth-child(1) { background: var(--success-light); }
+        .dist-item:nth-child(2) { background: var(--danger-light); }
+        .dist-item:nth-child(3) { background: var(--warning-light); }
+        .dist-item:nth-child(4) { background: var(--orange-light); }
         .dist-item .num { font-size: 20px; font-weight: 700; }
         .dist-item .label { font-size: 11px; color: var(--sub); }
         .modal {
@@ -472,7 +544,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(15, 23, 42, 0.5);
             backdrop-filter: blur(4px);
             z-index: 200;
             display: flex;
@@ -484,15 +556,15 @@
         }
         .modal.show { visibility: visible; opacity: 1; }
         .modal-box {
-            background: #ffffff;
+            background: #fff;
             border-radius: 16px;
             padding: 24px;
             width: 92%;
             max-width: 480px;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 191, 255, 0.15);
-            border: 1px solid rgba(0, 191, 255, 0.1);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
         }
         .modal-header {
             display: flex;
@@ -503,7 +575,7 @@
             margin-bottom: 16px;
             color: var(--text);
         }
-        .modal-header i { color: var(--blue); margin-right: 6px; }
+        .modal-header i { color: var(--primary); margin-right: 6px; }
         .modal-close {
             background: none;
             border: none;
@@ -512,10 +584,10 @@
             color: var(--sub);
             padding: 4px;
         }
-        .modal-close:hover { color: var(--text); }
+        .modal-close:hover { color: var(--danger); }
         .user-check {
-            padding: 8px 12px;
-            border: 1.5px solid var(--border);
+            padding: 10px 12px;
+            border: 2px solid var(--border);
             border-radius: var(--radius);
             cursor: pointer;
             font-size: 13px;
@@ -523,15 +595,15 @@
             transition: 0.2s;
             background: #fff;
         }
-        .user-check:hover { background: var(--blue-light); border-color: var(--blue); }
-        .user-check.selected { border-color: var(--blue); background: #dbeafe; }
+        .user-check:hover { background: var(--primary-light); border-color: var(--primary); }
+        .user-check.selected { border-color: var(--primary); background: var(--primary-light); }
         .alert-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(15, 23, 42, 0.5);
             backdrop-filter: blur(4px);
             z-index: 300;
             display: flex;
@@ -543,14 +615,14 @@
         }
         .alert-overlay.show { visibility: visible; opacity: 1; }
         .alert-box {
-            background: #ffffff;
+            background: #fff;
             border-radius: 20px;
             padding: 32px;
             text-align: center;
             width: 92%;
             max-width: 360px;
-            box-shadow: 0 20px 60px rgba(0, 191, 255, 0.15);
-            border: 1px solid rgba(0, 191, 255, 0.1);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
         }
         .alert-box .icon { font-size: 56px; margin-bottom: 12px; }
         .alert-box .title { font-weight: 700; font-size: 18px; margin-bottom: 4px; color: var(--text); }
@@ -561,7 +633,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(15, 23, 42, 0.5);
             backdrop-filter: blur(4px);
             z-index: 250;
             display: none;
@@ -569,21 +641,21 @@
             justify-content: center;
         }
         .confirm-box {
-            background: #ffffff;
+            background: #fff;
             border-radius: 16px;
             padding: 24px;
             width: 92%;
             max-width: 360px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 191, 255, 0.15);
-            border: 1px solid rgba(0, 191, 255, 0.1);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
         }
         .confirm-box .btns { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
         .spinner {
             width: 36px;
             height: 36px;
             border: 3px solid var(--border);
-            border-top-color: var(--blue);
+            border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
             margin: 0 auto;
@@ -591,36 +663,49 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .status-badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 3px 10px;
             border-radius: 4px;
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             margin-left: 6px;
         }
-        .status-badge.banned { background: #fef2f2; color: #dc2626; border: 1px solid #dc2626; }
-        .status-badge.banakses { background: #fffbeb; color: #d97706; border: 1px solid #d97706; }
-        .status-badge.force { background: #fff7ed; color: #ea580c; border: 1px solid #ea580c; }
-        .key-verified {
-            background: #ecfdf5;
-            border: 1px solid #10b981;
-            border-radius: var(--radius);
-            padding: 12px;
-            margin-top: 12px;
+        .status-badge.banned { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); }
+        .status-badge.banakses { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); }
+        .status-badge.force { background: var(--orange-light); color: var(--orange); border: 1px solid var(--orange); }
+        .settings-key-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            z-index: 500;
             display: none;
+            align-items: center;
+            justify-content: center;
         }
-        .key-verified .label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #059669;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+        .settings-key-overlay.show {
+            display: flex;
         }
-        .sensor-text {
-            font-family: 'Inter', monospace;
-            letter-spacing: 2px;
-            color: #94a3b8;
+        .migration-progress {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--primary-light);
+            border-radius: var(--radius);
+            text-align: center;
         }
+        .migration-progress.show { display: block; }
+        .migration-result {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: var(--radius);
+            font-size: 13px;
+        }
+        .migration-result.success { background: var(--success-light); color: var(--success); }
+        .migration-result.error { background: var(--danger-light); color: var(--danger); }
         @media (max-width: 1024px) {
             .stats { grid-template-columns: repeat(2, 1fr); }
             .web-stats { grid-template-columns: repeat(2, 1fr); }
@@ -651,11 +736,26 @@
             .page-header h1 { font-size: 18px; }
             .card { padding: 14px; }
             .modal-box { padding: 18px; }
-            #keyScreen, #loginScreen { padding: 28px 20px; }
+            #keyScreen, #loginScreen, #settingsKeyScreen { padding: 28px 20px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- SETTINGS KEY OVERLAY -->
+    <div class="settings-key-overlay" id="settingsKeyOverlay">
+        <div id="settingsKeyScreen">
+            <div class="logo"><i class="fas fa-key"></i></div>
+            <h2>Verifikasi Key Aksi</h2>
+            <p>Masukkan key aksi untuk mengakses pengaturan</p>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Key Aksi</label>
+                <input type="password" id="settingsActionKeyInput" placeholder="Masukkan key aksi...">
+            </div>
+            <button class="btn btn-primary" onclick="verifySettingsActionKey()"><i class="fas fa-check"></i> Verifikasi</button>
+            <button class="btn btn-outline btn-block" onclick="closeSettingsKeyOverlay()" style="margin-top:8px;"><i class="fas fa-times"></i> Batal</button>
+        </div>
+    </div>
 
     <div id="loginWrapper">
         <div id="keyScreen">
@@ -719,6 +819,9 @@
                 <a data-page="web-stats" onclick="switchPage('web-stats')"><i class="fas fa-chart-bar"></i> Statistik Web</a>
                 <div class="sidebar-divider"></div>
                 <div class="label"><i class="fas fa-cog"></i> Pengaturan</div>
+                <a data-page="maintenance" onclick="switchPage('maintenance')"><i class="fas fa-tools"></i> Maintenance</a>
+                <a data-page="path-manager" onclick="switchPage('path-manager')"><i class="fas fa-route"></i> Path Manager</a>
+                <a data-page="migrate-password" onclick="switchPage('migrate-password')"><i class="fas fa-key"></i> Migrasi Password</a>
                 <a data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Settings</a>
             </nav>
             <div class="sidebar-footer">
@@ -728,6 +831,7 @@
 
         <main class="main-content" id="mainContent">
 
+            <!-- DASHBOARD -->
             <div class="page active" id="page-dashboard">
                 <div class="page-header">
                     <div>
@@ -738,18 +842,18 @@
                 </div>
                 <div class="stats">
                     <div class="stat"><div class="num" id="statTotal">0</div><div class="label"><i class="fas fa-users"></i> Total User</div></div>
-                    <div class="stat"><div class="num" style="color:#10b981;" id="statActive">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
-                    <div class="stat"><div class="num" style="color:#dc2626;" id="statBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
-                    <div class="stat"><div class="num" style="color:#f59e0b;" id="statForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                    <div class="stat"><div class="num" id="statActive">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
+                    <div class="stat"><div class="num" id="statBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
+                    <div class="stat"><div class="num" id="statForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                 </div>
 
                 <div class="card">
                     <div class="card-header"><i class="fas fa-chart-pie"></i> Ringkasan</div>
                     <div style="display:flex;flex-direction:column;gap:6px;">
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-check" style="color:#10b981;"></i> User Aktif</span><span style="font-weight:700;color:#10b981;" id="ringkasanAktif">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-slash" style="color:#dc2626;"></i> User Banned</span><span style="font-weight:700;color:#dc2626;" id="ringkasanBanned">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-shield-alt" style="color:#d97706;"></i> Ban Akses</span><span style="font-weight:700;color:#d97706;" id="ringkasanBanAkses">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:#f59e0b;"></i> Tangguhkan</span><span style="font-weight:700;color:#f59e0b;" id="ringkasanForce">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-check" style="color:var(--success);"></i> User Aktif</span><span style="font-weight:700;color:var(--success);" id="ringkasanAktif">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-slash" style="color:var(--danger);"></i> User Banned</span><span style="font-weight:700;color:var(--danger);" id="ringkasanBanned">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-shield-alt" style="color:var(--warning);"></i> Ban Akses</span><span style="font-weight:700;color:var(--warning);" id="ringkasanBanAkses">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:var(--orange);"></i> Tangguhkan</span><span style="font-weight:700;color:var(--orange);" id="ringkasanForce">0</span></div>
                     </div>
                 </div>
 
@@ -764,6 +868,7 @@
                 </div>
             </div>
 
+            <!-- ALL USERS -->
             <div class="page" id="page-all-users">
                 <div class="page-header">
                     <div><h1><i class="fas fa-users"></i>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
@@ -780,6 +885,7 @@
                 </div>
             </div>
 
+            <!-- BAN USER -->
             <div class="page" id="page-ban-user">
                 <div class="page-header"><h1><i class="fas fa-ban"></i>Banned User</h1><p>Ban user yang bermasalah</p></div>
                 <div class="card">
@@ -804,6 +910,7 @@
                 </div>
             </div>
 
+            <!-- UNBAN USER -->
             <div class="page" id="page-unbanned-users">
                 <div class="page-header"><h1><i class="fas fa-check-circle"></i>Unban User</h1><p>User yang sedang di-ban</p></div>
                 <div class="card">
@@ -817,6 +924,7 @@
                 </div>
             </div>
 
+            <!-- BAN AKSES -->
             <div class="page" id="page-banakses-users">
                 <div class="page-header"><h1><i class="fas fa-shield-alt"></i>Ban Akses</h1><p>User yang belum di-ban akses</p></div>
                 <div class="card">
@@ -830,6 +938,7 @@
                 </div>
             </div>
 
+            <!-- UNBAN AKSES -->
             <div class="page" id="page-unbanakses-users">
                 <div class="page-header"><h1><i class="fas fa-check-circle"></i>Unban Akses</h1><p>User yang sedang di-ban akses</p></div>
                 <div class="card">
@@ -843,6 +952,7 @@
                 </div>
             </div>
 
+            <!-- TANGGUHKAN -->
             <div class="page" id="page-force-users">
                 <div class="page-header"><h1><i class="fas fa-eject"></i>Tangguhkan User</h1><p>User yang belum ditangguhkan</p></div>
                 <div class="card">
@@ -856,6 +966,7 @@
                 </div>
             </div>
 
+            <!-- LEPAS TANGGUH -->
             <div class="page" id="page-unforce-users">
                 <div class="page-header"><h1><i class="fas fa-check-circle"></i>Lepas Tangguh</h1><p>User yang sedang ditangguhkan</p></div>
                 <div class="card">
@@ -869,8 +980,9 @@
                 </div>
             </div>
 
+            <!-- USER BERMASALAH -->
             <div class="page" id="page-problem-users">
-                <div class="page-header"><h1><i class="fas fa-exclamation-triangle"></i>User Bermasalah</h1><p>User yang memiliki masalah (Banned / Ban Akses / Tangguhkan)</p></div>
+                <div class="page-header"><h1><i class="fas fa-exclamation-triangle"></i>User Bermasalah</h1><p>User yang memiliki masalah</p></div>
                 <div class="card">
                     <div class="table-wrap">
                         <table>
@@ -882,6 +994,7 @@
                 </div>
             </div>
 
+            <!-- LOG AKTIVITAS -->
             <div class="page" id="page-activity-log">
                 <div class="page-header">
                     <div><h1><i class="fas fa-history"></i>Log Aktivitas</h1></div>
@@ -894,6 +1007,7 @@
                 </div>
             </div>
 
+            <!-- LOG MENCURIGAKAN -->
             <div class="page" id="page-suspicious-log">
                 <div class="page-header"><h1><i class="fas fa-exclamation-triangle"></i>Log Mencurigakan</h1></div>
                 <div class="card">
@@ -903,27 +1017,93 @@
                 </div>
             </div>
 
+            <!-- STATISTIK WEB -->
             <div class="page" id="page-web-stats">
                 <div class="page-header"><h1><i class="fas fa-chart-bar"></i>Statistik Web</h1></div>
                 <div class="web-stats">
                     <div class="web-stat"><div class="num" id="webStatTotalUsers">0</div><div class="label"><i class="fas fa-users"></i> Total User</div></div>
-                    <div class="web-stat"><div class="num" style="color:#10b981;" id="webStatActiveUsers">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
-                    <div class="web-stat"><div class="num" style="color:#dc2626;" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
+                    <div class="web-stat"><div class="num" id="webStatActiveUsers">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
+                    <div class="web-stat"><div class="num" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
                     <div class="web-stat"><div class="num" id="webStatTotalLogins">0</div><div class="label"><i class="fas fa-sign-in-alt"></i> Total Login</div></div>
-                    <div class="web-stat"><div class="num" style="color:#d97706;" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
-                    <div class="web-stat"><div class="num" style="color:#f59e0b;" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                    <div class="web-stat"><div class="num" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
+                    <div class="web-stat"><div class="num" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                 </div>
                 <div class="card" style="margin-top:16px;">
                     <div class="card-header"><i class="fas fa-chart-line"></i> Distribusi User</div>
                     <div class="dist-grid">
-                        <div class="dist-item" style="background:#ecfdf5;"><div class="num" style="color:#10b981;" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
-                        <div class="dist-item" style="background:#fef2f2;"><div class="num" style="color:#dc2626;" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
-                        <div class="dist-item" style="background:#fffbeb;"><div class="num" style="color:#d97706;" id="distBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
-                        <div class="dist-item" style="background:#fff7ed;"><div class="num" style="color:#f59e0b;" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                        <div class="dist-item"><div class="num" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
+                        <div class="dist-item"><div class="num" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
+                        <div class="dist-item"><div class="num" id="distBanAkses">0</div><div class="label"><i class="fas fa-shield-alt"></i> Ban Akses</div></div>
+                        <div class="dist-item"><div class="num" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
                     </div>
                 </div>
             </div>
 
+            <!-- MAINTENANCE -->
+            <div class="page" id="page-maintenance">
+                <div class="page-header"><h1><i class="fas fa-tools"></i>Maintenance</h1><p>Atur mode perbaikan website</p></div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-toggle-on"></i> Status Maintenance</div>
+                    <div style="margin-bottom:12px;">
+                        <span id="maintenanceStatusBadge" class="badge badge-green">OFF</span>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-heading"></i> Judul Halaman <span style="color:var(--sub);font-weight:400;text-transform:none;">(Opsional)</span></label>
+                        <input type="text" id="maintenanceTitle" placeholder="Kosongkan untuk judul default">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-align-left"></i> Pesan <span style="color:var(--sub);font-weight:400;text-transform:none;">(Opsional)</span></label>
+                        <input type="text" id="maintenanceMessage" placeholder="Kosongkan untuk pesan default">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Estimasi Selesai (Timestamp, 0 = tidak ada)</label>
+                        <input type="number" id="maintenanceUntil" placeholder="0" value="0">
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-success" onclick="enableMaintenance()" style="flex:1;"><i class="fas fa-play"></i> Aktifkan</button>
+                        <button class="btn btn-danger" onclick="disableMaintenance()" style="flex:1;"><i class="fas fa-stop"></i> Nonaktifkan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PATH MANAGER -->
+            <div class="page" id="page-path-manager">
+                <div class="page-header"><h1><i class="fas fa-route"></i>Path Manager</h1><p>Lihat dan ganti nama path API</p></div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-list"></i> Daftar Path</div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Nama Path</th><th>Path Saat Ini</th><th>Path Baru</th><th>Aksi</th></tr></thead>
+                            <tbody id="pathManagerTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MIGRASI PASSWORD -->
+            <div class="page" id="page-migrate-password">
+                <div class="page-header"><h1><i class="fas fa-key"></i>Migrasi Password</h1><p>Ubah password plaintext menjadi hash bcrypt</p></div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-info-circle"></i> Informasi</div>
+                    <p style="font-size:14px;color:var(--sub);margin-bottom:12px;">
+                        Fitur ini akan mengubah semua password user yang masih plaintext menjadi hash bcrypt.
+                        Password plaintext akan dihapus setelah di-hash.
+                    </p>
+                    <div style="background:var(--warning-light);padding:12px;border-radius:var(--radius);margin-bottom:16px;">
+                        <p style="font-size:13px;color:var(--warning);"><i class="fas fa-exclamation-triangle"></i> <b>Peringatan:</b> Pastikan Anda sudah backup database sebelum melakukan migrasi!</p>
+                    </div>
+                    <button class="btn btn-warning" onclick="startPasswordMigration()" style="width:100%;">
+                        <i class="fas fa-key"></i> Mulai Migrasi Password
+                    </button>
+                    <div class="migration-progress" id="migrationProgress">
+                        <div class="spinner"></div>
+                        <p style="margin-top:8px;font-size:13px;">Sedang memproses migrasi...</p>
+                    </div>
+                    <div class="migration-result" id="migrationResult" style="display:none;"></div>
+                </div>
+            </div>
+
+            <!-- SETTINGS -->
             <div class="page" id="page-settings">
                 <div class="page-header"><h1><i class="fas fa-cog"></i>Settings</h1></div>
 
@@ -949,22 +1129,14 @@
                 <div class="card">
                     <div class="card-header"><i class="fas fa-key"></i> Key Aksi</div>
                     <div class="input-group">
-                        <label>Verifikasi Key Aksi</label>
-                        <div class="input-with-btn">
-                            <input type="password" id="actionKeyInput" placeholder="Masukkan key aksi...">
-                            <button class="btn btn-primary btn-sm" onclick="verifyActionKey()"><i class="fas fa-check"></i> Verifikasi</button>
-                        </div>
+                        <label>Admin Key</label>
+                        <input type="text" id="displayAdminKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="••••••••">
                     </div>
-                    <div id="actionKeyVerified" class="key-verified">
-                        <div class="label"><i class="fas fa-check-circle" style="color:#10b981;"></i> Key Aksi Terverifikasi</div>
-                        <div style="margin-top:8px;">
-                            <div class="input-group"><label>Admin Key</label><input type="text" id="displayAdminKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="••••••••"></div>
-                            <div class="input-group"><label>API Key</label><input type="text" id="displayApiKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="🔑 API Key tersedia di environment variables"></div>
-                        </div>
+                    <div class="input-group">
+                        <label>API Key</label>
+                        <input type="text" id="displayApiKey" readonly style="background:#f8fafc;padding:8px;border:1px solid var(--border);border-radius:6px;width:100%;" value="🔑 API Key tersedia di environment variables">
                     </div>
-
                     <hr style="margin:16px 0;border-color:var(--border);">
-
                     <div class="card-header"><i class="fas fa-list"></i> Daftar Key Aksi</div>
                     <div class="input-group">
                         <label>Tambah Key Aksi Baru</label>
@@ -973,7 +1145,7 @@
                             <button class="btn btn-success btn-sm" onclick="addActionKey()"><i class="fas fa-plus"></i> Tambah</button>
                         </div>
                     </div>
-                    <div class="table-wrap"><table><thead><tr><th>Key</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="actionKeysTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th>Key</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="actionKeysTable"></tbody></table></div>
                 </div>
 
                 <div class="card">
@@ -985,7 +1157,7 @@
                             <button class="btn btn-success btn-sm" onclick="addWhitelistIP()"><i class="fas fa-plus"></i> Tambah</button>
                         </div>
                     </div>
-                    <div class="table-wrap"><table><thead><tr><th>IP</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="ipWhitelistTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th>IP</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="ipWhitelistTable"></tbody></table></div>
                 </div>
 
                 <div class="card">
@@ -997,18 +1169,16 @@
                             <button class="btn btn-success btn-sm" onclick="addWhitelistFP()"><i class="fas fa-plus"></i> Tambah</button>
                         </div>
                     </div>
-                    <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"><tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr></tbody></table></div>
+                    <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"></tbody></table></div>
                 </div>
 
-                <div class="card" style="border: 2px solid var(--blue);">
-                    <div class="card-header"><i class="fas fa-key" style="color:var(--blue);"></i> 🔐 Opsi 2: Admin Key dari Server (Lebih Aman)</div>
-                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login, tidak di-hardcode di source code.</p>
-                    
+                <div class="card" style="border: 2px solid var(--primary);">
+                    <div class="card-header"><i class="fas fa-key" style="color:var(--primary);"></i> Admin Key dari Server</div>
+                    <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login.</p>
                     <div class="input-group">
-                        <label><i class="fas fa-key"></i> Session Key (Dari Server)</label>
+                        <label>Session Key (Dari Server)</label>
                         <input type="text" id="serverAdminKey" readonly value="Belum login" style="background:#f8fafc;padding:12px;border:1px solid var(--border);border-radius:6px;width:100%;">
                     </div>
-                    
                     <div style="display:flex;gap:8px;">
                         <button class="btn btn-primary btn-sm" onclick="getAdminKeyFromServer()" style="flex:1;"><i class="fas fa-download"></i> Ambil Key dari Server</button>
                         <button class="btn btn-danger btn-sm" onclick="clearServerKey()" style="flex:1;"><i class="fas fa-trash"></i> Hapus Key</button>
@@ -1099,29 +1269,8 @@
     </div>
 
     <script>
-        // ==================== ANTI DEVTOOLS ====================
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'U')) {
-                e.preventDefault();
-                return false;
-            }
-        });
-        document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
-
-        var devtoolsOpen = false;
-        setInterval(function() {
-            if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-                if (!devtoolsOpen) {
-                    devtoolsOpen = true;
-                    document.body.innerHTML =
-                        '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:#fff;font-size:18px;font-family:sans-serif">DevTools terdeteksi! Tutup untuk melanjutkan.</div>';
-                }
-            } else { devtoolsOpen = false; }
-        }, 1000);
-
         // ==================== CONFIG ====================
         var API_URL = '/api/revanstore';
-
         var sessionId = null;
         var currentAdmin = null;
         var allUsers = [];
@@ -1137,6 +1286,7 @@
         var actionKeyVerified = false;
         var actionKeyChecked = false;
         var serverAdminKey = null;
+        var settingsKeyVerified = false;
 
         // ==================== FINGERPRINT ====================
         async function getFingerprint() {
@@ -1152,60 +1302,6 @@
             return CryptoJS.MD5(fp).toString();
         }
 
-        // ==================== CRYPTO FUNCTIONS (LANGSUNG PAKE CryptoJS) ====================
-        function encryptData(payload) {
-            return CryptoJS.AES.encrypt(JSON.stringify(payload), 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b').toString();
-        }
-
-        function decryptData(encryptedData) {
-            var dec = CryptoJS.AES.decrypt(encryptedData, 'dhagwxwhu:f4afc5aa03e73130f5e055dfe6a708c4dc40759b').toString(CryptoJS.enc.Utf8);
-            return JSON.parse(dec);
-        }
-
-        // ==================== OPSI 2: AMBIL KEY DARI SERVER ====================
-        async function getAdminKeyFromServer() {
-            if (!currentAdmin) {
-                document.getElementById('serverKeyStatus').innerHTML = '⚠️ Login dulu!';
-                showAlert('Error', 'Login terlebih dahulu!', 'error');
-                return;
-            }
-            
-            try {
-                document.getElementById('serverKeyStatus').innerHTML = '⏳ Mengambil key dari server...';
-                
-                var result = await apiCall('admin/get_key', 'GET', {});
-                if (result && result.adminKey) {
-                    serverAdminKey = result.adminKey;
-                    document.getElementById('serverAdminKey').value = '✅ Key didapat dari server!';
-                    document.getElementById('serverKeyStatus').innerHTML = '✅ Key berhasil diambil dari server!';
-                    showAlert('Berhasil', 'Admin Key berhasil diambil dari server!', 'success');
-                    localStorage.setItem('server_admin_key', result.adminKey);
-                } else {
-                    document.getElementById('serverKeyStatus').innerHTML = '❌ Gagal mengambil key!';
-                    showAlert('Error', 'Gagal mengambil key dari server!', 'error');
-                }
-            } catch(e) {
-                document.getElementById('serverKeyStatus').innerHTML = '❌ Error: ' + e.message;
-                showAlert('Error', e.message, 'error');
-            }
-        }
-
-        function clearServerKey() {
-            serverAdminKey = null;
-            localStorage.removeItem('server_admin_key');
-            document.getElementById('serverAdminKey').value = 'Belum login';
-            document.getElementById('serverKeyStatus').innerHTML = '🗑️ Key dihapus dari memori.';
-            showAlert('Info', 'Key berhasil dihapus.', 'info');
-        }
-
-        function loadServerKeyFromStorage() {
-            var saved = localStorage.getItem('server_admin_key');
-            if (saved) {
-                document.getElementById('serverAdminKey').value = '✅ Key tersedia (dari penyimpanan)';
-                document.getElementById('serverKeyStatus').innerHTML = '💾 Key tersedia di localStorage (terenkripsi)';
-            }
-        }
-
         // ==================== ALERT ====================
         function showAlert(title, msg, type) {
             var overlay = document.getElementById('alertOverlay');
@@ -1217,7 +1313,7 @@
                     icon: type === 'success' ? 'success' : type === 'error' ? 'error' : 'info',
                     title: title,
                     text: msg,
-                    confirmButtonColor: '#00BFFF'
+                    confirmButtonColor: '#6366f1'
                 });
                 return;
             }
@@ -1226,7 +1322,7 @@
             if (type === 'loading') icon.innerHTML = '<div class="spinner"></div>';
             else if (type === 'success') icon.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i>';
             else if (type === 'error') icon.innerHTML = '<i class="fas fa-times-circle" style="color:#ef4444;"></i>';
-            else icon.innerHTML = '<i class="fas fa-info-circle" style="color:#00BFFF;"></i>';
+            else icon.innerHTML = '<i class="fas fa-info-circle" style="color:#6366f1;"></i>';
             overlay.classList.add('show');
             if (type !== 'loading') setTimeout(function() { overlay.classList.remove('show'); }, 2000);
         }
@@ -1254,7 +1350,12 @@
 
         function esc(s) {
             if (!s) return '';
-            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;');
         }
 
         function debounce(key, fn, delay) {
@@ -1268,7 +1369,41 @@
             if (m) m.classList.remove('show');
         }
 
-        // ==================== API CALL (PAKE SESSION) ====================
+        // ==================== SETTINGS KEY OVERLAY ====================
+        function showSettingsKeyOverlay() {
+            document.getElementById('settingsActionKeyInput').value = '';
+            document.getElementById('settingsKeyOverlay').classList.add('show');
+        }
+
+        function closeSettingsKeyOverlay() {
+            document.getElementById('settingsKeyOverlay').classList.remove('show');
+            document.getElementById('settingsActionKeyInput').value = '';
+        }
+
+        function verifySettingsActionKey() {
+            var key = document.getElementById('settingsActionKeyInput').value.trim();
+            if (!key) { showAlert('Error', 'Masukkan key aksi!', 'error'); return; }
+
+            apiCall('action_keys', 'GET').then(function(data) {
+                var valid = false;
+                for (var k in data) {
+                    if (data[k] && data[k].key === key) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if (valid) {
+                    settingsKeyVerified = true;
+                    closeSettingsKeyOverlay();
+                    showAlert('Berhasil', 'Key aksi valid! Pengaturan terbuka.', 'success');
+                    loadSettings();
+                } else {
+                    showAlert('Error', 'Key aksi salah!', 'error');
+                }
+            });
+        }
+
+        // ==================== API CALL ====================
         async function apiCall(path, method, data) {
             if (!fingerprint) fingerprint = await getFingerprint();
 
@@ -1278,8 +1413,6 @@
                 data: data || {},
                 timestamp: Date.now()
             };
-
-            var encryptedPayload = encryptData(payload);
 
             var headers = {
                 'Content-Type': 'application/json',
@@ -1291,17 +1424,16 @@
             }
 
             if (currentAdmin) {
-                headers['X-Operator'] = encryptData({ value: currentAdmin });
+                headers['X-Operator'] = currentAdmin;
             }
 
             var res = await fetch(API_URL, {
                 method: 'POST',
                 headers: headers,
-                body: JSON.stringify({ data: encryptedPayload })
+                body: JSON.stringify(payload)
             });
 
             if (res.status === 401) {
-                // SESSION EXPIRED
                 localStorage.removeItem('sessionId');
                 sessionId = null;
                 showAlert('Sesi Berakhir', 'Silakan login ulang.', 'error');
@@ -1314,12 +1446,6 @@
             if (!text || text === 'null') return null;
 
             var result = JSON.parse(text);
-
-            if (result.data) {
-                var decrypted = decryptData(result.data);
-                return decrypted;
-            }
-
             return result;
         }
 
@@ -1340,6 +1466,14 @@
             var sidebar = document.getElementById('sidebar');
             if (sidebar && window.innerWidth <= 768) sidebar.classList.remove('open');
 
+            if (pageName === 'settings') {
+                if (!settingsKeyVerified) {
+                    showSettingsKeyOverlay();
+                } else {
+                    loadSettings();
+                }
+            }
+
             if (pageName === 'all-users') renderAllUsersTable();
             if (pageName === 'ban-user') searchBanUser();
             if (pageName === 'unbanned-users') renderUnbannedTable();
@@ -1351,7 +1485,8 @@
             if (pageName === 'activity-log') renderActivityLogPage();
             if (pageName === 'suspicious-log') renderSuspiciousLogPage();
             if (pageName === 'web-stats') renderWebStats();
-            if (pageName === 'settings') loadSettings();
+            if (pageName === 'maintenance') loadMaintenanceStatus();
+            if (pageName === 'path-manager') loadPathManager();
             if (pageName === 'dashboard') { updateRingkasan(); loadUsers(); loadActivity(); }
         }
 
@@ -1391,7 +1526,7 @@
                 '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:rgba(30,41,59,0.9);border-radius:20px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid rgba(239,68,68,0.3);"><div style="font-size:70px;margin-bottom:20px;">🔒</div><h1 style="color:#ef4444;font-size:24px;">AKSES DITOLAK</h1><p style="color:#94a3b8;">Akses Anda telah diblokir permanen.</p></div></div>';
         }
 
-        // ==================== LOGIN (PAKE SESSION) ====================
+        // ==================== LOGIN ====================
         function login() {
             var email = document.getElementById('loginEmail').value.trim();
             var pass = document.getElementById('loginPassword').value.trim();
@@ -1445,10 +1580,12 @@
             activityLoaded = false;
             actionKeyVerified = false;
             actionKeyChecked = false;
+            settingsKeyVerified = false;
             serverAdminKey = null;
             localStorage.removeItem('server_admin_key');
             document.getElementById('serverAdminKey').value = 'Belum login';
             document.getElementById('serverKeyStatus').innerHTML = '';
+            document.getElementById('settingsKeyOverlay').classList.remove('show');
             
             if (sessionTimer) clearTimeout(sessionTimer);
             if (clockInterval) clearInterval(clockInterval);
@@ -1459,7 +1596,6 @@
             document.getElementById('keyScreen').style.display = 'none';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginEmail').value = '';
-            document.getElementById('actionKeyVerified').style.display = 'none';
             showAlert('Logout', 'Anda telah logout.', 'info');
         }
 
@@ -1569,7 +1705,7 @@
 
         function buildLogHTML(logs) {
             var labels = {
-                sharing_detected: '🔴 SHARING DETEKSI',
+                sharing_detected: 'SHARING DETEKSI',
                 banned: 'Ban User',
                 unbanned: 'Unban User',
                 ban_akses: 'Ban Akses',
@@ -1590,10 +1726,10 @@
                 var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
                 var label = labels[l.action] || l.action;
                 var isSuspicious = ['sharing_detected', 'login_failed', 'ip_changed', 'fp_changed'].includes(l.action);
-                var details = l.details ? ' — ' + l.details : '';
+                var details = l.details ? ' — ' + esc(l.details) : '';
                 html += '<div class="activity-item' + (isSuspicious ? ' suspicious' : '') + '">' +
                     '<div class="activity-dot ' + (l.action || '') + '"></div>' +
-                    '<div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + label + details + '</span></div>' +
+                    '<div class="activity-info"><span class="activity-user">' + esc(l.username) + '</span> <span class="activity-desc">' + esc(label) + details + '</span></div>' +
                     '<div class="activity-time">' + time + '</div></div>';
             });
             return html;
@@ -1801,7 +1937,7 @@
         function selectBanUser(id) {
             selectedBanUser = allUsers.find(function(u) { return u.id === id; });
             var el = document.getElementById('banSelectedUser');
-            if (el) el.innerHTML = selectedBanUser ? '✅ Dipilih: <b>' + esc(selectedBanUser.username) + '</b>' : '';
+            if (el) el.innerHTML = selectedBanUser ? 'Dipilih: <b>' + esc(selectedBanUser.username) + '</b>' : '';
 
             document.querySelectorAll('#banUserList .user-check').forEach(function(el) {
                 el.classList.remove('selected');
@@ -2099,15 +2235,151 @@
             document.getElementById('ringkasanForce').textContent = force;
         }
 
+        // ==================== MAINTENANCE ====================
+        function loadMaintenanceStatus() {
+            apiCall('maintenance_status', 'GET').then(function(data) {
+                if (data && data.maintenance) {
+                    document.getElementById('maintenanceStatusBadge').textContent = 'ON';
+                    document.getElementById('maintenanceStatusBadge').className = 'badge badge-red';
+                    document.getElementById('maintenanceTitle').value = data.title || '';
+                    document.getElementById('maintenanceMessage').value = data.message || '';
+                    document.getElementById('maintenanceUntil').value = data.until || 0;
+                } else {
+                    document.getElementById('maintenanceStatusBadge').textContent = 'OFF';
+                    document.getElementById('maintenanceStatusBadge').className = 'badge badge-green';
+                }
+            });
+        }
+
+        function enableMaintenance() {
+            var title = document.getElementById('maintenanceTitle').value.trim();
+            var message = document.getElementById('maintenanceMessage').value.trim();
+            var until = parseInt(document.getElementById('maintenanceUntil').value) || 0;
+
+            showAlert('Proses', 'Mengaktifkan maintenance...', 'loading');
+            apiCall('maintenance_status', 'PUT', {
+                maintenance: true,
+                title: title || '',
+                message: message || '',
+                until: until
+            }).then(function() {
+                showAlert('Berhasil', 'Maintenance diaktifkan!', 'success');
+                loadMaintenanceStatus();
+            }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+        }
+
+        function disableMaintenance() {
+            showConfirm('Nonaktifkan maintenance?', function() {
+                showAlert('Proses', 'Menonaktifkan...', 'loading');
+                apiCall('maintenance_status', 'PUT', { maintenance: false }).then(function() {
+                    showAlert('Berhasil', 'Maintenance dinonaktifkan!', 'success');
+                    loadMaintenanceStatus();
+                }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+            });
+        }
+
+        // ==================== PATH MANAGER ====================
+        var pathList = [
+            { name: 'Check Blocked', current: 'check_blocked' },
+            { name: 'Check Account Status', current: 'check_account_status' },
+            { name: 'Login', current: 'login' },
+            { name: 'Login Failed', current: 'login_failed' },
+            { name: 'Login Success', current: 'login_success' },
+            { name: 'Users', current: 'users' },
+            { name: 'Blocked IPs', current: 'blocked_ips' },
+            { name: 'Blocked FP', current: 'blocked_fp' },
+            { name: 'Login Attempts', current: 'login_attempts' },
+            { name: 'Activity Logs', current: 'activity_logs' },
+            { name: 'Transactions', current: 'transactions' },
+            { name: 'Maintenance Status', current: 'maintenance_status' },
+            { name: 'Access Key', current: 'access_key' },
+            { name: 'Action Keys', current: 'action_keys' },
+            { name: 'IP Whitelist', current: 'ip_whitelist' },
+            { name: 'FP Whitelist', current: 'fp_whitelist' },
+            { name: 'Block IP Manual', current: 'block_ip_manual' },
+            { name: 'Block FP Manual', current: 'block_fp_manual' }
+        ];
+
+        function loadPathManager() {
+            var tbody = document.getElementById('pathManagerTable');
+            if (!tbody) return;
+
+            tbody.innerHTML = pathList.map(function(p) {
+                return '<tr>' +
+                    '<td><b>' + p.name + '</b></td>' +
+                    '<td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">' + p.current + '</code></td>' +
+                    '<td><input type="text" id="newPath_' + p.current.replace(/\./g, '_') + '" placeholder="Path baru..." style="padding:6px;border:1px solid var(--border);border-radius:4px;width:100%;"></td>' +
+                    '<td><button class="btn btn-primary btn-xs" onclick="updatePath(\'' + p.current + '\')"><i class="fas fa-save"></i> Simpan</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function updatePath(oldPath) {
+            var inputId = 'newPath_' + oldPath.replace(/\./g, '_');
+            var newPath = document.getElementById(inputId).value.trim();
+            if (!newPath) { showAlert('Error', 'Path baru wajib diisi!', 'error'); return; }
+
+            showConfirm('Ganti path "' + oldPath + '" menjadi "' + newPath + '"?', function() {
+                showAlert('Proses', 'Mengupdate path...', 'loading');
+                apiCall('path_aliases', 'POST', { oldPath: oldPath, newPath: newPath }).then(function() {
+                    showAlert('Berhasil', 'Path berhasil diupdate!', 'success');
+                    var item = pathList.find(function(p) { return p.current === oldPath; });
+                    if (item) item.current = newPath;
+                    loadPathManager();
+                }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+            });
+        }
+
+        // ==================== MIGRASI PASSWORD ====================
+        function startPasswordMigration() {
+            showConfirm('Mulai migrasi password? Semua password plaintext akan di-hash dengan bcrypt.', function() {
+                var progressEl = document.getElementById('migrationProgress');
+                var resultEl = document.getElementById('migrationResult');
+                
+                progressEl.classList.add('show');
+                resultEl.style.display = 'none';
+                
+                showAlert('Proses', 'Migrasi password dimulai...', 'loading');
+                
+                apiCall('migrate_passwords', 'POST', {}).then(function(result) {
+                    progressEl.classList.remove('show');
+                    hideAlert();
+                    
+                    if (result && result.success) {
+                        resultEl.className = 'migration-result success';
+                        resultEl.style.display = 'block';
+                        resultEl.innerHTML = '<i class="fas fa-check-circle"></i> <b>Migrasi berhasil!</b><br>' +
+                            '✅ Berhasil di-hash: <b>' + (result.migrated || 0) + '</b><br>' +
+                            '⏭️ Dilewati (sudah hash): <b>' + (result.skipped || 0) + '</b><br>' +
+                            '❌ Gagal: <b>' + (result.failed || 0) + '</b>';
+                        showAlert('Berhasil', 'Migrasi password selesai!', 'success');
+                        loadUsers();
+                    } else {
+                        resultEl.className = 'migration-result error';
+                        resultEl.style.display = 'block';
+                        resultEl.innerHTML = '<i class="fas fa-times-circle"></i> <b>Migrasi gagal!</b><br>' + (result && result.error ? esc(result.error) : 'Terjadi kesalahan.');
+                        showAlert('Error', 'Migrasi password gagal!', 'error');
+                    }
+                }).catch(function(e) {
+                    progressEl.classList.remove('show');
+                    hideAlert();
+                    resultEl.className = 'migration-result error';
+                    resultEl.style.display = 'block';
+                    resultEl.innerHTML = '<i class="fas fa-times-circle"></i> <b>Error:</b> ' + esc(e.message);
+                    showAlert('Error', e.message, 'error');
+                });
+            });
+        }
+
         // ==================== SETTINGS ====================
         function loadSettings() {
+            if (!settingsKeyVerified) return;
             apiCall('admin/auth', 'GET').then(function(r) {
                 if (r) {
                     var email = r.email || '••••••••@••••••••';
-                    var pass = r.password || '••••••••';
                     document.getElementById('settingsEmail').value = email;
-                    document.getElementById('settingsPassword').value = pass;
-                    document.getElementById('displayAdminKey').value = pass;
+                    document.getElementById('settingsPassword').value = '••••••••';
+                    document.getElementById('displayAdminKey').value = '••••••••';
                 }
             });
             loadActionKeys();
@@ -2120,14 +2392,15 @@
         function togglePassword() {
             var el = document.getElementById('settingsPassword');
             var icon = document.getElementById('togglePassIcon');
-            if (!actionKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu untuk melihat password!', 'error');
+            if (!settingsKeyVerified) {
+                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
             if (el.type === 'password') {
                 el.type = 'text';
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
+                setTimeout(function() { el.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }, 3000);
             } else {
                 el.type = 'password';
                 icon.classList.remove('fa-eye-slash');
@@ -2135,9 +2408,8 @@
             }
         }
 
-        // ==================== CHANGE EMAIL ====================
         function openChangeEmailModal() {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2148,7 +2420,7 @@
         function changeEmail() {
             var email = document.getElementById('newEmail').value.trim();
             if (!email) { showAlert('Error', 'Email baru wajib diisi!', 'error'); return; }
-            if (!actionKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
 
             showAlert('Proses', 'Mengupdate email...', 'loading');
             apiCall('admin/update_email', 'PATCH', { email: email }).then(function() {
@@ -2158,9 +2430,8 @@
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
-        // ==================== CHANGE PASSWORD ====================
         function openChangePasswordModal() {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2175,7 +2446,7 @@
             if (!pass) { showAlert('Error', 'Password baru wajib diisi!', 'error'); return; }
             if (pass.length < 6) { showAlert('Error', 'Password minimal 6 karakter!', 'error'); return; }
             if (pass !== confirm) { showAlert('Error', 'Password tidak cocok!', 'error'); return; }
-            if (!actionKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
 
             showAlert('Proses', 'Mengupdate password...', 'loading');
             apiCall('admin/update_password', 'PATCH', { password: pass }).then(function() {
@@ -2185,7 +2456,6 @@
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
-        // ==================== KEY AKSI ====================
         function checkActionKeyExists() {
             if (actionKeyChecked) return;
             apiCall('action_keys', 'GET').then(function(data) {
@@ -2206,41 +2476,8 @@
             });
         }
 
-        function verifyActionKey() {
-            var key = document.getElementById('actionKeyInput').value.trim();
-            if (!key) { showAlert('Error', 'Masukkan key aksi!', 'error'); return; }
-
-            apiCall('action_keys', 'GET').then(function(data) {
-                var valid = false;
-                for (var k in data) {
-                    if (data[k] && data[k].key === key) {
-                        valid = true;
-                        break;
-                    }
-                }
-                if (valid) {
-                    actionKeyVerified = true;
-                    document.getElementById('actionKeyVerified').style.display = 'block';
-                    apiCall('admin/auth', 'GET').then(function(r) {
-                        if (r) {
-                            var pass = r.password || '••••••••';
-                            document.getElementById('displayAdminKey').value = pass;
-                            document.getElementById('settingsPassword').value = pass;
-                            document.getElementById('displayApiKey').value = '🔑 API Key tersedia di environment variables';
-                        }
-                    });
-                    showAlert('Berhasil', 'Key aksi valid!', 'success');
-                    loadActionKeys();
-                    loadWhitelistIP();
-                    loadWhitelistFP();
-                } else {
-                    showAlert('Error', 'Key aksi salah!', 'error');
-                }
-            });
-        }
-
         function addActionKey() {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2255,8 +2492,8 @@
         }
 
         function loadActionKeys() {
-            if (!actionKeyVerified) {
-                document.getElementById('actionKeysTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr>';
+            if (!settingsKeyVerified) {
+                document.getElementById('actionKeysTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
                 return;
             }
             apiCall('action_keys', 'GET').then(function(data) {
@@ -2281,7 +2518,7 @@
         }
 
         function deleteActionKey(id) {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2293,9 +2530,8 @@
             });
         }
 
-        // ==================== IP WHITELIST ====================
         function addWhitelistIP() {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2310,8 +2546,8 @@
         }
 
         function loadWhitelistIP() {
-            if (!actionKeyVerified) {
-                document.getElementById('ipWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr>';
+            if (!settingsKeyVerified) {
+                document.getElementById('ipWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
                 return;
             }
             apiCall('ip_whitelist', 'GET').then(function(data) {
@@ -2327,7 +2563,7 @@
         }
 
         function deleteWhitelistIP(id) {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2339,9 +2575,8 @@
             });
         }
 
-        // ==================== FP WHITELIST ====================
         function addWhitelistFP() {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2356,8 +2591,8 @@
         }
 
         function loadWhitelistFP() {
-            if (!actionKeyVerified) {
-                document.getElementById('fpWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">🔒 Verifikasi key aksi terlebih dahulu</td></tr>';
+            if (!settingsKeyVerified) {
+                document.getElementById('fpWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
                 return;
             }
             apiCall('fp_whitelist', 'GET').then(function(data) {
@@ -2374,7 +2609,7 @@
         }
 
         function deleteWhitelistFP(id) {
-            if (!actionKeyVerified) {
+            if (!settingsKeyVerified) {
                 showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
                 return;
             }
@@ -2384,6 +2619,50 @@
                     loadWhitelistFP();
                 });
             });
+        }
+
+        function getAdminKeyFromServer() {
+            if (!currentAdmin) {
+                document.getElementById('serverKeyStatus').innerHTML = 'Login dulu!';
+                showAlert('Error', 'Login terlebih dahulu!', 'error');
+                return;
+            }
+            
+            try {
+                document.getElementById('serverKeyStatus').innerHTML = 'Mengambil key dari server...';
+                
+                apiCall('admin/get_key', 'GET', {}).then(function(result) {
+                    if (result && result.adminKey) {
+                        serverAdminKey = result.adminKey;
+                        document.getElementById('serverAdminKey').value = 'Key didapat dari server!';
+                        document.getElementById('serverKeyStatus').innerHTML = 'Key berhasil diambil dari server!';
+                        showAlert('Berhasil', 'Admin Key berhasil diambil dari server!', 'success');
+                        localStorage.setItem('server_admin_key', result.adminKey);
+                    } else {
+                        document.getElementById('serverKeyStatus').innerHTML = 'Gagal mengambil key!';
+                        showAlert('Error', 'Gagal mengambil key dari server!', 'error');
+                    }
+                });
+            } catch(e) {
+                document.getElementById('serverKeyStatus').innerHTML = 'Error: ' + e.message;
+                showAlert('Error', e.message, 'error');
+            }
+        }
+
+        function clearServerKey() {
+            serverAdminKey = null;
+            localStorage.removeItem('server_admin_key');
+            document.getElementById('serverAdminKey').value = 'Belum login';
+            document.getElementById('serverKeyStatus').innerHTML = 'Key dihapus dari memori.';
+            showAlert('Info', 'Key berhasil dihapus.', 'info');
+        }
+
+        function loadServerKeyFromStorage() {
+            var saved = localStorage.getItem('server_admin_key');
+            if (saved) {
+                document.getElementById('serverAdminKey').value = 'Key tersedia (dari penyimpanan)';
+                document.getElementById('serverKeyStatus').innerHTML = 'Key tersedia di localStorage (terenkripsi)';
+            }
         }
 
         // ==================== INIT ====================
@@ -2402,6 +2681,10 @@
                 if (e.key === 'Enter') verifyKey();
             });
 
+            document.getElementById('settingsActionKeyInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') verifySettingsActionKey();
+            });
+
             document.addEventListener('click', function() {
                 if (currentAdmin && sessionTimer) {
                     clearTimeout(sessionTimer);
@@ -2414,15 +2697,12 @@
                 }
             });
 
-            // CEK SESSION SAVED
             var savedSession = localStorage.getItem('sessionId');
             if (savedSession) {
                 sessionId = savedSession;
-                // COBA LOAD DATA
                 try {
                     await loadUsers();
                     await loadActivity();
-                    // KALO BERHASIL, TAMPILKAN DASHBOARD
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('loginWrapper').style.display = 'none';
                     document.getElementById('appContainer').style.display = 'block';
@@ -2431,7 +2711,6 @@
                     document.getElementById('navbarUserName').textContent = 'Admin';
                     switchPage('dashboard');
                 } catch(e) {
-                    // SESSION EXPIRED
                     sessionId = null;
                     localStorage.removeItem('sessionId');
                 }
