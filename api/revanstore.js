@@ -96,6 +96,11 @@ function encryptData(data) {
     return CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
 }
 
+// ==================== ENKRIPSI RESPONSE ====================
+function encryptResponse(data) {
+    return { data: encryptData(data) };
+}
+
 async function createSession(email, ip, fp) {
     const sessionId = CryptoJS.lib.WordArray.random(32).toString();
     const sessionData = {
@@ -150,7 +155,7 @@ export default async function handler(req, res) {
     const fp = req.headers['x-fingerprint'] || '';
 
     if (!await checkRateLimit(ip)) {
-        return res.status(429).json({ error: 'Terlalu banyak request.' });
+        return res.status(429).json(encryptResponse({ error: 'Terlalu banyak request.' }));
     }
 
     try {
@@ -158,59 +163,24 @@ export default async function handler(req, res) {
         const body = req.body;
         
         if (!body) {
-            return res.status(400).json({ error: 'No data' });
+            return res.status(400).json(encryptResponse({ error: 'No data' }));
         }
 
-        // ==================== BLOCK IP LANGSUNG (URL: /block_ip) ====================
-        if (req.url.includes('/block_ip') && req.method === 'POST') {
-            const ipToBlock = body.ip || ip;
-            if (!ipToBlock) return res.status(400).json({ error: 'IP required' });
-            await blockIP(ipToBlock);
-            return res.status(200).json({ success: true, blocked: true, ip: ipToBlock });
-        }
-
-        // ==================== BLOCK FP LANGSUNG (URL: /block_fp) ====================
-        if (req.url.includes('/block_fp') && req.method === 'POST') {
-            const fpToBlock = body.fp || fp;
-            if (!fpToBlock) return res.status(400).json({ error: 'FP required' });
-            await blockFP(fpToBlock);
-            return res.status(200).json({ success: true, blocked: true, fp: fpToBlock });
-        }
-
-        // ==================== UNBLOCK IP LANGSUNG (URL: /blocked_ips/:ip) ====================
-        if (req.url.includes('/blocked_ips/') && req.method === 'DELETE') {
-            const ipFromUrl = req.url.split('/blocked_ips/')[1];
-            if (!ipFromUrl) return res.status(400).json({ error: 'IP required' });
-            const ipToUnblock = ipFromUrl.replace(/_/g, '.');
-            await db.ref('blocked_ips/' + ipFromUrl).remove();
-            return res.status(200).json({ success: true, unblocked: true, ip: ipToUnblock });
-        }
-
-        // ==================== UNBLOCK FP LANGSUNG (URL: /blocked_fp/:fp) ====================
-        if (req.url.includes('/blocked_fp/') && req.method === 'DELETE') {
-            const fpFromUrl = req.url.split('/blocked_fp/')[1];
-            if (!fpFromUrl) return res.status(400).json({ error: 'FP required' });
-            await db.ref('blocked_fp/' + fpFromUrl).remove();
-            return res.status(200).json({ success: true, unblocked: true, fp: fpFromUrl });
-        }
-        
-        // SUPPORT BOTH FORMATS (wrapper & direct)
-        if (body.path && typeof body.path === 'string') {
-            parsed = body;
-        } else if (body.data && typeof body.data === 'string') {
+        // ==================== CEK APAKAH BODY TERENKRIPSI ====================
+        if (body.data && typeof body.data === 'string') {
             const decrypted = decryptData(body.data);
             if (!decrypted) {
-                return res.status(403).json({ error: 'Access denied' });
+                return res.status(403).json(encryptResponse({ error: 'Access denied' }));
             }
             parsed = decrypted;
-        } else if (body.data && typeof body.data === 'object') {
-            parsed = body.data;
+        } else if (body.path && typeof body.path === 'string') {
+            parsed = body;
         } else {
-            return res.status(400).json({ error: 'No data' });
+            return res.status(400).json(encryptResponse({ error: 'No data' }));
         }
 
         if (!parsed.path || typeof parsed.path !== 'string' || parsed.path.length > 200) {
-            return res.status(400).json({ error: 'Invalid path' });
+            return res.status(400).json(encryptResponse({ error: 'Invalid path' }));
         }
 
         const ref = db.ref(parsed.path);
@@ -221,19 +191,26 @@ export default async function handler(req, res) {
         if (!publicPaths.includes(parsed.path)) {
             const sessionId = req.headers['x-session'];
             if (!sessionId) {
-                return res.status(401).json({ error: 'Session required' });
+                return res.status(401).json(encryptResponse({ error: 'Session required' }));
             }
             const session = await checkSession(sessionId);
             if (!session) {
-                return res.status(401).json({ error: 'Invalid or expired session' });
+                return res.status(401).json(encryptResponse({ error: 'Invalid or expired session' }));
             }
         }
 
-        // ==================== CHECK BLOCKED ====================
+        // ==================== CHECK BLOCKED (RESPONSE TERENKRIPSI) ====================
         if (parsed.path === 'check_blocked' && parsed.method === 'POST') {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
-            return res.status(200).json({ blocked: ipBlocked || fpBlocked });
+            const result = { 
+                blocked: ipBlocked || fpBlocked,
+                ip: ip,
+                fingerprint: fp || '',
+                ipBlocked: ipBlocked,
+                fpBlocked: fpBlocked
+            };
+            return res.status(200).json(encryptResponse(result));
         }
 
         // ==================== ACCESS KEY ====================
@@ -244,7 +221,7 @@ export default async function handler(req, res) {
             if (raw && raw.data) {
                 try { result = decryptData(raw.data); } catch (e) {}
             }
-            return res.status(200).json(result);
+            return res.status(200).json(encryptResponse(result));
         }
 
         // ==================== ADMIN AUTH ====================
@@ -255,7 +232,7 @@ export default async function handler(req, res) {
             if (raw && raw.data) {
                 try { result = decryptData(raw.data); } catch (e) {}
             }
-            return res.status(200).json(result);
+            return res.status(200).json(encryptResponse(result));
         }
 
         // ==================== LOGIN SUCCESS ====================
@@ -263,7 +240,7 @@ export default async function handler(req, res) {
             await resetLoginAttempt(ip, fp);
             const email = sanitizeInput(parsed.data?.email || parsed.data?.username || 'admin');
             const sessionId = await createSession(email, ip, fp);
-            return res.status(200).json({ success: true, sessionId: sessionId, email: email });
+            return res.status(200).json(encryptResponse({ success: true, sessionId: sessionId, email: email }));
         }
 
         // ==================== LOGIN FAILED (3X = BLOCK IP & FP) ====================
@@ -273,39 +250,39 @@ export default async function handler(req, res) {
             if (attempts >= 3) {
                 await blockIP(ip);
                 if (fp) await blockFP(fp);
-                return res.status(200).json({ blocked: true, attempts: attempts });
+                return res.status(200).json(encryptResponse({ blocked: true, attempts: attempts }));
             }
-            return res.status(200).json({ attempts: attempts, remaining: 3 - attempts });
+            return res.status(200).json(encryptResponse({ attempts: attempts, remaining: 3 - attempts }));
         }
 
         // ==================== LOGOUT ====================
         if (parsed.path === 'logout' && parsed.method === 'POST') {
             const sessionId = req.headers['x-session'];
             if (sessionId) await destroySession(sessionId);
-            return res.status(200).json({ success: true });
+            return res.status(200).json(encryptResponse({ success: true }));
         }
 
-        // ==================== BLOCK IP (PATH: block_ip) ====================
+        // ==================== BLOCK IP ====================
         if (parsed.path === 'block_ip' && parsed.method === 'POST') {
             const ipToBlock = parsed.data?.ip || ip;
-            if (!ipToBlock) return res.status(400).json({ error: 'IP required' });
+            if (!ipToBlock) return res.status(400).json(encryptResponse({ error: 'IP required' }));
             await blockIP(ipToBlock);
-            return res.status(200).json({ success: true, blocked: true, ip: ipToBlock });
+            return res.status(200).json(encryptResponse({ success: true, blocked: true, ip: ipToBlock }));
         }
 
-        // ==================== BLOCK FP (PATH: block_fp) ====================
+        // ==================== BLOCK FP ====================
         if (parsed.path === 'block_fp' && parsed.method === 'POST') {
             const fpToBlock = parsed.data?.fp || fp;
-            if (!fpToBlock) return res.status(400).json({ error: 'FP required' });
+            if (!fpToBlock) return res.status(400).json(encryptResponse({ error: 'FP required' }));
             await blockFP(fpToBlock);
-            return res.status(200).json({ success: true, blocked: true, fp: fpToBlock });
+            return res.status(200).json(encryptResponse({ success: true, blocked: true, fp: fpToBlock }));
         }
 
         // ==================== USER LOGIN ====================
         if (parsed.path === 'login' && parsed.method === 'POST') {
             const snap = await db.ref('users').once('value');
             const users = snap.val();
-            if (!users) return res.status(200).json({ success: false });
+            if (!users) return res.status(200).json(encryptResponse({ success: false }));
 
             const username = sanitizeInput(parsed.data?.username || '');
             const password = parsed.data?.password || '';
@@ -332,7 +309,7 @@ export default async function handler(req, res) {
                     if (!isPasswordValid) continue;
                     
                     const sessionId = await createSession(username, ip, fp);
-                    return res.status(200).json({
+                    return res.status(200).json(encryptResponse({
                         success: true,
                         sessionId: sessionId,
                         data: {
@@ -342,18 +319,18 @@ export default async function handler(req, res) {
                             full_name: userData.full_name || userData.username,
                             expiry_date: userData.expiry_date || ''
                         }
-                    });
+                    }));
                 }
             }
             
-            return res.status(200).json({ success: false });
+            return res.status(200).json(encryptResponse({ success: false }));
         }
 
         // ==================== MIGRASI PASSWORD ====================
         if (parsed.path === 'migrate_passwords' && parsed.method === 'POST') {
             const snap = await db.ref('users').once('value');
             const users = snap.val();
-            if (!users) return res.status(200).json({ success: false, error: 'Tidak ada user' });
+            if (!users) return res.status(200).json(encryptResponse({ success: false, error: 'Tidak ada user' }));
             
             let migrated = 0, skipped = 0, failed = 0;
             
@@ -376,7 +353,7 @@ export default async function handler(req, res) {
                 }
             }
             
-            return res.status(200).json({ success: true, migrated, skipped, failed, total: Object.keys(users).length });
+            return res.status(200).json(encryptResponse({ success: true, migrated, skipped, failed, total: Object.keys(users).length }));
         }
 
         // ==================== GENERIC CRUD ====================
@@ -395,15 +372,14 @@ export default async function handler(req, res) {
                     }
                 }
             }
-            return res.status(200).json(result);
+            return res.status(200).json(encryptResponse(result));
         }
 
         if (parsed.method === 'POST') {
             if (!validateData(parsed.path, parsed.data)) {
-                return res.status(400).json({ error: 'Invalid data' });
+                return res.status(400).json(encryptResponse({ error: 'Invalid data' }));
             }
             
-            // Hash password jika ada
             let dataToSave = { ...parsed.data };
             if (dataToSave.password) {
                 const hashedPassword = await hashPassword(dataToSave.password);
@@ -417,7 +393,7 @@ export default async function handler(req, res) {
             const newRef = ref.push();
             await newRef.set({ data: enc });
             
-            return res.status(200).json({ success: true, id: newRef.key });
+            return res.status(200).json(encryptResponse({ success: true, id: newRef.key }));
         }
 
         if (parsed.method === 'PATCH') {
@@ -441,35 +417,45 @@ export default async function handler(req, res) {
             const enc = encryptData(merged);
             await ref.update({ data: enc });
             
-            return res.status(200).json({ success: true });
+            return res.status(200).json(encryptResponse({ success: true }));
         }
 
         if (parsed.method === 'PUT') {
             const enc = encryptData(parsed.data);
             await ref.set({ data: enc });
-            return res.status(200).json({ success: true });
+            return res.status(200).json(encryptResponse({ success: true }));
         }
 
         if (parsed.method === 'DELETE') {
             await ref.remove();
-            return res.status(200).json({ success: true });
+            return res.status(200).json(encryptResponse({ success: true }));
         }
 
-        return res.status(400).json({ error: 'Invalid method' });
+        return res.status(400).json(encryptResponse({ error: 'Invalid method' }));
     } catch (error) {
         console.error('API Error:', error);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json(encryptResponse({ error: 'Internal Server Error' }));
     }
 }
 
 // ==================== HELPER FUNCTIONS ====================
 async function isIPBlocked(ip) {
     if (!ip) return false;
-    const snap = await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).once('value');
+    const key = ip.replace(/\./g, '_');
+    const snap = await db.ref('blocked_ips/' + key).once('value');
     const raw = snap.val();
     if (raw && raw.data) {
         try {
             const data = decryptData(raw.data);
+            if (data && data.blocked) return true;
+        } catch (e) {}
+    }
+    // Cek juga dengan key yang tidak di-replace
+    const snap2 = await db.ref('blocked_ips/' + ip).once('value');
+    const raw2 = snap2.val();
+    if (raw2 && raw2.data) {
+        try {
+            const data = decryptData(raw2.data);
             if (data && data.blocked) return true;
         } catch (e) {}
     }
@@ -492,7 +478,8 @@ async function isFPBlocked(fp) {
 async function blockIP(ip) {
     if (!ip) return;
     const enc = encryptData({ ip, blocked: true, blocked_at: new Date().toISOString() });
-    await db.ref('blocked_ips/' + ip.replace(/\./g, '_')).set({ data: enc });
+    const key = ip.replace(/\./g, '_');
+    await db.ref('blocked_ips/' + key).set({ data: enc });
 }
 
 async function blockFP(fp) {
