@@ -160,8 +160,41 @@ export default async function handler(req, res) {
         if (!body) {
             return res.status(400).json({ error: 'No data' });
         }
+
+        // ==================== BLOCK IP LANGSUNG (URL: /block_ip) ====================
+        if (req.url.includes('/block_ip') && req.method === 'POST') {
+            const ipToBlock = body.ip || ip;
+            if (!ipToBlock) return res.status(400).json({ error: 'IP required' });
+            await blockIP(ipToBlock);
+            return res.status(200).json({ success: true, blocked: true, ip: ipToBlock });
+        }
+
+        // ==================== BLOCK FP LANGSUNG (URL: /block_fp) ====================
+        if (req.url.includes('/block_fp') && req.method === 'POST') {
+            const fpToBlock = body.fp || fp;
+            if (!fpToBlock) return res.status(400).json({ error: 'FP required' });
+            await blockFP(fpToBlock);
+            return res.status(200).json({ success: true, blocked: true, fp: fpToBlock });
+        }
+
+        // ==================== UNBLOCK IP LANGSUNG (URL: /blocked_ips/:ip) ====================
+        if (req.url.includes('/blocked_ips/') && req.method === 'DELETE') {
+            const ipFromUrl = req.url.split('/blocked_ips/')[1];
+            if (!ipFromUrl) return res.status(400).json({ error: 'IP required' });
+            const ipToUnblock = ipFromUrl.replace(/_/g, '.');
+            await db.ref('blocked_ips/' + ipFromUrl).remove();
+            return res.status(200).json({ success: true, unblocked: true, ip: ipToUnblock });
+        }
+
+        // ==================== UNBLOCK FP LANGSUNG (URL: /blocked_fp/:fp) ====================
+        if (req.url.includes('/blocked_fp/') && req.method === 'DELETE') {
+            const fpFromUrl = req.url.split('/blocked_fp/')[1];
+            if (!fpFromUrl) return res.status(400).json({ error: 'FP required' });
+            await db.ref('blocked_fp/' + fpFromUrl).remove();
+            return res.status(200).json({ success: true, unblocked: true, fp: fpFromUrl });
+        }
         
-        // SUPPORT BOTH FORMATS
+        // SUPPORT BOTH FORMATS (wrapper & direct)
         if (body.path && typeof body.path === 'string') {
             parsed = body;
         } else if (body.data && typeof body.data === 'string') {
@@ -183,7 +216,7 @@ export default async function handler(req, res) {
         const ref = db.ref(parsed.path);
 
         // ==================== CHECK SESSION ====================
-        const publicPaths = ['admin/login_success', 'admin/auth', 'check_blocked', 'access_key', 'logout', 'login', 'login_failed', 'login_success', 'migrate_passwords'];
+        const publicPaths = ['admin/login_success', 'admin/auth', 'check_blocked', 'access_key', 'logout', 'login', 'login_failed', 'login_success', 'migrate_passwords', 'block_ip', 'block_fp'];
         
         if (!publicPaths.includes(parsed.path)) {
             const sessionId = req.headers['x-session'];
@@ -233,16 +266,16 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, sessionId: sessionId, email: email });
         }
 
-        // ==================== LOGIN FAILED ====================
+        // ==================== LOGIN FAILED (3X = BLOCK IP & FP) ====================
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
             const attempts = await trackLoginAttempt(ip, fp);
             await new Promise(r => setTimeout(r, Math.min(attempts * 500, 3000)));
-            if (attempts >= 5) {
+            if (attempts >= 3) {
                 await blockIP(ip);
                 if (fp) await blockFP(fp);
-                return res.status(200).json({ blocked: true });
+                return res.status(200).json({ blocked: true, attempts: attempts });
             }
-            return res.status(200).json({ attempts: attempts, remaining: 5 - attempts });
+            return res.status(200).json({ attempts: attempts, remaining: 3 - attempts });
         }
 
         // ==================== LOGOUT ====================
@@ -250,6 +283,22 @@ export default async function handler(req, res) {
             const sessionId = req.headers['x-session'];
             if (sessionId) await destroySession(sessionId);
             return res.status(200).json({ success: true });
+        }
+
+        // ==================== BLOCK IP (PATH: block_ip) ====================
+        if (parsed.path === 'block_ip' && parsed.method === 'POST') {
+            const ipToBlock = parsed.data?.ip || ip;
+            if (!ipToBlock) return res.status(400).json({ error: 'IP required' });
+            await blockIP(ipToBlock);
+            return res.status(200).json({ success: true, blocked: true, ip: ipToBlock });
+        }
+
+        // ==================== BLOCK FP (PATH: block_fp) ====================
+        if (parsed.path === 'block_fp' && parsed.method === 'POST') {
+            const fpToBlock = parsed.data?.fp || fp;
+            if (!fpToBlock) return res.status(400).json({ error: 'FP required' });
+            await blockFP(fpToBlock);
+            return res.status(200).json({ success: true, blocked: true, fp: fpToBlock });
         }
 
         // ==================== USER LOGIN ====================
