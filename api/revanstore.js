@@ -150,43 +150,32 @@ async function destroySession(sessionId) {
     }
 }
 
+// ==================== BLOCK FUNCTIONS (FIX) ====================
 async function isIPBlocked(ip) {
-    if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') return false;
-    
-    const key1 = ip.replace(/\./g, '_');
-    const key2 = ip.replace(/:/g, '_');
-    
-    const snap1 = await db.ref('blocked_ips/' + key1).once('value');
-    const raw1 = snap1.val();
-    if (raw1 && raw1.data) {
-        try {
-            const data = decryptData(raw1.data);
-            if (data && data.blocked === true) {
-                return true;
-            }
-        } catch (e) {}
+    if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') {
+        return false;
     }
     
-    const snap2 = await db.ref('blocked_ips/' + ip).once('value');
-    const raw2 = snap2.val();
-    if (raw2 && raw2.data) {
-        try {
-            const data = decryptData(raw2.data);
-            if (data && data.blocked === true) {
-                return true;
-            }
-        } catch (e) {}
-    }
+    // CEK DI 3 LOKASI
+    const keys = [
+        ip.replace(/\./g, '_'),     // 192_168_1_1
+        ip,                          // 192.168.1.1
+        ip.replace(/:/g, '_')       // Untuk IPv6
+    ];
     
-    const snap3 = await db.ref('blocked_ips/' + key2).once('value');
-    const raw3 = snap3.val();
-    if (raw3 && raw3.data) {
-        try {
-            const data = decryptData(raw3.data);
-            if (data && data.blocked === true) {
-                return true;
-            }
-        } catch (e) {}
+    for (const key of keys) {
+        const snap = await db.ref('blocked_ips/' + key).once('value');
+        const raw = snap.val();
+        
+        if (raw && raw.data) {
+            try {
+                const data = decryptData(raw.data);
+                if (data && data.blocked === true) {
+                    console.log('[BLOCK CHECK] IP blocked:', ip, 'key:', key);
+                    return true;
+                }
+            } catch (e) {}
+        }
     }
     
     return false;
@@ -194,46 +183,77 @@ async function isIPBlocked(ip) {
 
 async function isFPBlocked(fp) {
     if (!fp) return false;
+    
     const snap = await db.ref('blocked_fp/' + fp).once('value');
     const raw = snap.val();
+    
     if (raw && raw.data) {
         try {
             const data = decryptData(raw.data);
             if (data && data.blocked === true) {
+                console.log('[BLOCK CHECK] FP blocked:', fp);
                 return true;
             }
         } catch (e) {}
     }
+    
     return false;
 }
 
 async function blockIP(ip) {
-    if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') return;
+    if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') {
+        console.log('[BLOCK IP] Skip invalid IP:', ip);
+        return;
+    }
     
-    const data = { 
-        ip: ip, 
-        blocked: true, 
+    const data = {
+        ip: ip,
+        blocked: true,
         blocked_at: Date.now(),
         reason: 'Too many failed attempts'
     };
+    
     const enc = encryptData(data);
-    
     const key = ip.replace(/\./g, '_');
-    await db.ref('blocked_ips/' + key).set({ data: enc });
     
+    // SIMPAN DI 2 LOKASI
+    await db.ref('blocked_ips/' + key).set({ data: enc });
     await db.ref('blocked_ips/' + ip).set({ data: enc });
+    
+    console.log('[BLOCK IP] Success:', ip, 'keys:', key, ip);
 }
 
 async function blockFP(fp) {
-    if (!fp) return;
-    const data = { 
-        fingerprint: fp, 
-        blocked: true, 
+    if (!fp) {
+        console.log('[BLOCK FP] Skip empty FP');
+        return;
+    }
+    
+    const data = {
+        fingerprint: fp,
+        blocked: true,
         blocked_at: Date.now(),
         reason: 'Too many failed attempts'
     };
+    
     const enc = encryptData(data);
     await db.ref('blocked_fp/' + fp).set({ data: enc });
+    
+    console.log('[BLOCK FP] Success:', fp);
+}
+
+async function unblockIP(ip) {
+    if (!ip) return;
+    const key = ip.replace(/\./g, '_');
+    await db.ref('blocked_ips/' + key).remove();
+    await db.ref('blocked_ips/' + ip).remove();
+    console.log('[UNBLOCK IP] Success:', ip);
+}
+
+async function unblockFP(fp) {
+    if (!fp) return;
+    await db.ref('blocked_fp/' + fp).remove();
+    console.log('[UNBLOCK FP] Success:', fp);
 }
 
 async function trackLoginAttempt(ip, fp) {
@@ -243,6 +263,7 @@ async function trackLoginAttempt(ip, fp) {
     const raw = snap.val();
     const now = Date.now();
     let attempts = 0;
+    
     if (raw && raw.data) {
         try {
             const data = decryptData(raw.data);
@@ -255,6 +276,7 @@ async function trackLoginAttempt(ip, fp) {
             }
         } catch (e) {}
     }
+    
     const enc = encryptData({ count: attempts + 1, last_attempt: now, fingerprint: fp });
     await ref.set({ data: enc });
     return attempts + 1;
@@ -265,6 +287,7 @@ async function resetLoginAttempt(ip, fp) {
     await db.ref('login_attempts/' + key).remove();
 }
 
+// ==================== MAIN HANDLER ====================
 export default async function handler(req, res) {
     const origin = req.headers.origin;
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
@@ -325,8 +348,12 @@ export default async function handler(req, res) {
 
         // ==================== CHECK BLOCKED ====================
         if (parsed.path === 'check_blocked') {
+            console.log('[CHECK BLOCKED] Checking IP:', ip, 'FP:', fp);
+            
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
+            
+            console.log('[CHECK BLOCKED] Result - IP:', ipBlocked, 'FP:', fpBlocked);
             
             const result = {
                 blocked: ipBlocked || fpBlocked,
@@ -340,6 +367,7 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse(result));
         }
 
+        // ==================== ACCESS KEY ====================
         if (parsed.path === 'access_key' && parsed.method === 'GET') {
             const snap = await db.ref('access_key').once('value');
             const raw = snap.val();
@@ -350,6 +378,7 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse(result));
         }
 
+        // ==================== ADMIN AUTH ====================
         if (parsed.path === 'admin/auth' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -360,6 +389,7 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse(result));
         }
 
+        // ==================== LOGIN SUCCESS ====================
         if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
             await resetLoginAttempt(ip, fp);
             const email = sanitizeInput(parsed.data?.email || parsed.data?.username || 'admin');
@@ -367,10 +397,12 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ success: true, sessionId: sessionId, email: email }));
         }
 
+        // ==================== LOGIN FAILED ====================
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
             const attempts = await trackLoginAttempt(ip, fp);
             await new Promise(r => setTimeout(r, Math.min(attempts * 500, 3000)));
             if (attempts >= 3) {
+                console.log('[LOGIN FAILED] 3x attempts, blocking IP & FP');
                 await blockIP(ip);
                 if (fp) await blockFP(fp);
                 return res.status(200).json(encryptResponse({ blocked: true, attempts: attempts }));
@@ -378,12 +410,14 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ attempts: attempts, remaining: 3 - attempts }));
         }
 
+        // ==================== LOGOUT ====================
         if (parsed.path === 'logout' && parsed.method === 'POST') {
             const sessionId = req.headers['x-session'];
             if (sessionId) await destroySession(sessionId);
             return res.status(200).json(encryptResponse({ success: true }));
         }
 
+        // ==================== BLOCK IP ====================
         if (parsed.path === 'block_ip' && parsed.method === 'POST') {
             const ipToBlock = parsed.data?.ip || ip;
             if (!ipToBlock || ipToBlock === 'unknown' || ipToBlock === '::1' || ipToBlock === '127.0.0.1') {
@@ -393,6 +427,7 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ success: true, blocked: true, ip: ipToBlock }));
         }
 
+        // ==================== BLOCK FP ====================
         if (parsed.path === 'block_fp' && parsed.method === 'POST') {
             const fpToBlock = parsed.data?.fp || fp;
             if (!fpToBlock) {
@@ -402,6 +437,7 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ success: true, blocked: true, fp: fpToBlock }));
         }
 
+        // ==================== USER LOGIN ====================
         if (parsed.path === 'login' && parsed.method === 'POST') {
             const snap = await db.ref('users').once('value');
             const users = snap.val();
@@ -440,7 +476,8 @@ export default async function handler(req, res) {
                             username: userData.username,
                             role: userData.role || 'Operator',
                             full_name: userData.full_name || userData.username,
-                            expiry_date: userData.expiry_date || ''
+                            expiry_date: userData.expiry_date || '',
+                            balance: userData.balance || 0
                         }
                     }));
                 }
@@ -449,14 +486,13 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ success: false }));
         }
 
+        // ==================== MIGRASI PASSWORD ====================
         if (parsed.path === 'migrate_passwords' && parsed.method === 'POST') {
             const snap = await db.ref('users').once('value');
             const users = snap.val();
             if (!users) return res.status(200).json(encryptResponse({ success: false, error: 'Tidak ada user' }));
 
-            let migrated = 0,
-                skipped = 0,
-                failed = 0;
+            let migrated = 0, skipped = 0, failed = 0;
 
             for (const key in users) {
                 try {
@@ -480,6 +516,7 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ success: true, migrated, skipped, failed, total: Object.keys(users).length }));
         }
 
+        // ==================== GENERIC CRUD ====================
         if (parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
