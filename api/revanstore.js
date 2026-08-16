@@ -151,18 +151,22 @@ async function destroySession(sessionId) {
 }
 
 async function isIPBlocked(ip) {
-    if (!ip || ip === 'unknown') return false;
-    const key = ip.replace(/\./g, '_');
-    const snap = await db.ref('blocked_ips/' + key).once('value');
-    const raw = snap.val();
-    if (raw && raw.data) {
+    if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') return false;
+    
+    const key1 = ip.replace(/\./g, '_');
+    const key2 = ip.replace(/:/g, '_');
+    
+    const snap1 = await db.ref('blocked_ips/' + key1).once('value');
+    const raw1 = snap1.val();
+    if (raw1 && raw1.data) {
         try {
-            const data = decryptData(raw.data);
+            const data = decryptData(raw1.data);
             if (data && data.blocked === true) {
                 return true;
             }
         } catch (e) {}
     }
+    
     const snap2 = await db.ref('blocked_ips/' + ip).once('value');
     const raw2 = snap2.val();
     if (raw2 && raw2.data) {
@@ -173,6 +177,18 @@ async function isIPBlocked(ip) {
             }
         } catch (e) {}
     }
+    
+    const snap3 = await db.ref('blocked_ips/' + key2).once('value');
+    const raw3 = snap3.val();
+    if (raw3 && raw3.data) {
+        try {
+            const data = decryptData(raw3.data);
+            if (data && data.blocked === true) {
+                return true;
+            }
+        } catch (e) {}
+    }
+    
     return false;
 }
 
@@ -192,16 +208,30 @@ async function isFPBlocked(fp) {
 }
 
 async function blockIP(ip) {
-    if (!ip || ip === 'unknown') return;
-    const data = { ip, blocked: true, blocked_at: Date.now() };
+    if (!ip || ip === 'unknown' || ip === '::1' || ip === '127.0.0.1') return;
+    
+    const data = { 
+        ip: ip, 
+        blocked: true, 
+        blocked_at: Date.now(),
+        reason: 'Too many failed attempts'
+    };
     const enc = encryptData(data);
+    
     const key = ip.replace(/\./g, '_');
     await db.ref('blocked_ips/' + key).set({ data: enc });
+    
+    await db.ref('blocked_ips/' + ip).set({ data: enc });
 }
 
 async function blockFP(fp) {
     if (!fp) return;
-    const data = { fingerprint: fp, blocked: true, blocked_at: Date.now() };
+    const data = { 
+        fingerprint: fp, 
+        blocked: true, 
+        blocked_at: Date.now(),
+        reason: 'Too many failed attempts'
+    };
     const enc = encryptData(data);
     await db.ref('blocked_fp/' + fp).set({ data: enc });
 }
@@ -293,16 +323,21 @@ export default async function handler(req, res) {
             }
         }
 
+        // ==================== CHECK BLOCKED ====================
         if (parsed.path === 'check_blocked') {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
-            return res.status(200).json(encryptResponse({
+            
+            const result = {
                 blocked: ipBlocked || fpBlocked,
                 ip: ip,
                 fingerprint: fp || '',
                 ipBlocked: ipBlocked,
-                fpBlocked: fpBlocked
-            }));
+                fpBlocked: fpBlocked,
+                checkedAt: Date.now()
+            };
+            
+            return res.status(200).json(encryptResponse(result));
         }
 
         if (parsed.path === 'access_key' && parsed.method === 'GET') {
@@ -351,8 +386,8 @@ export default async function handler(req, res) {
 
         if (parsed.path === 'block_ip' && parsed.method === 'POST') {
             const ipToBlock = parsed.data?.ip || ip;
-            if (!ipToBlock || ipToBlock === 'unknown') {
-                return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: IP required.' }));
+            if (!ipToBlock || ipToBlock === 'unknown' || ipToBlock === '::1' || ipToBlock === '127.0.0.1') {
+                return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: IP tidak valid.' }));
             }
             await blockIP(ipToBlock);
             return res.status(200).json(encryptResponse({ success: true, blocked: true, ip: ipToBlock }));
