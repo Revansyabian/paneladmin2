@@ -30,6 +30,107 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #ffffff; color: var(--text); min-height: 100vh; }
+        
+        /* ==================== HALAMAN AKSES DITOLAK ==================== */
+        #blockedScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8fafc;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #blockedScreen.show {
+            display: flex;
+        }
+        .blocked-box {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .blocked-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--danger-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 48px;
+            color: var(--danger);
+        }
+        .blocked-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--danger);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        .blocked-subtitle {
+            font-size: 15px;
+            color: var(--sub);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .blocked-info {
+            background: #f8fafc;
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .blocked-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .blocked-info-item:last-child {
+            border-bottom: none;
+        }
+        .blocked-info-label {
+            color: var(--sub);
+            font-weight: 600;
+        }
+        .blocked-info-value {
+            color: var(--text);
+            font-weight: 500;
+            word-break: break-all;
+            max-width: 60%;
+        }
+        .blocked-btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--danger);
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .blocked-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
         #loginWrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f8fafc; padding: 20px; }
         #keyScreen, #loginScreen, #settingsKeyScreen { background: #ffffff; border-radius: 16px; padding: 40px 36px; width: 100%; max-width: 400px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
         #keyScreen .logo, #loginScreen .logo, #settingsKeyScreen .logo { text-align: center; font-size: 36px; color: var(--primary); margin-bottom: 8px; }
@@ -206,6 +307,9 @@
             .web-stats { grid-template-columns: 1fr 1fr; }
             .user-info-card { flex-direction: column; text-align: center; }
             .user-info-actions { justify-content: center; }
+            .blocked-box { padding: 32px 20px; }
+            .blocked-icon { width: 80px; height: 80px; font-size: 36px; }
+            .blocked-title { font-size: 22px; }
         }
         @media (max-width: 480px) {
             .navbar { padding: 0 12px; }
@@ -223,6 +327,30 @@
     </style>
 </head>
 <body>
+
+    <!-- ==================== HALAMAN AKSES DITOLAK ==================== -->
+    <div id="blockedScreen">
+        <div class="blocked-box">
+            <div class="blocked-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1 class="blocked-title">AKSES DITOLAK</h1>
+            <p class="blocked-subtitle">Maaf, akses Anda telah diblokir oleh sistem keamanan kami.</p>
+            <div class="blocked-info">
+                <div class="blocked-info-item">
+                    <span class="blocked-info-label"><i class="fas fa-network-wired"></i> IP Address</span>
+                    <span class="blocked-info-value" id="blockedIPDisplay">-</span>
+                </div>
+                <div class="blocked-info-item">
+                    <span class="blocked-info-label"><i class="fas fa-fingerprint"></i> Fingerprint</span>
+                    <span class="blocked-info-value" id="blockedFPDisplay">-</span>
+                </div>
+            </div>
+            <button class="blocked-btn" onclick="location.reload()">
+                <i class="fas fa-sync-alt"></i> Coba Lagi
+            </button>
+        </div>
+    </div>
 
     <!-- SETTINGS KEY OVERLAY -->
     <div class="settings-key-overlay" id="settingsKeyOverlay">
@@ -913,14 +1041,62 @@
                 } else {
                     keyAttempts++;
                     document.getElementById('accessKey').value = ''; hideAlert();
-                    if (keyAttempts >= 3) { showAlert('Error', 'Key salah 3x! Diblokir.', 'error'); setTimeout(function() { showBlockedScreen(); }, 1500); return; }
+                    if (keyAttempts >= 3) { showBlockedScreen(fingerprint, fingerprint); return; }
                     showAlert('Error', 'Key salah! Sisa ' + (3 - keyAttempts), 'error');
                 }
             }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
         }
 
-        function showBlockedScreen() {
-            document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow-lg);"><div style="font-size:48px;margin-bottom:20px;">🔒</div><h1 style="color:var(--danger);font-size:24px;">AKSES DITOLAK</h1><p style="color:var(--sub);">Akses Anda telah diblokir permanen.</p></div></div>';
+        // ==================== FUNGSI TAMPILKAN HALAMAN AKSES DITOLAK ====================
+        function showBlockedScreen(ipAddress, fpValue) {
+            var blockedScreen = document.getElementById('blockedScreen');
+            var ipDisplay = document.getElementById('blockedIPDisplay');
+            var fpDisplay = document.getElementById('blockedFPDisplay');
+            
+            if (ipDisplay) ipDisplay.textContent = ipAddress || '-';
+            if (fpDisplay) {
+                if (fpValue && fpValue !== '-') {
+                    fpDisplay.textContent = fpValue.substring(0, 20) + '...';
+                } else {
+                    fpDisplay.textContent = '-';
+                }
+            }
+            
+            document.getElementById('loginWrapper').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'none';
+            
+            if (blockedScreen) {
+                blockedScreen.classList.add('show');
+            }
+        }
+
+        // ==================== CEK BLOKIR SAAT PERTAMA KALI BUKA WEB ====================
+        async function checkBlockedOnLoad() {
+            try {
+                if (!fingerprint) fingerprint = await getFingerprint();
+                
+                var res = await fetch(API_URL + '/check_blocked', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Fingerprint': fingerprint
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                var result = await res.json();
+                
+                if (result && result.blocked) {
+                    var ipValue = result.ip || 'unknown';
+                    showBlockedScreen(ipValue, fingerprint);
+                    return true;
+                }
+                
+                return false;
+            } catch (e) {
+                console.error('[Check Blocked] Error:', e);
+                return false;
+            }
         }
 
         // ==================== FUNGSI BLOKIR IP & FP (PATH: block_ip dan block_fp) ====================
@@ -958,7 +1134,7 @@
             if (!email || !pass) { showAlert('Error', 'Email & password wajib!', 'error'); return; }
             showAlert('Verifikasi', 'Mohon tunggu...', 'loading');
             apiCall('admin/auth', 'GET').then(function(r) {
-                if (r && r.blocked) { hideAlert(); showBlockedScreen(); return; }
+                if (r && r.blocked) { hideAlert(); showBlockedScreen(fingerprint, fingerprint); return; }
                 if (r && r.email === email && r.password === pass) {
                     loginAttempts = 0;
                     apiCall('admin/login_success', 'POST', { email: email }).then(function(loginResult) {
@@ -982,11 +1158,10 @@
                     apiCall('admin/login_failed', 'POST', {}).then(function() { 
                         hideAlert(); 
                         if (loginAttempts >= 3) {
-                            // ===== BLOKIR IP & FP SETELAH 3X GAGAL LOGIN =====
                             showAlert('Diblokir', 'Password salah 3x! IP & FP Anda diblokir.', 'error');
                             blockIP(fingerprint);
                             blockFP(fingerprint);
-                            setTimeout(function() { showBlockedScreen(); }, 1500);
+                            setTimeout(function() { showBlockedScreen(fingerprint, fingerprint); }, 1500);
                         } else {
                             showAlert('Gagal', 'Email atau password salah! Sisa ' + (3 - loginAttempts) + ' percobaan.', 'error');
                         }
@@ -1270,7 +1445,6 @@
             });
         }
 
-        // ==================== doAction DENGAN PATH block_ip DAN block_fp ====================
         function doAction(action, target) {
             showAlert('Proses', 'Memproses...', 'loading');
             var patchData = {};
@@ -1282,12 +1456,10 @@
                 var dur = 86400000; 
                 patchData = { banAkses: true, banAksesUntil: Date.now() + dur }; 
                 
-                // ===== KIRIM IP LANGSUNG (PATH: block_ip) =====
                 if (target.ip && target.ip !== '-' && target.ip !== '') {
                     blockIP(target.ip);
                 }
                 
-                // ===== KIRIM FP LANGSUNG (PATH: block_fp) =====
                 if (target.fingerprint && target.fingerprint !== '-' && target.fingerprint !== '') {
                     blockFP(target.fingerprint);
                 }
@@ -1295,12 +1467,10 @@
             else if (action === 'unbanakses') { 
                 patchData = { banAkses: false, banAksesUntil: 0 }; 
                 
-                // ===== HAPUS BLOKIR IP =====
                 if (target.ip && target.ip !== '-' && target.ip !== '') {
                     unblockIP(target.ip);
                 }
                 
-                // ===== HAPUS BLOKIR FP =====
                 if (target.fingerprint && target.fingerprint !== '-' && target.fingerprint !== '') {
                     unblockFP(target.fingerprint);
                 }
@@ -1880,6 +2050,11 @@
                     sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); } }, 1800000);
                 }
             });
+            
+            // ==================== CEK BLOKIR SAAT PERTAMA KALI BUKA WEB ====================
+            var isBlocked = await checkBlockedOnLoad();
+            if (isBlocked) return;
+            
             var savedSession = localStorage.getItem('sessionId');
             if (savedSession) {
                 sessionId = savedSession;
