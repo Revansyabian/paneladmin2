@@ -334,8 +334,8 @@
             <div class="blocked-icon">
                 <i class="fas fa-lock"></i>
             </div>
-            <h1 class="blocked-title">AKSES DITOLAK</h1>
-            <p class="blocked-subtitle">Maaf, akses Anda telah diblokir oleh sistem keamanan kami.</p>
+            <h1 class="blocked-title">⛔ AKSES DITOLAK</h1>
+            <p class="blocked-subtitle">Anda telah melakukan 3 kali percobaan akses yang salah. Untuk keamanan, IP dan perangkat Anda telah diblokir sementara.</p>
             <div class="blocked-info">
                 <div class="blocked-info-item">
                     <span class="blocked-info-label"><i class="fas fa-network-wired"></i> IP Address</span>
@@ -1027,6 +1027,7 @@
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
+        // ==================== FUNGSI BAN AKSES YANG DIPERBAIKI ====================
         function verifyKey() {
             var key = document.getElementById('accessKey').value.trim();
             if (!key) { showAlert('Error', 'Key wajib diisi!', 'error'); return; }
@@ -1041,8 +1042,17 @@
                 } else {
                     keyAttempts++;
                     document.getElementById('accessKey').value = ''; hideAlert();
-                    if (keyAttempts >= 3) { showBlockedScreen(fingerprint, fingerprint); return; }
-                    showAlert('Error', 'Key salah! Sisa ' + (3 - keyAttempts), 'error');
+                    if (keyAttempts >= 3) {
+                        // 🔥 BLOKIR PERMANEN KE DATABASE
+                        blockIP(fingerprint);
+                        blockFP(fingerprint);
+                        showAlert('Akses Diblokir', 'Terlalu banyak percobaan! IP & Perangkat Anda diblokir.', 'error');
+                        setTimeout(function() {
+                            showBlockedScreen(fingerprint, fingerprint);
+                        }, 1500);
+                        return;
+                    }
+                    showAlert('Error', 'Key salah! Sisa ' + (3 - keyAttempts) + ' percobaan.', 'error');
                 }
             }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
         }
@@ -1053,13 +1063,17 @@
             var ipDisplay = document.getElementById('blockedIPDisplay');
             var fpDisplay = document.getElementById('blockedFPDisplay');
             
+            // 🔥 PESAN LEBIH SPESIFIK
+            document.querySelector('.blocked-title').textContent = '⛔ AKSES DITOLAK';
+            document.querySelector('.blocked-subtitle').textContent = 
+                'Anda telah melakukan 3 kali percobaan akses yang salah. ' +
+                'Untuk keamanan, IP dan perangkat Anda telah diblokir sementara.';
+            
             if (ipDisplay) ipDisplay.textContent = ipAddress || '-';
             if (fpDisplay) {
-                if (fpValue && fpValue !== '-') {
-                    fpDisplay.textContent = fpValue.substring(0, 20) + '...';
-                } else {
-                    fpDisplay.textContent = '-';
-                }
+                fpDisplay.textContent = (fpValue && fpValue !== '-') 
+                    ? fpValue.substring(0, 20) + '...' 
+                    : '-';
             }
             
             document.getElementById('loginWrapper').style.display = 'none';
@@ -1075,19 +1089,11 @@
             try {
                 if (!fingerprint) fingerprint = await getFingerprint();
                 
-                var res = await fetch(API_URL + '/check_blocked', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Fingerprint': fingerprint
-                    },
-                    body: JSON.stringify({})
-                });
-                
-                var result = await res.json();
+                // 🔥 PANGGIL API UTAMA DENGAN PATH check_blocked
+                var result = await apiCall('check_blocked', 'GET', {});
                 
                 if (result && result.blocked) {
-                    var ipValue = result.ip || 'unknown';
+                    var ipValue = result.ip || fingerprint;
                     showBlockedScreen(ipValue, fingerprint);
                     return true;
                 }
