@@ -3,13 +3,14 @@ import admin from 'firebase-admin';
 import bcrypt from 'bcryptjs';
 
 const ADMIN_KEY = process.env.ADMIN_KEY;
+const API_SECRET = process.env.API_SECRET || '1417-1426-1527-1517';
+
 if (!ADMIN_KEY) {
     throw new Error('ADMIN_KEY is required!');
 }
 
 const SALT_ROUNDS = 12;
 const SESSION_DURATION = 3600000;
-const SESSION_EXTEND_THRESHOLD = 300000;
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW = 60000;
 
@@ -26,6 +27,34 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
+
+function encryptData(data) {
+    return CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
+}
+
+function decryptData(raw) {
+    if (!raw) return raw;
+    try {
+        const dec = CryptoJS.AES.decrypt(raw, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
+        return JSON.parse(dec);
+    } catch (e) {
+        return null;
+    }
+}
+
+function encryptResponse(data) {
+    const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), API_SECRET).toString();
+    return { data: encrypted };
+}
+
+function decryptRequest(encryptedData) {
+    try {
+        const decrypted = CryptoJS.AES.decrypt(encryptedData, API_SECRET).toString(CryptoJS.enc.Utf8);
+        return JSON.parse(decrypted);
+    } catch (e) {
+        return null;
+    }
+}
 
 async function hashPassword(password) {
     try {
@@ -50,7 +79,6 @@ async function checkRateLimit(ip) {
     const snap = await ref.once('value');
     const raw = snap.val();
     const now = Date.now();
-    
     if (raw && raw.data) {
         try {
             const data = decryptData(raw.data);
@@ -62,7 +90,6 @@ async function checkRateLimit(ip) {
             }
         } catch (e) {}
     }
-    
     await ref.set({ data: encryptData({ count: 1, timestamp: now }) });
     return true;
 }
@@ -79,26 +106,11 @@ function sanitizeInput(str) {
 function validateData(path, data) {
     if (!data || typeof data !== 'object') return false;
     if (path === 'users' || path.startsWith('users/')) {
-        if (data.username !== undefined && (typeof data.username !== 'string' || data.username.length < 3)) return false;
+        if (data.username !== undefined && (typeof data.username !== 'string' || data.username.length < 3)) {
+            return false;
+        }
     }
     return true;
-}
-
-function decryptData(raw) {
-    if (!raw) return raw;
-    try {
-        const dec = CryptoJS.AES.decrypt(raw, ADMIN_KEY).toString(CryptoJS.enc.Utf8);
-        return JSON.parse(dec);
-    } catch (e) { return raw; }
-}
-
-function encryptData(data) {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), ADMIN_KEY).toString();
-}
-
-// ==================== ENKRIPSI RESPONSE ====================
-function encryptResponse(data) {
-    return { data: encryptData(data) };
 }
 
 async function createSession(email, ip, fp) {
@@ -127,7 +139,7 @@ async function checkSession(sessionId) {
             return null;
         }
         return session;
-    } catch(e) {
+    } catch (e) {
         return null;
     }
 }
@@ -138,8 +150,92 @@ async function destroySession(sessionId) {
     }
 }
 
+async function isIPBlocked(ip) {
+    if (!ip || ip === 'unknown') return false;
+    const key = ip.replace(/\./g, '_');
+    const snap = await db.ref('blocked_ips/' + key).once('value');
+    const raw = snap.val();
+    if (raw && raw.data) {
+        try {
+            const data = decryptData(raw.data);
+            if (data && data.blocked === true) {
+                return true;
+            }
+        } catch (e) {}
+    }
+    const snap2 = await db.ref('blocked_ips/' + ip).once('value');
+    const raw2 = snap2.val();
+    if (raw2 && raw2.data) {
+        try {
+            const data = decryptData(raw2.data);
+            if (data && data.blocked === true) {
+                return true;
+            }
+        } catch (e) {}
+    }
+    return false;
+}
+
+async function isFPBlocked(fp) {
+    if (!fp) return false;
+    const snap = await db.ref('blocked_fp/' + fp).once('value');
+    const raw = snap.val();
+    if (raw && raw.data) {
+        try {
+            const data = decryptData(raw.data);
+            if (data && data.blocked === true) {
+                return true;
+            }
+        } catch (e) {}
+    }
+    return false;
+}
+
+async function blockIP(ip) {
+    if (!ip || ip === 'unknown') return;
+    const data = { ip, blocked: true, blocked_at: Date.now() };
+    const enc = encryptData(data);
+    const key = ip.replace(/\./g, '_');
+    await db.ref('blocked_ips/' + key).set({ data: enc });
+}
+
+async function blockFP(fp) {
+    if (!fp) return;
+    const data = { fingerprint: fp, blocked: true, blocked_at: Date.now() };
+    const enc = encryptData(data);
+    await db.ref('blocked_fp/' + fp).set({ data: enc });
+}
+
+async function trackLoginAttempt(ip, fp) {
+    const key = ip.replace(/\./g, '_') + '_' + (fp || 'nofp');
+    const ref = db.ref('login_attempts/' + key);
+    const snap = await ref.once('value');
+    const raw = snap.val();
+    const now = Date.now();
+    let attempts = 0;
+    if (raw && raw.data) {
+        try {
+            const data = decryptData(raw.data);
+            attempts = data.count || 0;
+            if (now - (data.last_attempt || 0) > 3600000) {
+                await ref.remove();
+                const enc = encryptData({ count: 1, last_attempt: now, fingerprint: fp });
+                await ref.set({ data: enc });
+                return 1;
+            }
+        } catch (e) {}
+    }
+    const enc = encryptData({ count: attempts + 1, last_attempt: now, fingerprint: fp });
+    await ref.set({ data: enc });
+    return attempts + 1;
+}
+
+async function resetLoginAttempt(ip, fp) {
+    const key = ip.replace(/\./g, '_') + '_' + (fp || 'nofp');
+    await db.ref('login_attempts/' + key).remove();
+}
+
 export default async function handler(req, res) {
-    // ==================== CORS ====================
     const origin = req.headers.origin;
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
     res.setHeader('Vary', 'Origin');
@@ -155,65 +251,60 @@ export default async function handler(req, res) {
     const fp = req.headers['x-fingerprint'] || '';
 
     if (!await checkRateLimit(ip)) {
-        return res.status(429).json(encryptResponse({ error: 'Terlalu banyak request.' }));
+        return res.status(429).json(encryptResponse({ error: 'RATE_LIMIT: Terlalu banyak request.' }));
     }
 
     try {
         let parsed;
         const body = req.body;
-        
+
         if (!body) {
-            return res.status(400).json(encryptResponse({ error: 'No data' }));
+            return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: No data provided.' }));
         }
 
-        // ==================== CEK APAKAH BODY TERENKRIPSI ====================
         if (body.data && typeof body.data === 'string') {
-            const decrypted = decryptData(body.data);
+            const decrypted = decryptRequest(body.data);
             if (!decrypted) {
-                return res.status(403).json(encryptResponse({ error: 'Access denied' }));
+                return res.status(403).json(encryptResponse({ error: 'FORBIDDEN: Invalid encryption.' }));
             }
             parsed = decrypted;
         } else if (body.path && typeof body.path === 'string') {
             parsed = body;
         } else {
-            return res.status(400).json(encryptResponse({ error: 'No data' }));
+            return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: Invalid request format.' }));
         }
 
         if (!parsed.path || typeof parsed.path !== 'string' || parsed.path.length > 200) {
-            return res.status(400).json(encryptResponse({ error: 'Invalid path' }));
+            return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: Invalid path.' }));
         }
 
         const ref = db.ref(parsed.path);
 
-        // ==================== CHECK SESSION ====================
         const publicPaths = ['admin/login_success', 'admin/auth', 'check_blocked', 'access_key', 'logout', 'login', 'login_failed', 'login_success', 'migrate_passwords', 'block_ip', 'block_fp'];
-        
+
         if (!publicPaths.includes(parsed.path)) {
             const sessionId = req.headers['x-session'];
             if (!sessionId) {
-                return res.status(401).json(encryptResponse({ error: 'Session required' }));
+                return res.status(401).json(encryptResponse({ error: 'UNAUTHORIZED: Session required.' }));
             }
             const session = await checkSession(sessionId);
             if (!session) {
-                return res.status(401).json(encryptResponse({ error: 'Invalid or expired session' }));
+                return res.status(401).json(encryptResponse({ error: 'UNAUTHORIZED: Invalid or expired session.' }));
             }
         }
 
-        // ==================== CHECK BLOCKED ====================
         if (parsed.path === 'check_blocked') {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
-            const result = { 
+            return res.status(200).json(encryptResponse({
                 blocked: ipBlocked || fpBlocked,
                 ip: ip,
                 fingerprint: fp || '',
                 ipBlocked: ipBlocked,
                 fpBlocked: fpBlocked
-            };
-            return res.status(200).json(encryptResponse(result));
+            }));
         }
 
-        // ==================== ACCESS KEY ====================
         if (parsed.path === 'access_key' && parsed.method === 'GET') {
             const snap = await db.ref('access_key').once('value');
             const raw = snap.val();
@@ -224,7 +315,6 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse(result));
         }
 
-        // ==================== ADMIN AUTH ====================
         if (parsed.path === 'admin/auth' && parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -235,7 +325,6 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse(result));
         }
 
-        // ==================== LOGIN SUCCESS ====================
         if ((parsed.path === 'admin/login_success' || parsed.path === 'login_success') && parsed.method === 'POST') {
             await resetLoginAttempt(ip, fp);
             const email = sanitizeInput(parsed.data?.email || parsed.data?.username || 'admin');
@@ -243,7 +332,6 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ success: true, sessionId: sessionId, email: email }));
         }
 
-        // ==================== LOGIN FAILED (3X = BLOCK IP & FP) ====================
         if ((parsed.path === 'admin/login_failed' || parsed.path === 'login_failed') && parsed.method === 'POST') {
             const attempts = await trackLoginAttempt(ip, fp);
             await new Promise(r => setTimeout(r, Math.min(attempts * 500, 3000)));
@@ -255,34 +343,30 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ attempts: attempts, remaining: 3 - attempts }));
         }
 
-        // ==================== LOGOUT ====================
         if (parsed.path === 'logout' && parsed.method === 'POST') {
             const sessionId = req.headers['x-session'];
             if (sessionId) await destroySession(sessionId);
             return res.status(200).json(encryptResponse({ success: true }));
         }
 
-        // ==================== BLOCK IP ====================
         if (parsed.path === 'block_ip' && parsed.method === 'POST') {
             const ipToBlock = parsed.data?.ip || ip;
             if (!ipToBlock || ipToBlock === 'unknown') {
-                return res.status(400).json(encryptResponse({ error: 'IP required' }));
+                return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: IP required.' }));
             }
             await blockIP(ipToBlock);
             return res.status(200).json(encryptResponse({ success: true, blocked: true, ip: ipToBlock }));
         }
 
-        // ==================== BLOCK FP ====================
         if (parsed.path === 'block_fp' && parsed.method === 'POST') {
             const fpToBlock = parsed.data?.fp || fp;
             if (!fpToBlock) {
-                return res.status(400).json(encryptResponse({ error: 'FP required' }));
+                return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: FP required.' }));
             }
             await blockFP(fpToBlock);
             return res.status(200).json(encryptResponse({ success: true, blocked: true, fp: fpToBlock }));
         }
 
-        // ==================== USER LOGIN ====================
         if (parsed.path === 'login' && parsed.method === 'POST') {
             const snap = await db.ref('users').once('value');
             const users = snap.val();
@@ -290,12 +374,12 @@ export default async function handler(req, res) {
 
             const username = sanitizeInput(parsed.data?.username || '');
             const password = parsed.data?.password || '';
-            
+
             for (const key in users) {
                 const userData = decryptData(users[key].data);
                 if (userData && userData.username === username) {
                     let isPasswordValid = false;
-                    
+
                     if (userData.password_hash) {
                         isPasswordValid = await verifyPassword(password, userData.password_hash);
                     } else if (userData.password) {
@@ -309,9 +393,9 @@ export default async function handler(req, res) {
                             }
                         }
                     }
-                    
+
                     if (!isPasswordValid) continue;
-                    
+
                     const sessionId = await createSession(username, ip, fp);
                     return res.status(200).json(encryptResponse({
                         success: true,
@@ -326,28 +410,29 @@ export default async function handler(req, res) {
                     }));
                 }
             }
-            
+
             return res.status(200).json(encryptResponse({ success: false }));
         }
 
-        // ==================== MIGRASI PASSWORD ====================
         if (parsed.path === 'migrate_passwords' && parsed.method === 'POST') {
             const snap = await db.ref('users').once('value');
             const users = snap.val();
             if (!users) return res.status(200).json(encryptResponse({ success: false, error: 'Tidak ada user' }));
-            
-            let migrated = 0, skipped = 0, failed = 0;
-            
+
+            let migrated = 0,
+                skipped = 0,
+                failed = 0;
+
             for (const key in users) {
                 try {
                     const userData = decryptData(users[key].data);
                     if (!userData || !userData.username) { skipped++; continue; }
                     if (userData.password_hash) { skipped++; continue; }
                     if (!userData.password) { skipped++; continue; }
-                    
+
                     const hashedPassword = await hashPassword(userData.password);
                     if (!hashedPassword) { failed++; continue; }
-                    
+
                     const updatedData = { ...userData, password_hash: hashedPassword };
                     delete updatedData.password;
                     await db.ref('users/' + key).update({ data: encryptData(updatedData) });
@@ -356,11 +441,10 @@ export default async function handler(req, res) {
                     failed++;
                 }
             }
-            
+
             return res.status(200).json(encryptResponse({ success: true, migrated, skipped, failed, total: Object.keys(users).length }));
         }
 
-        // ==================== GENERIC CRUD ====================
         if (parsed.method === 'GET') {
             const snap = await ref.once('value');
             const raw = snap.val();
@@ -381,9 +465,9 @@ export default async function handler(req, res) {
 
         if (parsed.method === 'POST') {
             if (!validateData(parsed.path, parsed.data)) {
-                return res.status(400).json(encryptResponse({ error: 'Invalid data' }));
+                return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: Invalid data.' }));
             }
-            
+
             let dataToSave = { ...parsed.data };
             if (dataToSave.password) {
                 const hashedPassword = await hashPassword(dataToSave.password);
@@ -392,11 +476,11 @@ export default async function handler(req, res) {
                     delete dataToSave.password;
                 }
             }
-            
+
             const enc = encryptData(dataToSave);
             const newRef = ref.push();
             await newRef.set({ data: enc });
-            
+
             return res.status(200).json(encryptResponse({ success: true, id: newRef.key }));
         }
 
@@ -407,7 +491,7 @@ export default async function handler(req, res) {
             if (existing && existing.data) {
                 try { existingData = decryptData(existing.data); } catch (e) {}
             }
-            
+
             let dataToMerge = { ...parsed.data };
             if (dataToMerge.password) {
                 const hashedPassword = await hashPassword(dataToMerge.password);
@@ -416,11 +500,11 @@ export default async function handler(req, res) {
                     delete dataToMerge.password;
                 }
             }
-            
+
             const merged = Object.assign({}, existingData, dataToMerge);
             const enc = encryptData(merged);
             await ref.update({ data: enc });
-            
+
             return res.status(200).json(encryptResponse({ success: true }));
         }
 
@@ -435,116 +519,9 @@ export default async function handler(req, res) {
             return res.status(200).json(encryptResponse({ success: true }));
         }
 
-        return res.status(400).json(encryptResponse({ error: 'Invalid method' }));
+        return res.status(400).json(encryptResponse({ error: 'BAD_REQUEST: Invalid method.' }));
     } catch (error) {
         console.error('API Error:', error);
-        return res.status(500).json(encryptResponse({ error: 'Internal Server Error' }));
+        return res.status(500).json(encryptResponse({ error: 'INTERNAL_ERROR: ' + error.message }));
     }
-}
-
-// ==================== HELPER FUNCTIONS ====================
-async function isIPBlocked(ip) {
-    if (!ip || ip === 'unknown') return false;
-    
-    // Cek dengan key yang di-replace (underscore)
-    const key = ip.replace(/\./g, '_');
-    const snap = await db.ref('blocked_ips/' + key).once('value');
-    const raw = snap.val();
-    
-    if (raw && raw.data) {
-        try {
-            const data = decryptData(raw.data);
-            if (data && data.blocked === true) {
-                return true;
-            }
-        } catch (e) {}
-    }
-    
-    // Cek juga dengan key asli (tanpa replace)
-    const snap2 = await db.ref('blocked_ips/' + ip).once('value');
-    const raw2 = snap2.val();
-    if (raw2 && raw2.data) {
-        try {
-            const data = decryptData(raw2.data);
-            if (data && data.blocked === true) {
-                return true;
-            }
-        } catch (e) {}
-    }
-    
-    return false;
-}
-
-async function isFPBlocked(fp) {
-    if (!fp) return false;
-    
-    const snap = await db.ref('blocked_fp/' + fp).once('value');
-    const raw = snap.val();
-    
-    if (raw && raw.data) {
-        try {
-            const data = decryptData(raw.data);
-            if (data && data.blocked === true) {
-                return true;
-            }
-        } catch (e) {}
-    }
-    
-    return false;
-}
-
-async function blockIP(ip) {
-    if (!ip || ip === 'unknown') return;
-    
-    const data = { 
-        ip: ip, 
-        blocked: true, 
-        blocked_at: Date.now() 
-    };
-    const enc = encryptData(data);
-    const key = ip.replace(/\./g, '_');
-    await db.ref('blocked_ips/' + key).set({ data: enc });
-}
-
-async function blockFP(fp) {
-    if (!fp) return;
-    
-    const data = { 
-        fingerprint: fp, 
-        blocked: true, 
-        blocked_at: Date.now() 
-    };
-    const enc = encryptData(data);
-    await db.ref('blocked_fp/' + fp).set({ data: enc });
-}
-
-async function trackLoginAttempt(ip, fp) {
-    const key = ip.replace(/\./g, '_') + '_' + (fp || 'nofp');
-    const ref = db.ref('login_attempts/' + key);
-    const snap = await ref.once('value');
-    const raw = snap.val();
-    const now = Date.now();
-    let attempts = 0;
-    
-    if (raw && raw.data) {
-        try {
-            const data = decryptData(raw.data);
-            attempts = data.count || 0;
-            if (now - (data.last_attempt || 0) > 3600000) {
-                await ref.remove();
-                const enc = encryptData({ count: 1, last_attempt: now, fingerprint: fp });
-                await ref.set({ data: enc });
-                return 1;
-            }
-        } catch (e) {}
-    }
-    
-    const enc = encryptData({ count: attempts + 1, last_attempt: now, fingerprint: fp });
-    await ref.set({ data: enc });
-    return attempts + 1;
-}
-
-async function resetLoginAttempt(ip, fp) {
-    const key = ip.replace(/\./g, '_') + '_' + (fp || 'nofp');
-    await db.ref('login_attempts/' + key).remove();
 }
