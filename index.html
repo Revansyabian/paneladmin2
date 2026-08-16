@@ -29,414 +29,94 @@
             --shadow-lg: 0 8px 32px rgba(0, 191, 255, 0.12);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #ffffff;
-            color: var(--text);
-            min-height: 100vh;
-        }
-        #loginWrapper {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8fafc;
-            padding: 20px;
-        }
-        #keyScreen, #loginScreen, #settingsKeyScreen {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 40px 36px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
-        }
-        #keyScreen .logo, #loginScreen .logo, #settingsKeyScreen .logo {
-            text-align: center;
-            font-size: 36px;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-        #keyScreen h2, #loginScreen h2, #settingsKeyScreen h2 {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 4px;
-        }
-        #keyScreen p, #loginScreen p, #settingsKeyScreen p {
-            text-align: center;
-            font-size: 14px;
-            color: var(--sub);
-            margin-bottom: 24px;
-        }
+        body { font-family: 'Inter', sans-serif; background: #ffffff; color: var(--text); min-height: 100vh; }
+        #loginWrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f8fafc; padding: 20px; }
+        #keyScreen, #loginScreen, #settingsKeyScreen { background: #ffffff; border-radius: 16px; padding: 40px 36px; width: 100%; max-width: 400px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
+        #keyScreen .logo, #loginScreen .logo, #settingsKeyScreen .logo { text-align: center; font-size: 36px; color: var(--primary); margin-bottom: 8px; }
+        #keyScreen h2, #loginScreen h2, #settingsKeyScreen h2 { text-align: center; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        #keyScreen p, #loginScreen p, #settingsKeyScreen p { text-align: center; font-size: 14px; color: var(--sub); margin-bottom: 24px; }
         .input-group { margin-bottom: 16px; }
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--sub);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--sub); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
         .input-group label i { margin-right: 6px; color: var(--primary); }
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 15px;
-            background: #fff;
-            transition: 0.2s;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            color: var(--text);
-        }
-        .input-group input:focus, .input-group select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
-        }
-        .input-group select {
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-        }
-        .input-group input[readonly] {
-            background: #f8fafc;
-            color: #94a3b8;
-            cursor: not-allowed;
-        }
-        .input-with-btn {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+        .input-group input, .input-group select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 15px; background: #fff; transition: 0.2s; font-family: 'Inter', sans-serif; outline: none; color: var(--text); }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1); }
+        .input-group select { appearance: none; -webkit-appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
+        .input-group input[readonly] { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+        .input-with-btn { display: flex; gap: 8px; align-items: center; }
         .input-with-btn input { flex: 1; }
         .input-with-btn .btn { flex-shrink: 0; }
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+        .btn { padding: 12px 24px; border: none; border-radius: var(--radius); font-weight: 600; font-size: 14px; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn:hover { transform: translateY(-1px); }
         .btn:active { transform: translateY(0); }
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-            width: 100%;
-            box-shadow: 0 2px 8px rgba(0, 191, 255, 0.3);
-        }
+        .btn-primary { background: var(--primary); color: #fff; width: 100%; box-shadow: 0 2px 8px rgba(0, 191, 255, 0.3); }
         .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 16px rgba(0, 191, 255, 0.4); }
         .btn-success { background: var(--success); color: #fff; }
         .btn-danger { background: var(--danger); color: #fff; }
         .btn-warning { background: var(--warning); color: #fff; }
-        .btn-outline {
-            background: #fff;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
+        .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
         .btn-outline:hover { border-color: var(--primary); background: var(--primary-light); }
         .btn-sm { padding: 6px 14px; font-size: 12px; }
         .btn-xs { padding: 4px 10px; font-size: 11px; }
         .btn-block { width: 100%; }
-        #appContainer {
-            display: none;
-            min-height: 100vh;
-            background: #ffffff;
-        }
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--nav-height);
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 100;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-        }
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            text-decoration: none;
-        }
+        #appContainer { display: none; min-height: 100vh; background: #ffffff; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height); background: #ffffff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); }
+        .navbar-brand { font-weight: 700; font-size: 18px; color: var(--text); display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; }
         .navbar-brand i { color: var(--primary); font-size: 20px; }
         .navbar-brand span { color: var(--primary); }
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .navbar-clock {
-            font-size: 13px;
-            color: var(--sub);
-        }
+        .navbar-right { display: flex; align-items: center; gap: 16px; }
+        .navbar-clock { font-size: 13px; color: var(--sub); }
         .navbar-clock i { margin-right: 4px; color: var(--primary); }
-        .navbar-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .navbar-user .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--primary);
-        }
-        .navbar-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: var(--text);
-        }
-        .sidebar {
-            position: fixed;
-            top: var(--nav-height);
-            left: 0;
-            width: var(--sidebar);
-            height: calc(100vh - var(--nav-height));
-            background: #ffffff;
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-            padding: 12px 10px;
-            z-index: 90;
-            transition: transform 0.3s ease;
-        }
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .sidebar-nav .label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--sub);
-            padding: 10px 12px 4px;
-            opacity: 0.6;
-        }
+        .navbar-user { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+        .navbar-user .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--primary); }
+        .navbar-toggle { display: none; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text); }
+        .sidebar { position: fixed; top: var(--nav-height); left: 0; width: var(--sidebar); height: calc(100vh - var(--nav-height)); background: #ffffff; border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 10px; z-index: 90; transition: transform 0.3s ease; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar-nav .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--sub); padding: 10px 12px 4px; opacity: 0.6; }
         .sidebar-nav .label i { margin-right: 4px; }
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: var(--radius);
-            color: var(--sub);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .sidebar-nav a:hover { 
-            background: var(--primary-light); 
-            color: var(--primary);
-        }
-        .sidebar-nav a.active {
-            background: var(--primary);
-            color: #fff;
-            font-weight: 600;
-        }
+        .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); color: var(--sub); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .sidebar-nav a:hover { background: var(--primary-light); color: var(--primary); }
+        .sidebar-nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
         .sidebar-nav a i { width: 18px; font-size: 14px; text-align: center; }
-        .sidebar-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 6px 12px;
-        }
-        .sidebar-footer {
-            border-top: 1px solid var(--border);
-            padding: 12px 12px 0;
-            margin-top: 8px;
-        }
-        .sidebar-footer .logout-btn {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            background: transparent;
-            color: var(--sub);
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            border-radius: var(--radius);
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .sidebar-footer .logout-btn:hover {
-            background: var(--danger-light);
-            color: var(--danger);
-        }
-        .main-content {
-            margin-left: var(--sidebar);
-            padding-top: var(--nav-height);
-            min-height: 100vh;
-            padding: calc(var(--nav-height) + 20px) 24px 24px;
-        }
+        .sidebar-divider { height: 1px; background: var(--border); margin: 6px 12px; }
+        .sidebar-footer { border-top: 1px solid var(--border); padding: 12px 12px 0; margin-top: 8px; }
+        .sidebar-footer .logout-btn { width: 100%; padding: 10px; border: none; background: transparent; color: var(--sub); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: var(--radius); transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .sidebar-footer .logout-btn:hover { background: var(--danger-light); color: var(--danger); }
+        .main-content { margin-left: var(--sidebar); padding-top: var(--nav-height); min-height: 100vh; padding: calc(var(--nav-height) + 20px) 24px 24px; }
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .page-header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text);
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .page-header h1 { font-size: 22px; font-weight: 700; color: var(--text); }
         .page-header h1 i { color: var(--primary); margin-right: 8px; }
         .page-header p { font-size: 14px; color: var(--sub); }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-        .stat {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 18px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: 0.2s;
-        }
-        .stat:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        .stat .num {
-            font-size: 26px;
-            font-weight: 700;
-            line-height: 1.2;
-            color: var(--primary);
-        }
-        .stat .label {
-            font-size: 12px;
-            color: var(--sub);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .card {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 18px 20px;
-            border: 1px solid var(--border);
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-        }
-        .card-header {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-            color: var(--text);
-        }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+        .stat { background: #fff; border-radius: var(--radius); padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); transition: 0.2s; }
+        .stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .stat .num { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--primary); }
+        .stat .label { font-size: 12px; color: var(--sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+        .card { background: #fff; border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow); }
+        .card-header { font-weight: 600; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; color: var(--text); }
         .card-header i { margin-right: 6px; color: var(--primary); }
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        th {
-            text-align: left;
-            padding: 10px 12px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--sub);
-            border-bottom: 2px solid var(--border);
-            background: #f8fafc;
-        }
-        td {
-            padding: 10px 12px;
-            font-size: 13px;
-            border-bottom: 1px solid var(--border);
-        }
+        th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--sub); border-bottom: 2px solid var(--border); background: #f8fafc; }
+        td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
         tr:hover { background: var(--primary-light); }
-        .badge {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
+        .badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .badge-red { background: var(--danger-light); color: var(--danger); }
         .badge-yellow { background: var(--warning-light); color: var(--warning); }
         .badge-green { background: var(--success-light); color: var(--success); }
         .badge-blue { background: var(--primary-light); color: var(--primary); }
-        .activity-list {
-            max-height: 400px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: var(--radius);
-            background: #f8fafc;
-            font-size: 13px;
-            transition: 0.2s;
-        }
+        .badge-orange { background: #fff7ed; color: #ea580c; }
+        .badge-purple { background: #f5f3ff; color: #8b5cf6; }
+        .badge-pink { background: #fdf2f8; color: #ec4899; }
+        .badge-teal { background: #f0fdfa; color: #14b8a6; }
+        .badge-cyan { background: #ecfeff; color: #06b6d4; }
+        .activity-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .activity-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); background: #f8fafc; font-size: 13px; transition: 0.2s; }
         .activity-item:hover { background: var(--primary-light); }
         .activity-item.suspicious { background: var(--danger-light); }
-        .activity-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
+        .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .activity-dot.login_success { background: var(--success); }
         .activity-dot.login_failed { background: var(--danger); }
         .activity-dot.banned, .activity-dot.ban_akses { background: var(--danger); }
@@ -449,227 +129,83 @@
         .activity-user { font-weight: 600; }
         .activity-desc { color: var(--sub); }
         .activity-time { font-size: 11px; color: var(--sub); white-space: nowrap; }
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--sub);
-        }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--sub); }
         .empty-state i { font-size: 32px; opacity: 0.3; display: block; margin-bottom: 8px; color: var(--primary); }
-        .web-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-        }
-        .web-stat {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 18px;
-            border: 1px solid var(--border);
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: 0.2s;
-        }
+        .web-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .web-stat { background: #fff; border-radius: var(--radius); padding: 18px; border: 1px solid var(--border); text-align: center; box-shadow: var(--shadow); transition: 0.2s; }
         .web-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
         .web-stat .num { font-size: 22px; font-weight: 700; color: var(--primary); }
         .web-stat .label { font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.04em; }
-        .dist-grid {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .dist-item {
-            flex: 1;
-            min-width: 80px;
-            padding: 14px;
-            border-radius: var(--radius);
-            text-align: center;
-            background: #f8fafc;
-        }
+        .dist-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+        .dist-item { flex: 1; min-width: 80px; padding: 14px; border-radius: var(--radius); text-align: center; background: #f8fafc; }
         .dist-item .num { font-size: 20px; font-weight: 700; color: var(--primary); }
         .dist-item .label { font-size: 11px; color: var(--sub); }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.4);
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.2s;
-        }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 200; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; }
         .modal.show { visibility: visible; opacity: 1; }
-        .modal-box {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            width: 92%;
-            max-width: 480px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
-        }
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 16px;
-            color: var(--text);
-        }
+        .modal-box { background: #fff; border-radius: 16px; padding: 24px; width: 92%; max-width: 520px; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 16px; margin-bottom: 16px; color: var(--text); }
         .modal-header i { color: var(--primary); margin-right: 6px; }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--sub);
-            padding: 4px;
-        }
+        .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--sub); padding: 4px; }
         .modal-close:hover { color: var(--danger); }
-        .user-check {
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 13px;
-            margin-bottom: 4px;
-            transition: 0.2s;
-            background: #fff;
-        }
+        .user-check { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; font-size: 13px; margin-bottom: 4px; transition: 0.2s; background: #fff; }
         .user-check:hover { background: var(--primary-light); border-color: var(--primary); }
         .user-check.selected { border-color: var(--primary); background: var(--primary-light); }
-        .alert-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.4);
-            z-index: 300;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.2s;
-        }
+        .alert-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 300; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; }
         .alert-overlay.show { visibility: visible; opacity: 1; }
-        .alert-box {
-            background: #fff;
-            border-radius: 16px;
-            padding: 32px;
-            text-align: center;
-            width: 92%;
-            max-width: 360px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
-        }
+        .alert-box { background: #fff; border-radius: 16px; padding: 32px; text-align: center; width: 92%; max-width: 360px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
         .alert-box .icon { font-size: 48px; margin-bottom: 12px; }
         .alert-box .title { font-weight: 700; font-size: 18px; margin-bottom: 4px; color: var(--text); }
         .alert-box .msg { font-size: 14px; color: var(--sub); }
-        .confirm-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.4);
-            z-index: 250;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .confirm-box {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            width: 92%;
-            max-width: 360px;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
-        }
+        .confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 250; display: none; align-items: center; justify-content: center; }
+        .confirm-box { background: #fff; border-radius: 16px; padding: 24px; width: 92%; max-width: 360px; text-align: center; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
         .confirm-box .btns { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            margin: 0 auto;
-        }
+        .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .status-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-left: 6px;
-        }
+        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
         .status-badge.banned { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); }
         .status-badge.banakses { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); }
         .status-badge.force { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); }
-        .settings-key-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 500;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .settings-key-overlay.show {
-            display: flex;
-        }
-        .migration-progress {
-            display: none;
-            margin-top: 12px;
-            padding: 12px;
-            background: var(--primary-light);
-            border-radius: var(--radius);
-            text-align: center;
-        }
+        .settings-key-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 500; display: none; align-items: center; justify-content: center; }
+        .settings-key-overlay.show { display: flex; }
+        .migration-progress { display: none; margin-top: 12px; padding: 12px; background: var(--primary-light); border-radius: var(--radius); text-align: center; }
         .migration-progress.show { display: block; }
-        .migration-result {
-            margin-top: 12px;
-            padding: 12px;
-            border-radius: var(--radius);
-            font-size: 13px;
-        }
+        .migration-result { margin-top: 12px; padding: 12px; border-radius: var(--radius); font-size: 13px; }
         .migration-result.success { background: var(--success-light); color: var(--success); }
         .migration-result.error { background: var(--danger-light); color: var(--danger); }
-        @media (max-width: 1024px) {
-            .stats { grid-template-columns: repeat(2, 1fr); }
-            .web-stats { grid-template-columns: repeat(2, 1fr); }
-        }
+        
+        /* ==================== ACTIVATION TABS ==================== */
+        .activation-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .activation-tab { padding: 10px 20px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; border: 1px solid var(--border); background: #fff; color: var(--sub); display: flex; align-items: center; gap: 6px; }
+        .activation-tab:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .activation-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .activation-tab .count { background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 12px; font-size: 11px; }
+        .activation-tab.active .count { background: rgba(255,255,255,0.3); }
+        .activation-section { display: none; }
+        .activation-section.show { display: block; }
+        
+        /* ==================== USER INFO CARD ==================== */
+        .user-info-card { display: flex; align-items: center; gap: 16px; padding: 16px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; transition: 0.2s; }
+        .user-info-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+        .user-info-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--primary); flex-shrink: 0; }
+        .user-info-details { flex: 1; min-width: 0; }
+        .user-info-name { font-weight: 700; font-size: 14px; color: var(--text); }
+        .user-info-meta { font-size: 12px; color: var(--sub); margin-top: 2px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .user-info-meta span { display: flex; align-items: center; gap: 4px; }
+        .user-info-meta i { color: var(--primary); font-size: 11px; }
+        .user-info-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        
+        @media (max-width: 1024px) { .stats { grid-template-columns: repeat(2, 1fr); } .web-stats { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
             .navbar-toggle { display: block; }
             .navbar-clock { display: none; }
-            .sidebar {
-                transform: translateX(-100%);
-                width: 280px;
-            }
+            .sidebar { transform: translateX(-100%); width: 280px; }
             .sidebar.open { transform: translateX(0); }
-            .main-content {
-                margin-left: 0;
-                padding: calc(var(--nav-height) + 16px) 14px 16px;
-            }
+            .main-content { margin-left: 0; padding: calc(var(--nav-height) + 16px) 14px 16px; }
             .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
             .stat .num { font-size: 20px; }
             .web-stats { grid-template-columns: 1fr 1fr; }
+            .user-info-card { flex-direction: column; text-align: center; }
+            .user-info-actions { justify-content: center; }
         }
         @media (max-width: 480px) {
             .navbar { padding: 0 12px; }
@@ -682,6 +218,7 @@
             .card { padding: 14px; }
             .modal-box { padding: 18px; }
             #keyScreen, #loginScreen, #settingsKeyScreen { padding: 28px 20px; }
+            .activation-tab { flex: 1; justify-content: center; }
         }
     </style>
 </head>
@@ -748,6 +285,7 @@
                 <div class="label"><i class="fas fa-th-large"></i> Utama</div>
                 <a class="active" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
                 <a data-page="all-users" onclick="switchPage('all-users')"><i class="fas fa-users"></i> Semua User</a>
+                <a data-page="aktivasi-user" onclick="switchPage('aktivasi-user')"><i class="fas fa-check-circle"></i> Aktivasi User</a>
                 <div class="sidebar-divider"></div>
                 <div class="label"><i class="fas fa-user-cog"></i> Manajemen</div>
                 <a data-page="ban-user" onclick="switchPage('ban-user')"><i class="fas fa-ban"></i> Banned User</a>
@@ -789,7 +327,7 @@
                     <div class="stat"><div class="num" id="statTotal">0</div><div class="label"><i class="fas fa-users"></i> Total User</div></div>
                     <div class="stat"><div class="num" style="color:var(--success);" id="statActive">0</div><div class="label"><i class="fas fa-user-check"></i> User Aktif</div></div>
                     <div class="stat"><div class="num" style="color:var(--danger);" id="statBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
-                    <div class="stat"><div class="num" style="color:var(--warning);" id="statForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                    <div class="stat"><div class="num" style="color:var(--warning);" id="statPending">0</div><div class="label"><i class="fas fa-clock"></i> Pending Aktivasi</div></div>
                 </div>
 
                 <div class="card">
@@ -798,7 +336,7 @@
                         <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-check" style="color:var(--success);"></i> User Aktif</span><span style="font-weight:700;color:var(--success);" id="ringkasanAktif">0</span></div>
                         <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-user-slash" style="color:var(--danger);"></i> User Banned</span><span style="font-weight:700;color:var(--danger);" id="ringkasanBanned">0</span></div>
                         <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-lock" style="color:var(--warning);"></i> Ban Akses</span><span style="font-weight:700;color:var(--warning);" id="ringkasanBanAkses">0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-pause-circle" style="color:var(--warning);"></i> Tangguhkan</span><span style="font-weight:700;color:var(--warning);" id="ringkasanForce">0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:var(--sub);"><i class="fas fa-clock" style="color:var(--warning);"></i> Pending Aktivasi</span><span style="font-weight:700;color:var(--warning);" id="ringkasanPending">0</span></div>
                     </div>
                 </div>
 
@@ -819,14 +357,33 @@
                     <div><h1><i class="fas fa-users"></i>Semua User</h1><p>Total: <b id="allUsersCount">0</b> user</p></div>
                     <button class="btn btn-primary" onclick="openAddUserModal()"><i class="fas fa-user-plus"></i> Tambah User</button>
                 </div>
-                <div class="card">
-                    <div class="table-wrap">
-                        <table>
-                            <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>IP</th><th>FP</th><th>Expiry</th><th>Aksi</th></tr></thead>
-                            <tbody id="allUsersTable"></tbody>
-                        </table>
+                <div id="allUsersList" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
+            <!-- AKTIVASI USER -->
+            <div class="page" id="page-aktivasi-user">
+                <div class="page-header"><h1><i class="fas fa-check-circle"></i>Aktivasi User</h1><p>Kelola permintaan aktivasi akun</p></div>
+                
+                <div class="activation-tabs">
+                    <div class="activation-tab active" id="tabPending" onclick="switchActivationTab('pending')">
+                        <i class="fas fa-clock"></i> Pending <span class="count" id="countPending">0</span>
                     </div>
-                    <div class="empty-state" id="allUsersEmpty" style="display:none;"><i class="fas fa-users"></i> Tidak ada user</div>
+                    <div class="activation-tab" id="tabAccepted" onclick="switchActivationTab('accepted')">
+                        <i class="fas fa-check"></i> Diterima <span class="count" id="countAccepted">0</span>
+                    </div>
+                    <div class="activation-tab" id="tabRejected" onclick="switchActivationTab('rejected')">
+                        <i class="fas fa-times"></i> Ditolak <span class="count" id="countRejected">0</span>
+                    </div>
+                </div>
+                
+                <div class="activation-section show" id="sectionPending">
+                    <div id="pendingActivationsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+                </div>
+                <div class="activation-section" id="sectionAccepted">
+                    <div id="acceptedActivationsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+                </div>
+                <div class="activation-section" id="sectionRejected">
+                    <div id="rejectedActivationsList" style="display:flex;flex-direction:column;gap:8px;"></div>
                 </div>
             </div>
 
@@ -875,7 +432,7 @@
                 <div class="card">
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <thead><tr><th>Username</th><th>Role</th><th>IP</th><th>Fingerprint</th><th>Status</th><th>Aksi</th></tr></thead>
                             <tbody id="banaksesUsersTable"></tbody>
                         </table>
                     </div>
@@ -889,7 +446,7 @@
                 <div class="card">
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
+                            <thead><tr><th>Username</th><th>Role</th><th>IP</th><th>Fingerprint</th><th>Aksi</th></tr></thead>
                             <tbody id="unbanaksesUsersTable"></tbody>
                         </table>
                     </div>
@@ -971,7 +528,7 @@
                     <div class="web-stat"><div class="num" style="color:var(--danger);" id="webStatBannedUsers">0</div><div class="label"><i class="fas fa-user-slash"></i> User Diblokir</div></div>
                     <div class="web-stat"><div class="num" id="webStatTotalLogins">0</div><div class="label"><i class="fas fa-sign-in-alt"></i> Total Login</div></div>
                     <div class="web-stat"><div class="num" style="color:var(--warning);" id="webStatBanAkses">0</div><div class="label"><i class="fas fa-lock"></i> Ban Akses</div></div>
-                    <div class="web-stat"><div class="num" style="color:var(--warning);" id="webStatForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                    <div class="web-stat"><div class="num" style="color:var(--warning);" id="webStatPending">0</div><div class="label"><i class="fas fa-clock"></i> Pending Aktivasi</div></div>
                 </div>
                 <div class="card" style="margin-top:16px;">
                     <div class="card-header"><i class="fas fa-chart-line"></i> Distribusi User</div>
@@ -979,7 +536,7 @@
                         <div class="dist-item"><div class="num" style="color:var(--success);" id="distAktif">0</div><div class="label"><i class="fas fa-user-check"></i> Aktif</div></div>
                         <div class="dist-item"><div class="num" style="color:var(--danger);" id="distBanned">0</div><div class="label"><i class="fas fa-user-slash"></i> Banned</div></div>
                         <div class="dist-item"><div class="num" style="color:var(--warning);" id="distBanAkses">0</div><div class="label"><i class="fas fa-lock"></i> Ban Akses</div></div>
-                        <div class="dist-item"><div class="num" style="color:var(--warning);" id="distForce">0</div><div class="label"><i class="fas fa-pause-circle"></i> Tangguhkan</div></div>
+                        <div class="dist-item"><div class="num" style="color:var(--warning);" id="distPending">0</div><div class="label"><i class="fas fa-clock"></i> Pending</div></div>
                     </div>
                 </div>
             </div>
@@ -1051,7 +608,6 @@
             <!-- SETTINGS -->
             <div class="page" id="page-settings">
                 <div class="page-header"><h1><i class="fas fa-cog"></i>Settings</h1></div>
-
                 <div class="card">
                     <div class="card-header"><i class="fas fa-user"></i> Admin Info</div>
                     <div class="input-group">
@@ -1070,7 +626,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="card">
                     <div class="card-header"><i class="fas fa-key"></i> Key Aksi</div>
                     <div class="input-group">
@@ -1092,7 +647,6 @@
                     </div>
                     <div class="table-wrap"><table><thead><tr><th>Key</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="actionKeysTable"></tbody></table></div>
                 </div>
-
                 <div class="card">
                     <div class="card-header"><i class="fas fa-network-wired"></i> IP Whitelist</div>
                     <div class="input-group">
@@ -1104,7 +658,6 @@
                     </div>
                     <div class="table-wrap"><table><thead><tr><th>IP</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="ipWhitelistTable"></tbody></table></div>
                 </div>
-
                 <div class="card">
                     <div class="card-header"><i class="fas fa-fingerprint"></i> Fingerprint Whitelist</div>
                     <div class="input-group">
@@ -1116,7 +669,6 @@
                     </div>
                     <div class="table-wrap"><table><thead><tr><th>Fingerprint</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody id="fpWhitelistTable"></tbody></table></div>
                 </div>
-
                 <div class="card" style="border: 2px solid var(--primary);">
                     <div class="card-header"><i class="fas fa-key" style="color:var(--primary);"></i> Admin Key dari Server</div>
                     <p style="font-size:13px;color:var(--sub);margin-bottom:12px;">Admin Key diambil dari server setelah login.</p>
@@ -1144,6 +696,7 @@
             </div>
             <div class="input-group"><label><i class="fas fa-user"></i> Username *</label><input type="text" id="newUsername" placeholder="Username"></div>
             <div class="input-group"><label><i class="fas fa-lock"></i> Password * (min 6)</label><input type="password" id="newPassword" placeholder="Password"></div>
+            <div class="input-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="newEmail" placeholder="user@email.com"></div>
             <div class="input-group"><label><i class="fas fa-phone"></i> Nomor</label><input type="text" id="newPhone" placeholder="Nomor HP"></div>
             <div class="input-group"><label><i class="fas fa-tag"></i> Role</label><select id="newRole"><option>Admin</option><option selected>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
             <div class="input-group"><label><i class="fas fa-calendar-alt"></i> Masa Aktif (MM/DD/YYYY)</label><input type="text" id="newExpiryDate" placeholder="MM/DD/YYYY"></div>
@@ -1160,11 +713,12 @@
             <input type="hidden" id="editUserId">
             <div class="input-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="editUsername"></div>
             <div class="input-group"><label><i class="fas fa-lock"></i> Password (kosongkan jika tidak diubah)</label><input type="password" id="editPassword" placeholder="Kosongkan jika tidak diubah"></div>
+            <div class="input-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="editEmail" placeholder="user@email.com"></div>
             <div class="input-group"><label><i class="fas fa-phone"></i> Nomor</label><input type="text" id="editPhone"></div>
             <div class="input-group"><label><i class="fas fa-tag"></i> Role</label><select id="editRole"><option>Admin</option><option>Operator</option><option>User</option><option>VIP</option><option>Premium</option><option>Trial</option></select></div>
             <div class="input-group"><label><i class="fas fa-calendar-alt"></i> Masa Aktif (MM/DD/YYYY)</label><input type="text" id="editExpiryDate"></div>
-            <div class="input-group"><label><i class="fas fa-network-wired"></i> IP</label><input type="text" id="editIP" readonly style="background:#f1f5f9;"></div>
-            <div class="input-group"><label><i class="fas fa-fingerprint"></i> Fingerprint</label><input type="text" id="editFP" readonly style="background:#f1f5f9;"></div>
+            <div class="input-group"><label><i class="fas fa-network-wired"></i> IP (Lengkap)</label><input type="text" id="editIP" readonly style="background:#f1f5f9;"></div>
+            <div class="input-group"><label><i class="fas fa-fingerprint"></i> Fingerprint (Lengkap)</label><input type="text" id="editFP" readonly style="background:#f1f5f9;"></div>
             <div style="display:flex;gap:8px;margin-top:12px;">
                 <button class="btn btn-primary" style="flex:1;" onclick="saveUserEdit()"><i class="fas fa-save"></i> Simpan</button>
                 <button class="btn btn-success" style="flex:1;" onclick="updateUserFormat()"><i class="fas fa-sync"></i> Update Format</button>
@@ -1178,7 +732,7 @@
                 <span><i class="fas fa-envelope"></i> Ganti Email</span>
                 <button class="modal-close" onclick="closeModal('changeEmailModal')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="input-group"><label><i class="fas fa-envelope"></i> Email Baru</label><input type="email" id="newEmail" placeholder="admin@email.com"></div>
+            <div class="input-group"><label><i class="fas fa-envelope"></i> Email Baru</label><input type="email" id="newEmailChange" placeholder="admin@email.com"></div>
             <button class="btn btn-primary" style="width:100%;" onclick="changeEmail()"><i class="fas fa-save"></i> Update Email</button>
         </div>
     </div>
@@ -1214,7 +768,6 @@
     </div>
 
     <script>
-        // ==================== CONFIG ====================
         var API_URL = '/api/revanstore';
         var sessionId = null;
         var currentAdmin = null;
@@ -1232,8 +785,8 @@
         var actionKeyChecked = false;
         var serverAdminKey = null;
         var settingsKeyVerified = false;
+        var currentActivationTab = 'pending';
 
-        // ==================== FINGERPRINT ====================
         async function getFingerprint() {
             var fp = '';
             fp += navigator.userAgent || '';
@@ -1247,19 +800,13 @@
             return CryptoJS.MD5(fp).toString();
         }
 
-        // ==================== ALERT ====================
         function showAlert(title, msg, type) {
             var overlay = document.getElementById('alertOverlay');
             var icon = document.getElementById('alertIcon');
             var titleEl = document.getElementById('alertTitle');
             var msgEl = document.getElementById('alertMessage');
             if (!overlay) {
-                Swal.fire({
-                    icon: type === 'success' ? 'success' : type === 'error' ? 'error' : 'info',
-                    title: title,
-                    text: msg,
-                    confirmButtonColor: '#00BFFF'
-                });
+                Swal.fire({ icon: type === 'success' ? 'success' : type === 'error' ? 'error' : 'info', title: title, text: msg, confirmButtonColor: '#00BFFF' });
                 return;
             }
             titleEl.textContent = title;
@@ -1272,15 +819,9 @@
             if (type !== 'loading') setTimeout(function() { overlay.classList.remove('show'); }, 2000);
         }
 
-        function hideAlert() {
-            var o = document.getElementById('alertOverlay');
-            if (o) o.classList.remove('show');
-        }
+        function hideAlert() { var o = document.getElementById('alertOverlay'); if (o) o.classList.remove('show'); }
 
-        // ==================== HELPERS ====================
-        function formatDate(d) {
-            return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + '/' + d.getFullYear();
-        }
+        function formatDate(d) { return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + '/' + d.getFullYear(); }
 
         function calculateDaysLeft(e) {
             if (!e) return -9999;
@@ -1295,131 +836,51 @@
 
         function esc(s) {
             if (!s) return '';
-            return String(s)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#x27;');
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
         }
 
-        function debounce(key, fn, delay) {
-            if (pendingRequests[key]) return;
-            pendingRequests[key] = true;
-            fn().finally(function() { setTimeout(function() { pendingRequests[key] = false; }, delay || 1500); });
-        }
+        function closeModal(id) { var m = document.getElementById(id); if (m) m.classList.remove('show'); }
 
-        function closeModal(id) {
-            var m = document.getElementById(id);
-            if (m) m.classList.remove('show');
-        }
-
-        // ==================== SETTINGS KEY OVERLAY ====================
-        function showSettingsKeyOverlay() {
-            document.getElementById('settingsActionKeyInput').value = '';
-            document.getElementById('settingsKeyOverlay').classList.add('show');
-        }
-
-        function closeSettingsKeyOverlay() {
-            document.getElementById('settingsKeyOverlay').classList.remove('show');
-            document.getElementById('settingsActionKeyInput').value = '';
-        }
+        function showSettingsKeyOverlay() { document.getElementById('settingsActionKeyInput').value = ''; document.getElementById('settingsKeyOverlay').classList.add('show'); }
+        function closeSettingsKeyOverlay() { document.getElementById('settingsKeyOverlay').classList.remove('show'); document.getElementById('settingsActionKeyInput').value = ''; }
 
         function verifySettingsActionKey() {
             var key = document.getElementById('settingsActionKeyInput').value.trim();
             if (!key) { showAlert('Error', 'Masukkan key aksi!', 'error'); return; }
-
             apiCall('action_keys', 'GET').then(function(data) {
                 var valid = false;
-                for (var k in data) {
-                    if (data[k] && data[k].key === key) {
-                        valid = true;
-                        break;
-                    }
-                }
-                if (valid) {
-                    settingsKeyVerified = true;
-                    closeSettingsKeyOverlay();
-                    showAlert('Berhasil', 'Key aksi valid! Pengaturan terbuka.', 'success');
-                    loadSettings();
-                } else {
-                    showAlert('Error', 'Key aksi salah!', 'error');
-                }
+                for (var k in data) { if (data[k] && data[k].key === key) { valid = true; break; } }
+                if (valid) { settingsKeyVerified = true; closeSettingsKeyOverlay(); showAlert('Berhasil', 'Key aksi valid!', 'success'); loadSettings(); }
+                else { showAlert('Error', 'Key aksi salah!', 'error'); }
             });
         }
 
-        // ==================== API CALL ====================
         async function apiCall(path, method, data) {
             if (!fingerprint) fingerprint = await getFingerprint();
-
-            var payload = {
-                path: path,
-                method: method || 'GET',
-                data: data || {},
-                timestamp: Date.now()
-            };
-
-            var headers = {
-                'Content-Type': 'application/json',
-                'X-Fingerprint': fingerprint
-            };
-
-            if (sessionId) {
-                headers['X-Session'] = sessionId;
-            }
-
-            if (currentAdmin) {
-                headers['X-Operator'] = currentAdmin;
-            }
-
-            var res = await fetch(API_URL, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(payload)
-            });
-
-            if (res.status === 401) {
-                localStorage.removeItem('sessionId');
-                sessionId = null;
-                showAlert('Sesi Berakhir', 'Silakan login ulang.', 'error');
-                logout();
-                return null;
-            }
-
+            var payload = { path: path, method: method || 'GET', data: data || {}, timestamp: Date.now() };
+            var headers = { 'Content-Type': 'application/json', 'X-Fingerprint': fingerprint };
+            if (sessionId) headers['X-Session'] = sessionId;
+            if (currentAdmin) headers['X-Operator'] = currentAdmin;
+            var res = await fetch(API_URL, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
+            if (res.status === 401) { localStorage.removeItem('sessionId'); sessionId = null; showAlert('Sesi Berakhir', 'Silakan login ulang.', 'error'); logout(); return null; }
             if (res.status === 429) throw new Error('Terlalu banyak request');
             var text = await res.text();
             if (!text || text === 'null') return null;
-
             var result = JSON.parse(text);
             return result;
         }
 
-        // ==================== NAVIGATION ====================
         function switchPage(pageName) {
             document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
             document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
-
             var page = document.getElementById('page-' + pageName);
             if (page) page.classList.add('active');
-
-            document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
-                if (link.getAttribute('data-page') === pageName) {
-                    link.classList.add('active');
-                }
-            });
-
+            document.querySelectorAll('.sidebar-nav a').forEach(function(link) { if (link.getAttribute('data-page') === pageName) link.classList.add('active'); });
             var sidebar = document.getElementById('sidebar');
             if (sidebar && window.innerWidth <= 768) sidebar.classList.remove('open');
-
-            if (pageName === 'settings') {
-                if (!settingsKeyVerified) {
-                    showSettingsKeyOverlay();
-                } else {
-                    loadSettings();
-                }
-            }
-
-            if (pageName === 'all-users') renderAllUsersTable();
+            if (pageName === 'settings') { if (!settingsKeyVerified) { showSettingsKeyOverlay(); } else { loadSettings(); } }
+            if (pageName === 'all-users') renderAllUsersList();
+            if (pageName === 'aktivasi-user') renderActivations();
             if (pageName === 'ban-user') searchBanUser();
             if (pageName === 'unbanned-users') renderUnbannedTable();
             if (pageName === 'banakses-users') renderBanAksesTable();
@@ -1435,11 +896,8 @@
             if (pageName === 'dashboard') { updateRingkasan(); loadUsers(); loadActivity(); }
         }
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-        // ==================== VERIFY KEY ====================
         function verifyKey() {
             var key = document.getElementById('accessKey').value.trim();
             if (!key) { showAlert('Error', 'Key wajib diisi!', 'error'); return; }
@@ -1450,28 +908,20 @@
                     document.getElementById('keyScreen').style.display = 'none';
                     document.getElementById('loginScreen').style.display = 'block';
                     document.getElementById('accessKey').value = '';
-                    hideAlert();
-                    showAlert('Berhasil', 'Key valid!', 'success');
+                    hideAlert(); showAlert('Berhasil', 'Key valid!', 'success');
                 } else {
                     keyAttempts++;
-                    document.getElementById('accessKey').value = '';
-                    hideAlert();
-                    if (keyAttempts >= 3) {
-                        showAlert('Error', 'Key salah 3x! Diblokir.', 'error');
-                        setTimeout(function() { showBlockedScreen(); }, 1500);
-                        return;
-                    }
+                    document.getElementById('accessKey').value = ''; hideAlert();
+                    if (keyAttempts >= 3) { showAlert('Error', 'Key salah 3x! Diblokir.', 'error'); setTimeout(function() { showBlockedScreen(); }, 1500); return; }
                     showAlert('Error', 'Key salah! Sisa ' + (3 - keyAttempts), 'error');
                 }
             }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
         }
 
         function showBlockedScreen() {
-            document.body.innerHTML =
-                '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow-lg);"><div style="font-size:48px;margin-bottom:20px;">🔒</div><h1 style="color:var(--danger);font-size:24px;">AKSES DITOLAK</h1><p style="color:var(--sub);">Akses Anda telah diblokir permanen.</p></div></div>';
+            document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow-lg);"><div style="font-size:48px;margin-bottom:20px;">🔒</div><h1 style="color:var(--danger);font-size:24px;">AKSES DITOLAK</h1><p style="color:var(--sub);">Akses Anda telah diblokir permanen.</p></div></div>';
         }
 
-        // ==================== LOGIN ====================
         function login() {
             var email = document.getElementById('loginEmail').value.trim();
             var pass = document.getElementById('loginPassword').value.trim();
@@ -1484,54 +934,32 @@
                         if (loginResult && loginResult.success && loginResult.sessionId) {
                             sessionId = loginResult.sessionId;
                             localStorage.setItem('sessionId', sessionId);
-                            
                             currentAdmin = email;
                             document.getElementById('loggedUser').textContent = email;
                             document.getElementById('navbarUserName').textContent = email;
                             document.getElementById('loginScreen').style.display = 'none';
                             document.getElementById('loginWrapper').style.display = 'none';
                             document.getElementById('appContainer').style.display = 'block';
-                            hideAlert();
-                            showAlert('Berhasil', 'Login berhasil!', 'success');
-                            startBg();
-                            loadUsers();
-                            loadActivity();
-                            switchPage('dashboard');
+                            hideAlert(); showAlert('Berhasil', 'Login berhasil!', 'success');
+                            startBg(); loadUsers(); loadActivity(); switchPage('dashboard');
                             if (sessionTimer) clearTimeout(sessionTimer);
-                            sessionTimer = setTimeout(function() {
-                                if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); }
-                            }, 1800000);
-                        } else {
-                            hideAlert();
-                            showAlert('Gagal', 'Login gagal!', 'error');
-                        }
+                            sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); } }, 1800000);
+                        } else { hideAlert(); showAlert('Gagal', 'Login gagal!', 'error'); }
                     });
                 } else {
-                    apiCall('admin/login_failed', 'POST', {}).then(function() {
-                        hideAlert();
-                        showAlert('Gagal', 'Email atau password salah!', 'error');
-                    });
+                    apiCall('admin/login_failed', 'POST', {}).then(function() { hideAlert(); showAlert('Gagal', 'Email atau password salah!', 'error'); });
                 }
             }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
         }
 
         function logout() {
-            if (sessionId) {
-                apiCall('logout', 'POST', {}).catch(function() {});
-            }
-            sessionId = null;
-            localStorage.removeItem('sessionId');
-            currentAdmin = null;
-            activityLoaded = false;
-            actionKeyVerified = false;
-            actionKeyChecked = false;
-            settingsKeyVerified = false;
-            serverAdminKey = null;
+            if (sessionId) { apiCall('logout', 'POST', {}).catch(function() {}); }
+            sessionId = null; localStorage.removeItem('sessionId');
+            currentAdmin = null; activityLoaded = false; actionKeyVerified = false; actionKeyChecked = false; settingsKeyVerified = false; serverAdminKey = null;
             localStorage.removeItem('server_admin_key');
             document.getElementById('serverAdminKey').value = 'Belum login';
             document.getElementById('serverKeyStatus').innerHTML = '';
             document.getElementById('settingsKeyOverlay').classList.remove('show');
-            
             if (sessionTimer) clearTimeout(sessionTimer);
             if (clockInterval) clearInterval(clockInterval);
             if (statsInterval) clearInterval(statsInterval);
@@ -1544,19 +972,9 @@
             showAlert('Logout', 'Anda telah logout.', 'info');
         }
 
-        // ==================== BACKGROUND ====================
-        function startBg() {
-            updateClock();
-            clockInterval = setInterval(updateClock, 60000);
-            statsInterval = setInterval(function() { if (currentAdmin) { loadUsers(); } }, 60000);
-        }
+        function startBg() { updateClock(); clockInterval = setInterval(updateClock, 60000); statsInterval = setInterval(function() { if (currentAdmin) { loadUsers(); } }, 60000); }
+        function updateClock() { var el = document.getElementById('clockDisplay'); if (el) el.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
 
-        function updateClock() {
-            var el = document.getElementById('clockDisplay');
-            if (el) el.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        // ==================== USERS ====================
         function loadUsers() {
             apiCall('users', 'GET').then(function(data) {
                 allUsers = [];
@@ -1569,12 +987,13 @@
                         data[key].ip = data[key].ip || '';
                         data[key].fingerprint = data[key].fingerprint || '';
                         data[key].phone = data[key].phone || '';
+                        data[key].email = data[key].email || '';
                         data[key].expiry_date = data[key].expiry_date || '';
+                        data[key].activationStatus = data[key].activationStatus || 'none';
                         allUsers.push(data[key]);
                     }
                 }
-                updateStats();
-                updateAllTables();
+                updateStats(); updateAllTables();
             }).catch(function() {});
         }
 
@@ -1583,89 +1002,57 @@
             var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout && calculateDaysLeft(u.expiry_date) > 0; }).length;
             var banned = allUsers.filter(function(u) { return u.banned; }).length;
             var banAkses = allUsers.filter(function(u) { return u.banAkses; }).length;
-            var force = allUsers.filter(function(u) { return u.forceLogout; }).length;
-
+            var pending = allUsers.filter(function(u) { return u.activationStatus === 'pending'; }).length;
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statActive').textContent = active;
             document.getElementById('statBanned').textContent = banned;
-            document.getElementById('statForce').textContent = force;
-
+            document.getElementById('statPending').textContent = pending;
             document.getElementById('ringkasanAktif').textContent = active;
             document.getElementById('ringkasanBanned').textContent = banned;
             document.getElementById('ringkasanBanAkses').textContent = banAkses;
-            document.getElementById('ringkasanForce').textContent = force;
+            document.getElementById('ringkasanPending').textContent = pending;
+            document.getElementById('webStatPending').textContent = pending;
+            document.getElementById('distPending').textContent = pending;
         }
 
-        // ==================== ACTIVITIES ====================
         function loadActivity() {
             apiCall('activity_logs', 'GET').then(function(data) {
                 allActivities = [];
                 var logs = [];
                 for (var key in data) {
                     if (data[key] && data[key].username) {
-                        data[key].id = key;
-                        allActivities.push(data[key]);
-                        logs.push(data[key]);
+                        data[key].id = key; allActivities.push(data[key]); logs.push(data[key]);
                     }
                 }
                 logs.sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
-                var recentLogs = logs.slice(0, 30);
-                renderDashboardLog(recentLogs);
-                activityLoaded = true;
+                renderDashboardLog(logs.slice(0, 30)); activityLoaded = true;
             }).catch(function() { activityLoaded = false; });
         }
 
         function renderDashboardLog(logs) {
             var container = document.getElementById('activityListContainer');
             if (!container) return;
-            if (!logs || !logs.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>';
-                return;
-            }
+            if (!logs || !logs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada aktivitas</div>'; return; }
             container.innerHTML = buildLogHTML(logs);
         }
 
         function renderActivityLogPage() {
             var container = document.getElementById('allActivityLog');
             if (!container) return;
-            if (!allActivities.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas</div>';
-                return;
-            }
+            if (!allActivities.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas</div>'; return; }
             container.innerHTML = buildLogHTML(allActivities);
         }
 
         function renderSuspiciousLogPage() {
             var container = document.getElementById('suspiciousActivityLog');
             if (!container) return;
-            var suspicious = allActivities.filter(function(l) {
-                return ['sharing_detected', 'ip_changed', 'fp_changed', 'login_failed'].includes(l.action);
-            });
-            if (!suspicious.length) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas mencurigakan</div>';
-                return;
-            }
+            var suspicious = allActivities.filter(function(l) { return ['sharing_detected', 'ip_changed', 'fp_changed', 'login_failed'].includes(l.action); });
+            if (!suspicious.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada aktivitas mencurigakan</div>'; return; }
             container.innerHTML = buildLogHTML(suspicious);
         }
 
         function buildLogHTML(logs) {
-            var labels = {
-                sharing_detected: 'SHARING DETEKSI',
-                banned: 'Ban User',
-                unbanned: 'Unban User',
-                ban_akses: 'Ban Akses',
-                unban_akses: 'Unban Akses',
-                force_logout: 'Tangguhkan',
-                unforce_logout: 'Lepas Tangguh',
-                topup: 'Top Up',
-                kuras: 'Kuras',
-                gantinama: 'Ganti Nama',
-                login_success: 'Login Sukses',
-                login_failed: 'Gagal Login',
-                ip_changed: 'IP Berubah',
-                fp_changed: 'FP Berubah'
-            };
-
+            var labels = { sharing_detected: 'SHARING DETEKSI', banned: 'Ban User', unbanned: 'Unban User', ban_akses: 'Ban Akses', unban_akses: 'Unban Akses', force_logout: 'Tangguhkan', unforce_logout: 'Lepas Tangguh', topup: 'Top Up', kuras: 'Kuras', gantinama: 'Ganti Nama', login_success: 'Login Sukses', login_failed: 'Gagal Login', ip_changed: 'IP Berubah', fp_changed: 'FP Berubah' };
             var html = '';
             logs.forEach(function(l) {
                 var time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
@@ -1680,45 +1067,30 @@
             return html;
         }
 
-        // ==================== CLEAR LOG ====================
         function clearAllLogs() {
             showConfirm('Hapus SEMUA log secara permanen?', function() {
                 showAlert('Proses', 'Menghapus semua log...', 'loading');
                 apiCall('activity_logs', 'GET').then(function(data) {
-                    if (!data || Object.keys(data).length === 0) {
-                        hideAlert();
-                        showAlert('Info', 'Log sudah kosong!', 'info');
-                        return;
-                    }
-                    var keys = Object.keys(data);
-                    var count = 0;
-                    var promises = [];
-                    keys.forEach(function(key) {
-                        promises.push(apiCall('activity_logs/' + key, 'DELETE').then(function() { count++; }));
-                    });
+                    if (!data || Object.keys(data).length === 0) { hideAlert(); showAlert('Info', 'Log sudah kosong!', 'info'); return; }
+                    var keys = Object.keys(data); var count = 0; var promises = [];
+                    keys.forEach(function(key) { promises.push(apiCall('activity_logs/' + key, 'DELETE').then(function() { count++; })); });
                     Promise.all(promises).then(function() {
-                        allActivities = [];
-                        activityLoaded = false;
+                        allActivities = []; activityLoaded = false;
                         document.getElementById('activityListContainer').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Log kosong</div>';
                         document.getElementById('allActivityLog').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Log kosong</div>';
                         document.getElementById('suspiciousActivityLog').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada</div>';
-                        hideAlert();
-                        showAlert('Berhasil', count + ' log berhasil dihapus permanen!', 'success');
+                        hideAlert(); showAlert('Berhasil', count + ' log berhasil dihapus!', 'success');
                     });
-                }).catch(function() {
-                    hideAlert();
-                    showAlert('Error', 'Gagal menghapus log!', 'error');
-                });
+                }).catch(function() { hideAlert(); showAlert('Error', 'Gagal menghapus log!', 'error'); });
             });
         }
 
-        // ==================== ADD USER ====================
         function openAddUserModal() {
-            var nm = new Date();
-            nm.setMonth(nm.getMonth() + 1);
+            var nm = new Date(); nm.setMonth(nm.getMonth() + 1);
             document.getElementById('newExpiryDate').value = formatDate(nm);
             document.getElementById('newUsername').value = '';
             document.getElementById('newPassword').value = '';
+            document.getElementById('newEmail').value = '';
             document.getElementById('newPhone').value = '';
             document.getElementById('newRole').value = 'Operator';
             document.getElementById('addUserModal').classList.add('show');
@@ -1727,41 +1099,24 @@
         function addUserNow() {
             var u = document.getElementById('newUsername').value.trim();
             var p = document.getElementById('newPassword').value.trim();
+            var em = document.getElementById('newEmail').value.trim();
             var ph = document.getElementById('newPhone').value.trim();
             var r = document.getElementById('newRole').value;
             var e = document.getElementById('newExpiryDate').value.trim();
-
             if (!u || !p || !e) { showAlert('Error', 'Username, password, dan masa aktif wajib diisi!', 'error'); return; }
             if (p.length < 6) { showAlert('Error', 'Password minimal 6 karakter!', 'error'); return; }
-
             showAlert('Proses', 'Menambahkan user...', 'loading');
-
             var userData = {
-                username: u,
-                password: p,
-                phone: ph,
-                role: r,
-                expiry_date: e,
-                banned: false,
-                banAkses: false,
-                forceLogout: false,
-                ip: '',
-                fingerprint: '',
-                banAksesUntil: 0,
-                bannedUntil: 0,
-                createdAt: Date.now()
+                username: u, password: p, email: em, phone: ph, role: r, expiry_date: e,
+                banned: false, banAkses: false, forceLogout: false, ip: '', fingerprint: '',
+                banAksesUntil: 0, bannedUntil: 0, activationStatus: 'active', createdAt: Date.now()
             };
-
             apiCall('users', 'POST', userData).then(function() {
                 showAlert('Berhasil', 'User "' + u + '" berhasil ditambahkan!', 'success');
-                closeModal('addUserModal');
-                loadUsers();
-                activityLoaded = false;
-                loadActivity();
+                closeModal('addUserModal'); loadUsers(); activityLoaded = false; loadActivity();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
-        // ==================== DELETE USER ====================
         function deleteUser(id) {
             var u = allUsers.find(function(x) { return x.id === id; });
             if (!u) return;
@@ -1769,26 +1124,23 @@
                 showAlert('Proses', 'Menghapus user...', 'loading');
                 apiCall('users/' + id, 'DELETE').then(function() {
                     showAlert('Berhasil', 'User berhasil dihapus!', 'success');
-                    loadUsers();
-                    activityLoaded = false;
-                    loadActivity();
+                    loadUsers(); activityLoaded = false; loadActivity();
                 }).catch(function(e) { showAlert('Error', e.message, 'error'); });
             });
         }
 
-        // ==================== EDIT USER ====================
         function openEditUserModal(id) {
             var u = allUsers.find(function(x) { return x.id === id; });
             if (!u) return;
-
             document.getElementById('editUserId').value = u.id;
             document.getElementById('editUsername').value = u.username;
             document.getElementById('editPassword').value = '';
+            document.getElementById('editEmail').value = u.email || '';
             document.getElementById('editPhone').value = u.phone || '';
             document.getElementById('editRole').value = u.role || 'Operator';
             document.getElementById('editExpiryDate').value = u.expiry_date || '';
             document.getElementById('editIP').value = u.ip || '-';
-            document.getElementById('editFP').value = u.fingerprint ? u.fingerprint.substring(0, 20) + '...' : '-';
+            document.getElementById('editFP').value = u.fingerprint || '-';
             document.getElementById('editUserModal').classList.add('show');
         }
 
@@ -1796,24 +1148,18 @@
             var id = document.getElementById('editUserId').value;
             var u = document.getElementById('editUsername').value.trim();
             var p = document.getElementById('editPassword').value.trim();
+            var em = document.getElementById('editEmail').value.trim();
             var ph = document.getElementById('editPhone').value.trim();
             var r = document.getElementById('editRole').value;
             var e = document.getElementById('editExpiryDate').value.trim();
-
             if (!u) { showAlert('Error', 'Username wajib diisi!', 'error'); return; }
-
             showAlert('Proses', 'Menyimpan perubahan...', 'loading');
-
-            var d = { username: u, role: r, expiry_date: e };
+            var d = { username: u, role: r, expiry_date: e, email: em };
             if (p) d.password = p;
             if (ph) d.phone = ph;
-
             apiCall('users/' + id, 'PATCH', d).then(function() {
                 showAlert('Berhasil', 'User berhasil diupdate!', 'success');
-                closeModal('editUserModal');
-                loadUsers();
-                activityLoaded = false;
-                loadActivity();
+                closeModal('editUserModal'); loadUsers(); activityLoaded = false; loadActivity();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
@@ -1821,61 +1167,36 @@
             var id = document.getElementById('editUserId').value;
             var u = document.getElementById('editUsername').value.trim();
             var p = document.getElementById('editPassword').value.trim();
+            var em = document.getElementById('editEmail').value.trim();
             var ph = document.getElementById('editPhone').value.trim();
             var r = document.getElementById('editRole').value;
             var e = document.getElementById('editExpiryDate').value.trim();
             var ip = document.getElementById('editIP').value.trim();
             var fp = document.getElementById('editFP').value.trim();
-
             if (!u) { showAlert('Error', 'Username wajib diisi!', 'error'); return; }
-
             showConfirm('Update format user "' + u + '"?', function() {
                 showAlert('Proses', 'Mengupdate format...', 'loading');
-
-                var d = {
-                    username: u,
-                    role: r,
-                    expiry_date: e,
-                    phone: ph || '',
-                    ip: ip || '',
-                    fingerprint: fp || ''
-                };
+                var d = { username: u, role: r, expiry_date: e, phone: ph || '', email: em || '', ip: ip || '', fingerprint: fp || '' };
                 if (p) d.password = p;
-
                 apiCall('users/' + id, 'PATCH', d).then(function() {
                     showAlert('Berhasil', 'Format user diupdate!', 'success');
-                    closeModal('editUserModal');
-                    loadUsers();
-                    activityLoaded = false;
-                    loadActivity();
+                    closeModal('editUserModal'); loadUsers(); activityLoaded = false; loadActivity();
                 }).catch(function(e) { showAlert('Error', e.message, 'error'); });
             });
         }
 
-        // ==================== BAN USER ====================
         function searchBanUser() {
             var q = document.getElementById('banUserSearch') ? document.getElementById('banUserSearch').value.toLowerCase() : '';
             var list = document.getElementById('banUserList');
             if (!list) return;
-
-            var filtered = allUsers.filter(function(u) {
-                return u.username.toLowerCase().includes(q) && u.banned === false;
-            });
-
-            if (!filtered.length) {
-                list.innerHTML = '<div style="padding:12px;color:var(--sub);text-align:center;"><i class="fas fa-search"></i> Tidak ditemukan atau sudah di-ban</div>';
-                selectedBanUser = null;
-                document.getElementById('banSelectedUser').innerHTML = '';
-                return;
-            }
-
+            var filtered = allUsers.filter(function(u) { return u.username.toLowerCase().includes(q) && u.banned === false; });
+            if (!filtered.length) { list.innerHTML = '<div style="padding:12px;color:var(--sub);text-align:center;"><i class="fas fa-search"></i> Tidak ditemukan atau sudah di-ban</div>'; selectedBanUser = null; document.getElementById('banSelectedUser').innerHTML = ''; return; }
             list.innerHTML = filtered.map(function(u) {
                 var isSel = selectedBanUser && selectedBanUser.id === u.id;
                 var badges = '';
                 if (u.banAkses) badges += ' <span class="badge badge-yellow">AKSES</span>';
                 if (u.forceLogout) badges += ' <span class="badge badge-yellow">FORCE</span>';
-                return '<div class="user-check' + (isSel ? ' selected' : '') + '" onclick="selectBanUser(\'' + u.id + '\')">' +
-                    esc(u.username) + ' · ' + esc(u.role) + badges + '</div>';
+                return '<div class="user-check' + (isSel ? ' selected' : '') + '" onclick="selectBanUser(\'' + u.id + '\')">' + esc(u.username) + ' · ' + esc(u.role) + badges + '</div>';
             }).join('');
         }
 
@@ -1883,84 +1204,91 @@
             selectedBanUser = allUsers.find(function(u) { return u.id === id; });
             var el = document.getElementById('banSelectedUser');
             if (el) el.innerHTML = selectedBanUser ? 'Dipilih: <b>' + esc(selectedBanUser.username) + '</b>' : '';
-
-            document.querySelectorAll('#banUserList .user-check').forEach(function(el) {
-                el.classList.remove('selected');
-            });
+            document.querySelectorAll('#banUserList .user-check').forEach(function(el) { el.classList.remove('selected'); });
             if (selectedBanUser) {
                 var items = document.querySelectorAll('#banUserList .user-check');
-                items.forEach(function(el) {
-                    if (el.textContent.includes(selectedBanUser.username)) {
-                        el.classList.add('selected');
-                    }
-                });
+                items.forEach(function(el) { if (el.textContent.includes(selectedBanUser.username)) el.classList.add('selected'); });
             }
         }
 
         function executeBanUser() {
             if (!selectedBanUser) { showAlert('Error', 'Pilih user terlebih dahulu!', 'error'); return; }
-
             var dur = parseInt(document.getElementById('banDuration').value);
             var name = selectedBanUser.username;
             var durText = dur === 0 ? 'PERMANEN' : 'sampai ' + new Date(Date.now() + dur).toLocaleString('id-ID');
-
             showConfirm('Ban user "' + name + '" ' + durText + '?', function() {
                 showAlert('Proses', 'Memproses ban...', 'loading');
-
                 var patchData = { banned: true, bannedUntil: dur === 0 ? 0 : Date.now() + dur };
-
                 apiCall('users/' + selectedBanUser.id, 'PATCH', patchData).then(function() {
                     showAlert('Berhasil', 'User "' + name + '" berhasil di-ban!', 'success');
-                    loadUsers();
-                    activityLoaded = false;
-                    loadActivity();
-                    selectedBanUser = null;
-                    document.getElementById('banSelectedUser').innerHTML = '';
-                    searchBanUser();
+                    loadUsers(); activityLoaded = false; loadActivity();
+                    selectedBanUser = null; document.getElementById('banSelectedUser').innerHTML = ''; searchBanUser();
                 }).catch(function(e) { showAlert('Error', e.message, 'error'); });
             });
         }
 
-        // ==================== DO ACTION ====================
+        // ==================== PERBAIKAN UTAMA: doAction dengan IP & FP Lengkap ====================
         function doAction(action, target) {
             showAlert('Proses', 'Memproses...', 'loading');
-
             var patchData = {};
-
-            if (action === 'unban') {
-                patchData = { banned: false, bannedUntil: 0 };
-            } else if (action === 'banakses') {
-                var dur = 86400000;
-                patchData = { banAkses: true, banAksesUntil: Date.now() + dur };
-                if (target.ip && target.ip !== '-') {
-                    apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function() {});
-                }
-                if (target.fingerprint && target.fingerprint !== '-') {
-                    apiCall('block_fp_manual', 'POST', { fp: target.fingerprint }).catch(function() {});
-                }
-            } else if (action === 'unbanakses') {
-                patchData = { banAkses: false, banAksesUntil: 0 };
-                if (target.ip && target.ip !== '-') {
-                    apiCall('blocked_ips/' + target.ip.replace(/\./g, '_'), 'DELETE').catch(function() {});
-                }
-                if (target.fingerprint && target.fingerprint !== '-') {
-                    apiCall('blocked_fp/' + target.fingerprint, 'DELETE').catch(function() {});
-                }
-            } else if (action === 'force') {
-                patchData = { forceLogout: true };
-            } else if (action === 'unforce') {
-                patchData = { forceLogout: false };
+            
+            if (action === 'unban') { 
+                patchData = { banned: false, bannedUntil: 0 }; 
             }
-
+            else if (action === 'banakses') { 
+                var dur = 86400000; 
+                patchData = { banAkses: true, banAksesUntil: Date.now() + dur }; 
+                
+                // ===== KIRIM IP LENGKAP =====
+                if (target.ip && target.ip !== '-' && target.ip !== '') {
+                    console.log('[Ban Akses] Mengirim IP lengkap:', target.ip);
+                    apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function(err) { 
+                        console.error('[Ban Akses] Gagal blokir IP:', err); 
+                    }); 
+                }
+                
+                // ===== KIRIM FINGERPRINT LENGKAP (TIDAK DIPOTONG) =====
+                if (target.fingerprint && target.fingerprint !== '-' && target.fingerprint !== '') {
+                    console.log('[Ban Akses] Mengirim Fingerprint lengkap:', target.fingerprint);
+                    apiCall('block_fp_manual', 'POST', { fp: target.fingerprint }).catch(function(err) { 
+                        console.error('[Ban Akses] Gagal blokir FP:', err); 
+                    }); 
+                }
+            }
+            else if (action === 'unbanakses') { 
+                patchData = { banAkses: false, banAksesUntil: 0 }; 
+                
+                // ===== HAPUS BLOKIR IP LENGKAP =====
+                if (target.ip && target.ip !== '-' && target.ip !== '') {
+                    console.log('[Unban Akses] Menghapus blokir IP:', target.ip);
+                    apiCall('blocked_ips/' + target.ip.replace(/\./g, '_'), 'DELETE').catch(function(err) { 
+                        console.error('[Unban Akses] Gagal hapus blokir IP:', err); 
+                    }); 
+                }
+                
+                // ===== HAPUS BLOKIR FINGERPRINT LENGKAP =====
+                if (target.fingerprint && target.fingerprint !== '-' && target.fingerprint !== '') {
+                    console.log('[Unban Akses] Menghapus blokir FP:', target.fingerprint);
+                    apiCall('blocked_fp/' + target.fingerprint, 'DELETE').catch(function(err) { 
+                        console.error('[Unban Akses] Gagal hapus blokir FP:', err); 
+                    }); 
+                }
+            }
+            else if (action === 'force') { 
+                patchData = { forceLogout: true }; 
+            }
+            else if (action === 'unforce') { 
+                patchData = { forceLogout: false }; 
+            }
+            
             apiCall('users/' + target.id, 'PATCH', patchData).then(function() {
                 showAlert('Berhasil', 'Aksi berhasil!', 'success');
-                loadUsers();
-                activityLoaded = false;
-                loadActivity();
-            }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+                loadUsers(); activityLoaded = false; loadActivity();
+            }).catch(function(e) { 
+                showAlert('Error', e.message, 'error'); 
+            });
         }
 
-        // ==================== CONFIRM ====================
         function showConfirm(msg, cb) {
             var overlay = document.getElementById('confirmOverlay');
             var msgEl = document.getElementById('confirmMessage');
@@ -1971,9 +1299,8 @@
             document.getElementById('confirmNo').onclick = function() { overlay.style.display = 'none'; };
         }
 
-        // ==================== TABLE RENDERS ====================
         function updateAllTables() {
-            renderAllUsersTable();
+            renderAllUsersList();
             renderUnbannedTable();
             renderBanAksesTable();
             renderUnbanAksesTable();
@@ -1982,100 +1309,170 @@
             renderProblemTable();
             updateRingkasan();
             renderWebStats();
+            renderActivations();
         }
 
-        function renderAllUsersTable() {
-            var tbody = document.getElementById('allUsersTable');
+        function renderAllUsersList() {
+            var container = document.getElementById('allUsersList');
             var count = document.getElementById('allUsersCount');
-            if (!tbody) return;
+            if (!container) return;
             if (count) count.textContent = allUsers.length;
-
-            if (!allUsers.length) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Tidak ada user</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = allUsers.map(function(u) {
+            if (!allUsers.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i> Tidak ada user</div>'; return; }
+            container.innerHTML = allUsers.map(function(u) {
+                var initials = esc(u.username.substring(0, 1).toUpperCase());
                 var badges = '';
                 if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
                 if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
-                if (u.forceLogout) badges += '<span class="badge badge-yellow">Tangguh</span> ';
-                var fpDisplay = u.fingerprint ? u.fingerprint.substring(0, 12) + '...' : '-';
-                return '<tr>' +
-                    '<td><b>' + esc(u.username) + '</b></td>' +
-                    '<td>' + esc(u.role || '-') + '</td>' +
-                    '<td>' + badges + '</td>' +
-                    '<td>' + (u.ip || '-') + '</td>' +
-                    '<td>' + fpDisplay + '</td>' +
-                    '<td>' + (u.expiry_date || '-') + '</td>' +
-                    '<td>' +
-                    '<button class="btn btn-outline btn-xs" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button> ' +
-                    '<button class="btn btn-danger btn-xs" onclick="deleteUser(\'' + u.id + '\')"><i class="fas fa-trash"></i></button>' +
-                    '</td>' +
-                    '</tr>';
+                if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
+                if (u.activationStatus === 'pending') badges += '<span class="badge badge-yellow">Pending</span> ';
+                if (u.activationStatus === 'accepted') badges += '<span class="badge badge-green">Aktif</span> ';
+                if (u.activationStatus === 'rejected') badges += '<span class="badge badge-red">Ditolak</span> ';
+                return '<div class="user-info-card">' +
+                    '<div class="user-info-avatar">' + initials + '</div>' +
+                    '<div class="user-info-details">' +
+                        '<div class="user-info-name">' + esc(u.username) + '</div>' +
+                        '<div class="user-info-meta">' +
+                            '<span><i class="fas fa-tag"></i> ' + esc(u.role || '-') + '</span>' +
+                            '<span><i class="fas fa-envelope"></i> ' + (u.email ? esc(u.email) : '-') + '</span>' +
+                            '<span><i class="fas fa-phone"></i> ' + (u.phone ? esc(u.phone) : '-') + '</span>' +
+                            '<span><i class="fas fa-calendar"></i> ' + (u.expiry_date || '-') + '</span>' +
+                        '</div>' +
+                        '<div style="margin-top:4px;">' + badges + '</div>' +
+                    '</div>' +
+                    '<div class="user-info-actions">' +
+                        '<button class="btn btn-outline btn-sm" onclick="openEditUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i></button>' +
+                        '<button class="btn btn-danger btn-sm" onclick="deleteUser(\'' + u.id + '\')"><i class="fas fa-trash"></i></button>' +
+                    '</div>' +
+                '</div>';
             }).join('');
+        }
+
+        function renderActivations() {
+            var pending = allUsers.filter(function(u) { return u.activationStatus === 'pending'; });
+            var accepted = allUsers.filter(function(u) { return u.activationStatus === 'accepted'; });
+            var rejected = allUsers.filter(function(u) { return u.activationStatus === 'rejected'; });
+            
+            document.getElementById('countPending').textContent = pending.length;
+            document.getElementById('countAccepted').textContent = accepted.length;
+            document.getElementById('countRejected').textContent = rejected.length;
+            
+            renderActivationList('pendingActivationsList', pending, 'pending');
+            renderActivationList('acceptedActivationsList', accepted, 'accepted');
+            renderActivationList('rejectedActivationsList', rejected, 'rejected');
+        }
+
+        function renderActivationList(containerId, users, status) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            if (!users.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Tidak ada user</div>';
+                return;
+            }
+            container.innerHTML = users.map(function(u) {
+                var initials = esc(u.username.substring(0, 1).toUpperCase());
+                var actionButtons = '';
+                if (status === 'pending') {
+                    actionButtons = '<button class="btn btn-success btn-sm" onclick="acceptActivation(\'' + u.id + '\')"><i class="fas fa-check"></i> Terima</button> ' +
+                        '<button class="btn btn-danger btn-sm" onclick="rejectActivation(\'' + u.id + '\')"><i class="fas fa-times"></i> Tolak</button>';
+                }
+                return '<div class="user-info-card">' +
+                    '<div class="user-info-avatar">' + initials + '</div>' +
+                    '<div class="user-info-details">' +
+                        '<div class="user-info-name">' + esc(u.username) + '</div>' +
+                        '<div class="user-info-meta">' +
+                            '<span><i class="fas fa-envelope"></i> ' + (u.email ? esc(u.email) : '-') + '</span>' +
+                            '<span><i class="fas fa-phone"></i> ' + (u.phone ? esc(u.phone) : '-') + '</span>' +
+                            '<span><i class="fas fa-box"></i> ' + (u.paket ? esc(u.paket) : '-') + '</span>' +
+                            '<span><i class="fas fa-calendar"></i> ' + (u.createdAt ? new Date(u.createdAt).toLocaleDateString('id-ID') : '-') + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="user-info-actions">' + actionButtons + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function switchActivationTab(tab) {
+            currentActivationTab = tab;
+            document.getElementById('tabPending').classList.remove('active');
+            document.getElementById('tabAccepted').classList.remove('active');
+            document.getElementById('tabRejected').classList.remove('active');
+            document.getElementById('sectionPending').classList.remove('show');
+            document.getElementById('sectionAccepted').classList.remove('show');
+            document.getElementById('sectionRejected').classList.remove('show');
+            
+            if (tab === 'pending') {
+                document.getElementById('tabPending').classList.add('active');
+                document.getElementById('sectionPending').classList.add('show');
+            } else if (tab === 'accepted') {
+                document.getElementById('tabAccepted').classList.add('active');
+                document.getElementById('sectionAccepted').classList.add('show');
+            } else {
+                document.getElementById('tabRejected').classList.add('active');
+                document.getElementById('sectionRejected').classList.add('show');
+            }
+        }
+
+        function acceptActivation(id) {
+            var u = allUsers.find(function(x) { return x.id === id; });
+            if (!u) return;
+            showConfirm('Terima aktivasi akun "' + u.username + '"?', function() {
+                showAlert('Proses', 'Menerima aktivasi...', 'loading');
+                apiCall('users/' + id, 'PATCH', { activationStatus: 'accepted', isActive: true }).then(function() {
+                    showAlert('Berhasil', 'Akun "' + u.username + '" telah diaktifkan!', 'success');
+                    loadUsers();
+                }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+            });
+        }
+
+        function rejectActivation(id) {
+            var u = allUsers.find(function(x) { return x.id === id; });
+            if (!u) return;
+            showConfirm('Tolak aktivasi akun "' + u.username + '"?', function() {
+                showAlert('Proses', 'Menolak aktivasi...', 'loading');
+                apiCall('users/' + id, 'PATCH', { activationStatus: 'rejected', isActive: false }).then(function() {
+                    showAlert('Berhasil', 'Akun "' + u.username + '" telah ditolak!', 'success');
+                    loadUsers();
+                }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+            });
         }
 
         function renderUnbannedTable() {
             var tbody = document.getElementById('unbannedUsersTable');
             if (!tbody) return;
             var unbanned = allUsers.filter(function(u) { return u.banned === true; });
-
-            if (!unbanned.length) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada</td></tr>';
-                return;
-            }
-
+            if (!unbanned.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada</td></tr>'; return; }
             tbody.innerHTML = unbanned.map(function(u) {
                 var durasi = u.bannedUntil === 0 ? 'Permanen' : new Date(u.bannedUntil).toLocaleString('id-ID');
-                return '<tr>' +
-                    '<td><b>' + esc(u.username) + '</b></td>' +
-                    '<td>' + esc(u.role || '-') + '</td>' +
-                    '<td>' + durasi + '</td>' +
-                    '<td><button class="btn btn-success btn-xs" onclick="doAction(\'unban\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Unban</button></td>' +
-                    '</tr>';
+                return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + durasi + '</td><td><button class="btn btn-success btn-xs" onclick="doAction(\'unban\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Unban</button></td></tr>';
             }).join('');
         }
 
+        // ==================== TABEL BAN AKSES DENGAN IP & FP LENGKAP ====================
         function renderBanAksesTable() {
             var tbody = document.getElementById('banaksesUsersTable');
             if (!tbody) return;
             var users = allUsers.filter(function(u) { return u.banAkses === false; });
-
-            if (!users.length) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada</td></tr>';
-                return;
-            }
-
+            if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Tidak ada</td></tr>'; return; }
             tbody.innerHTML = users.map(function(u) {
                 var statusBadge = '';
                 if (u.banned) statusBadge += '<span class="status-badge banned">BANNED</span> ';
                 if (u.forceLogout) statusBadge += '<span class="status-badge force">TANGGUH</span> ';
-                return '<tr>' +
-                    '<td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td>' +
-                    '<td>' + esc(u.role || '-') + '</td>' +
-                    '<td><span class="badge badge-green">Belum</span></td>' +
-                    '<td><button class="btn btn-danger btn-xs" onclick="doAction(\'banakses\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Ban Akses</button></td>' +
-                    '</tr>';
+                var ipDisplay = u.ip && u.ip !== '-' ? '<code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">' + esc(u.ip) + '</code>' : '<span style="color:var(--sub);">-</span>';
+                var fpDisplay = u.fingerprint && u.fingerprint !== '-' ? '<code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;">' + esc(u.fingerprint) + '</code>' : '<span style="color:var(--sub);">-</span>';
+                return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td>' + ipDisplay + '</td><td>' + fpDisplay + '</td><td><span class="badge badge-green">Belum</span></td><td><button class="btn btn-danger btn-xs" onclick="doAction(\'banakses\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Ban Akses</button></td></tr>';
             }).join('');
         }
 
+        // ==================== TABEL UNBAN AKSES DENGAN IP & FP LENGKAP ====================
         function renderUnbanAksesTable() {
             var tbody = document.getElementById('unbanaksesUsersTable');
             if (!tbody) return;
             var unbanakses = allUsers.filter(function(u) { return u.banAkses === true; });
-
-            if (!unbanakses.length) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Tidak ada</td></tr>';
-                return;
-            }
-
+            if (!unbanakses.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Tidak ada</td></tr>'; return; }
             tbody.innerHTML = unbanakses.map(function(u) {
-                return '<tr>' +
-                    '<td><b>' + esc(u.username) + '</b></td>' +
-                    '<td>' + esc(u.role || '-') + '</td>' +
-                    '<td><button class="btn btn-success btn-xs" onclick="doAction(\'unbanakses\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Unban Akses</button></td>' +
-                    '</tr>';
+                var ipDisplay = u.ip && u.ip !== '-' ? '<code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">' + esc(u.ip) + '</code>' : '<span style="color:var(--sub);">-</span>';
+                var fpDisplay = u.fingerprint && u.fingerprint !== '-' ? '<code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;">' + esc(u.fingerprint) + '</code>' : '<span style="color:var(--sub);">-</span>';
+                return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + ipDisplay + '</td><td>' + fpDisplay + '</td><td><button class="btn btn-success btn-xs" onclick="doAction(\'unbanakses\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Unban Akses</button></td></tr>';
             }).join('');
         }
 
@@ -2083,22 +1480,12 @@
             var tbody = document.getElementById('forceUsersTable');
             if (!tbody) return;
             var users = allUsers.filter(function(u) { return u.forceLogout === false; });
-
-            if (!users.length) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada</td></tr>';
-                return;
-            }
-
+            if (!users.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada</td></tr>'; return; }
             tbody.innerHTML = users.map(function(u) {
                 var statusBadge = '';
                 if (u.banned) statusBadge += '<span class="status-badge banned">BANNED</span> ';
                 if (u.banAkses) statusBadge += '<span class="status-badge banakses">BAN AKSES</span> ';
-                return '<tr>' +
-                    '<td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td>' +
-                    '<td>' + esc(u.role || '-') + '</td>' +
-                    '<td><span class="badge badge-green">Belum</span></td>' +
-                    '<td><button class="btn btn-danger btn-xs" onclick="doAction(\'force\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Tangguhkan</button></td>' +
-                    '</tr>';
+                return '<tr><td><b>' + esc(u.username) + '</b> ' + statusBadge + '</td><td>' + esc(u.role || '-') + '</td><td><span class="badge badge-green">Belum</span></td><td><button class="btn btn-danger btn-xs" onclick="doAction(\'force\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Tangguhkan</button></td></tr>';
             }).join('');
         }
 
@@ -2106,44 +1493,23 @@
             var tbody = document.getElementById('unforceUsersTable');
             if (!tbody) return;
             var unforce = allUsers.filter(function(u) { return u.forceLogout === true; });
-
-            if (!unforce.length) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Tidak ada</td></tr>';
-                return;
-            }
-
+            if (!unforce.length) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Tidak ada</td></tr>'; return; }
             tbody.innerHTML = unforce.map(function(u) {
-                return '<tr>' +
-                    '<td><b>' + esc(u.username) + '</b></td>' +
-                    '<td>' + esc(u.role || '-') + '</td>' +
-                    '<td><button class="btn btn-success btn-xs" onclick="doAction(\'unforce\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Lepas Tangguh</button></td>' +
-                    '</tr>';
+                return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td><button class="btn btn-success btn-xs" onclick="doAction(\'unforce\', allUsers.find(function(x){return x.id===\'' + u.id + '\'}))">Lepas Tangguh</button></td></tr>';
             }).join('');
         }
 
         function renderProblemTable() {
             var tbody = document.getElementById('problemUsersTable');
             if (!tbody) return;
-            var problems = allUsers.filter(function(u) {
-                return u.banned === true || u.banAkses === true || u.forceLogout === true;
-            });
-
-            if (!problems.length) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada</td></tr>';
-                return;
-            }
-
+            var problems = allUsers.filter(function(u) { return u.banned === true || u.banAkses === true || u.forceLogout === true; });
+            if (!problems.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Tidak ada</td></tr>'; return; }
             tbody.innerHTML = problems.map(function(u) {
                 var badges = '';
                 if (u.banned) badges += '<span class="badge badge-red">Banned</span> ';
                 if (u.banAkses) badges += '<span class="badge badge-yellow">Ban Akses</span> ';
-                if (u.forceLogout) badges += '<span class="badge badge-yellow">Tangguh</span> ';
-                return '<tr>' +
-                    '<td><b>' + esc(u.username) + '</b></td>' +
-                    '<td>' + esc(u.role || '-') + '</td>' +
-                    '<td>' + badges + '</td>' +
-                    '<td><button class="btn btn-outline btn-xs" onclick="openEditUserModal(\'' + u.id + '\')">Edit</button></td>' +
-                    '</tr>';
+                if (u.forceLogout) badges += '<span class="badge badge-orange">Tangguh</span> ';
+                return '<tr><td><b>' + esc(u.username) + '</b></td><td>' + esc(u.role || '-') + '</td><td>' + badges + '</td><td><button class="btn btn-outline btn-xs" onclick="openEditUserModal(\'' + u.id + '\')">Edit</button></td></tr>';
             }).join('');
         }
 
@@ -2152,35 +1518,31 @@
             var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout && calculateDaysLeft(u.expiry_date) > 0; }).length;
             var banned = allUsers.filter(function(u) { return u.banned; }).length;
             var banAkses = allUsers.filter(function(u) { return u.banAkses; }).length;
-            var force = allUsers.filter(function(u) { return u.forceLogout; }).length;
+            var pending = allUsers.filter(function(u) { return u.activationStatus === 'pending'; }).length;
             var totalLogins = allActivities.filter(function(l) { return l.action === 'login_success'; }).length;
-
             document.getElementById('webStatTotalUsers').textContent = total;
             document.getElementById('webStatActiveUsers').textContent = active;
             document.getElementById('webStatBannedUsers').textContent = banned;
             document.getElementById('webStatBanAkses').textContent = banAkses;
-            document.getElementById('webStatForce').textContent = force;
+            document.getElementById('webStatPending').textContent = pending;
             document.getElementById('webStatTotalLogins').textContent = totalLogins;
-
             document.getElementById('distAktif').textContent = active;
             document.getElementById('distBanned').textContent = banned;
             document.getElementById('distBanAkses').textContent = banAkses;
-            document.getElementById('distForce').textContent = force;
+            document.getElementById('distPending').textContent = pending;
         }
 
         function updateRingkasan() {
             var active = allUsers.filter(function(u) { return !u.banned && !u.banAkses && !u.forceLogout && calculateDaysLeft(u.expiry_date) > 0; }).length;
             var banned = allUsers.filter(function(u) { return u.banned; }).length;
             var banAkses = allUsers.filter(function(u) { return u.banAkses; }).length;
-            var force = allUsers.filter(function(u) { return u.forceLogout; }).length;
-
+            var pending = allUsers.filter(function(u) { return u.activationStatus === 'pending'; }).length;
             document.getElementById('ringkasanAktif').textContent = active;
             document.getElementById('ringkasanBanned').textContent = banned;
             document.getElementById('ringkasanBanAkses').textContent = banAkses;
-            document.getElementById('ringkasanForce').textContent = force;
+            document.getElementById('ringkasanPending').textContent = pending;
         }
 
-        // ==================== MAINTENANCE ====================
         function loadMaintenanceStatus() {
             apiCall('maintenance_status', 'GET').then(function(data) {
                 if (data && data.maintenance) {
@@ -2200,14 +1562,8 @@
             var title = document.getElementById('maintenanceTitle').value.trim();
             var message = document.getElementById('maintenanceMessage').value.trim();
             var until = parseInt(document.getElementById('maintenanceUntil').value) || 0;
-
             showAlert('Proses', 'Mengaktifkan maintenance...', 'loading');
-            apiCall('maintenance_status', 'PUT', {
-                maintenance: true,
-                title: title || '',
-                message: message || '',
-                until: until
-            }).then(function() {
+            apiCall('maintenance_status', 'PUT', { maintenance: true, title: title || '', message: message || '', until: until }).then(function() {
                 showAlert('Berhasil', 'Maintenance diaktifkan!', 'success');
                 loadMaintenanceStatus();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
@@ -2223,7 +1579,6 @@
             });
         }
 
-        // ==================== PATH MANAGER ====================
         var pathList = [
             { name: 'Check Blocked', current: 'check_blocked' },
             { name: 'Check Account Status', current: 'check_account_status' },
@@ -2248,14 +1603,8 @@
         function loadPathManager() {
             var tbody = document.getElementById('pathManagerTable');
             if (!tbody) return;
-
             tbody.innerHTML = pathList.map(function(p) {
-                return '<tr>' +
-                    '<td><b>' + p.name + '</b></td>' +
-                    '<td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">' + p.current + '</code></td>' +
-                    '<td><input type="text" id="newPath_' + p.current.replace(/\./g, '_') + '" placeholder="Path baru..." style="padding:6px;border:1px solid var(--border);border-radius:4px;width:100%;"></td>' +
-                    '<td><button class="btn btn-primary btn-xs" onclick="updatePath(\'' + p.current + '\')"><i class="fas fa-save"></i> Simpan</button></td>' +
-                    '</tr>';
+                return '<tr><td><b>' + p.name + '</b></td><td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">' + p.current + '</code></td><td><input type="text" id="newPath_' + p.current.replace(/\./g, '_') + '" placeholder="Path baru..." style="padding:6px;border:1px solid var(--border);border-radius:4px;width:100%;"></td><td><button class="btn btn-primary btn-xs" onclick="updatePath(\'' + p.current + '\')"><i class="fas fa-save"></i> Simpan</button></td></tr>';
             }).join('');
         }
 
@@ -2263,7 +1612,6 @@
             var inputId = 'newPath_' + oldPath.replace(/\./g, '_');
             var newPath = document.getElementById(inputId).value.trim();
             if (!newPath) { showAlert('Error', 'Path baru wajib diisi!', 'error'); return; }
-
             showConfirm('Ganti path "' + oldPath + '" menjadi "' + newPath + '"?', function() {
                 showAlert('Proses', 'Mengupdate path...', 'loading');
                 apiCall('path_aliases', 'POST', { oldPath: oldPath, newPath: newPath }).then(function() {
@@ -2275,111 +1623,70 @@
             });
         }
 
-        // ==================== MIGRASI PASSWORD ====================
         function startPasswordMigration() {
-            showConfirm('Mulai migrasi password? Semua password plaintext akan di-hash dengan bcrypt.', function() {
+            showConfirm('Mulai migrasi password?', function() {
                 var progressEl = document.getElementById('migrationProgress');
                 var resultEl = document.getElementById('migrationResult');
-                
-                progressEl.classList.add('show');
-                resultEl.style.display = 'none';
-                
+                progressEl.classList.add('show'); resultEl.style.display = 'none';
                 showAlert('Proses', 'Migrasi password dimulai...', 'loading');
-                
                 apiCall('migrate_passwords', 'POST', {}).then(function(result) {
-                    progressEl.classList.remove('show');
-                    hideAlert();
-                    
+                    progressEl.classList.remove('show'); hideAlert();
                     if (result && result.success) {
-                        resultEl.className = 'migration-result success';
-                        resultEl.style.display = 'block';
-                        resultEl.innerHTML = '<i class="fas fa-check-circle"></i> <b>Migrasi berhasil!</b><br>' +
-                            'Berhasil di-hash: <b>' + (result.migrated || 0) + '</b><br>' +
-                            'Dilewati (sudah hash): <b>' + (result.skipped || 0) + '</b><br>' +
-                            'Gagal: <b>' + (result.failed || 0) + '</b>';
-                        showAlert('Berhasil', 'Migrasi password selesai!', 'success');
-                        loadUsers();
+                        resultEl.className = 'migration-result success'; resultEl.style.display = 'block';
+                        resultEl.innerHTML = '<i class="fas fa-check-circle"></i> <b>Migrasi berhasil!</b><br>Berhasil: <b>' + (result.migrated || 0) + '</b><br>Dilewati: <b>' + (result.skipped || 0) + '</b><br>Gagal: <b>' + (result.failed || 0) + '</b>';
+                        showAlert('Berhasil', 'Migrasi selesai!', 'success'); loadUsers();
                     } else {
-                        resultEl.className = 'migration-result error';
-                        resultEl.style.display = 'block';
-                        resultEl.innerHTML = '<i class="fas fa-times-circle"></i> <b>Migrasi gagal!</b><br>' + (result && result.error ? esc(result.error) : 'Terjadi kesalahan.');
-                        showAlert('Error', 'Migrasi password gagal!', 'error');
+                        resultEl.className = 'migration-result error'; resultEl.style.display = 'block';
+                        resultEl.innerHTML = '<i class="fas fa-times-circle"></i> <b>Migrasi gagal!</b>';
+                        showAlert('Error', 'Migrasi gagal!', 'error');
                     }
                 }).catch(function(e) {
-                    progressEl.classList.remove('show');
-                    hideAlert();
-                    resultEl.className = 'migration-result error';
-                    resultEl.style.display = 'block';
+                    progressEl.classList.remove('show'); hideAlert();
+                    resultEl.className = 'migration-result error'; resultEl.style.display = 'block';
                     resultEl.innerHTML = '<i class="fas fa-times-circle"></i> <b>Error:</b> ' + esc(e.message);
                     showAlert('Error', e.message, 'error');
                 });
             });
         }
 
-        // ==================== SETTINGS ====================
         function loadSettings() {
             if (!settingsKeyVerified) return;
             apiCall('admin/auth', 'GET').then(function(r) {
                 if (r) {
-                    var email = r.email || '••••••••@••••••••';
-                    document.getElementById('settingsEmail').value = email;
+                    document.getElementById('settingsEmail').value = r.email || '••••••••@••••••••';
                     document.getElementById('settingsPassword').value = '••••••••';
                     document.getElementById('displayAdminKey').value = '••••••••';
                 }
             });
-            loadActionKeys();
-            loadWhitelistIP();
-            loadWhitelistFP();
-            checkActionKeyExists();
-            loadServerKeyFromStorage();
+            loadActionKeys(); loadWhitelistIP(); loadWhitelistFP(); checkActionKeyExists(); loadServerKeyFromStorage();
         }
 
         function togglePassword() {
             var el = document.getElementById('settingsPassword');
             var icon = document.getElementById('togglePassIcon');
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
-            if (el.type === 'password') {
-                el.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-                setTimeout(function() { el.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }, 3000);
-            } else {
-                el.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi!', 'error'); return; }
+            if (el.type === 'password') { el.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); setTimeout(function() { el.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }, 3000); }
+            else { el.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
         }
 
         function openChangeEmailModal() {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
-            document.getElementById('newEmail').value = '';
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi!', 'error'); return; }
+            document.getElementById('newEmailChange').value = '';
             document.getElementById('changeEmailModal').classList.add('show');
         }
 
         function changeEmail() {
-            var email = document.getElementById('newEmail').value.trim();
-            if (!email) { showAlert('Error', 'Email baru wajib diisi!', 'error'); return; }
-            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
-
+            var email = document.getElementById('newEmailChange').value.trim();
+            if (!email) { showAlert('Error', 'Email wajib diisi!', 'error'); return; }
             showAlert('Proses', 'Mengupdate email...', 'loading');
             apiCall('admin/update_email', 'PATCH', { email: email }).then(function() {
-                showAlert('Berhasil', 'Email berhasil diupdate!', 'success');
-                closeModal('changeEmailModal');
-                loadSettings();
+                showAlert('Berhasil', 'Email diupdate!', 'success');
+                closeModal('changeEmailModal'); loadSettings();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
         function openChangePasswordModal() {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi!', 'error'); return; }
             document.getElementById('newPasswordSettings').value = '';
             document.getElementById('confirmNewPassword').value = '';
             document.getElementById('changePasswordModal').classList.add('show');
@@ -2388,16 +1695,12 @@
         function changePassword() {
             var pass = document.getElementById('newPasswordSettings').value.trim();
             var confirm = document.getElementById('confirmNewPassword').value.trim();
-            if (!pass) { showAlert('Error', 'Password baru wajib diisi!', 'error'); return; }
-            if (pass.length < 6) { showAlert('Error', 'Password minimal 6 karakter!', 'error'); return; }
+            if (!pass || pass.length < 6) { showAlert('Error', 'Password minimal 6 karakter!', 'error'); return; }
             if (pass !== confirm) { showAlert('Error', 'Password tidak cocok!', 'error'); return; }
-            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error'); return; }
-
             showAlert('Proses', 'Mengupdate password...', 'loading');
             apiCall('admin/update_password', 'PATCH', { password: pass }).then(function() {
-                showAlert('Berhasil', 'Password berhasil diupdate!', 'success');
-                closeModal('changePasswordModal');
-                loadSettings();
+                showAlert('Berhasil', 'Password diupdate!', 'success');
+                closeModal('changePasswordModal'); loadSettings();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
@@ -2405,96 +1708,57 @@
             if (actionKeyChecked) return;
             apiCall('action_keys', 'GET').then(function(data) {
                 var count = 0;
-                for (var k in data) {
-                    if (data[k] && data[k].key) count++;
-                }
+                for (var k in data) { if (data[k] && data[k].key) count++; }
                 if (count === 0) {
-                    apiCall('action_keys', 'POST', {
-                        key: 'RevanStore2026',
-                        createdAt: Date.now(),
-                        isDefault: true
-                    }).then(function() {
-                        loadActionKeys();
-                    });
+                    apiCall('action_keys', 'POST', { key: 'RevanStore2026', createdAt: Date.now(), isDefault: true }).then(function() { loadActionKeys(); });
                 }
                 actionKeyChecked = true;
             });
         }
 
         function addActionKey() {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi!', 'error'); return; }
             var key = document.getElementById('newActionKey').value.trim();
-            if (!key) { showAlert('Error', 'Masukkan key aksi baru!', 'error'); return; }
-
+            if (!key) { showAlert('Error', 'Masukkan key!', 'error'); return; }
             apiCall('action_keys', 'POST', { key: key, createdAt: Date.now() }).then(function() {
-                showAlert('Berhasil', 'Key aksi ditambahkan!', 'success');
-                document.getElementById('newActionKey').value = '';
-                loadActionKeys();
+                showAlert('Berhasil', 'Key ditambahkan!', 'success');
+                document.getElementById('newActionKey').value = ''; loadActionKeys();
             }).catch(function(e) { showAlert('Error', e.message, 'error'); });
         }
 
         function loadActionKeys() {
-            if (!settingsKeyVerified) {
-                document.getElementById('actionKeysTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
-                return;
-            }
+            if (!settingsKeyVerified) { document.getElementById('actionKeysTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi</td></tr>'; return; }
             apiCall('action_keys', 'GET').then(function(data) {
                 var html = '';
-                var count = 0;
                 for (var k in data) {
                     if (data[k] && data[k].key) {
-                        count++;
                         var masked = '••••' + data[k].key.substring(data[k].key.length - 4);
                         var date = data[k].createdAt ? new Date(data[k].createdAt).toLocaleString('id-ID') : '-';
-                        var isDefault = data[k].isDefault ? ' (Default)' : '';
-                        html += '<tr><td>' + masked + isDefault + '</td><td>' + date + '</td><td>' +
-                            (data[k].isDefault ? '<span class="badge badge-blue">Default</span>' : '<button class="btn btn-danger btn-xs" onclick="deleteActionKey(\'' + k + '\')"><i class="fas fa-trash"></i></button>') +
-                            '</td></tr>';
+                        html += '<tr><td>' + masked + '</td><td>' + date + '</td><td>' + (data[k].isDefault ? '<span class="badge badge-blue">Default</span>' : '<button class="btn btn-danger btn-xs" onclick="deleteActionKey(\'' + k + '\')"><i class="fas fa-trash"></i></button>') + '</td></tr>';
                     }
                 }
-                if (count === 0) {
-                    html = '<tr><td colspan="3" style="text-align:center;">Tidak ada key aksi</td></tr>';
-                }
-                document.getElementById('actionKeysTable').innerHTML = html;
+                document.getElementById('actionKeysTable').innerHTML = html || '<tr><td colspan="3" style="text-align:center;">Tidak ada key</td></tr>';
             });
         }
 
         function deleteActionKey(id) {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
-            showConfirm('Hapus key aksi ini?', function() {
-                apiCall('action_keys/' + id, 'DELETE').then(function() {
-                    showAlert('Berhasil', 'Key aksi dihapus!', 'success');
-                    loadActionKeys();
-                });
+            showConfirm('Hapus key ini?', function() {
+                apiCall('action_keys/' + id, 'DELETE').then(function() { showAlert('Berhasil', 'Key dihapus!', 'success'); loadActionKeys(); });
             });
         }
 
         function addWhitelistIP() {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi!', 'error'); return; }
             var ip = document.getElementById('newWhitelistIP').value.trim();
             if (!ip) { showAlert('Error', 'Masukkan IP!', 'error'); return; }
-
             apiCall('ip_whitelist', 'POST', { ip: ip, createdAt: Date.now() }).then(function() {
-                showAlert('Berhasil', 'IP ditambahkan ke whitelist!', 'success');
-                document.getElementById('newWhitelistIP').value = '';
-                loadWhitelistIP();
-            }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+                showAlert('Berhasil', 'IP ditambahkan!', 'success');
+                document.getElementById('newWhitelistIP').value = ''; loadWhitelistIP();
+            });
         }
 
         function loadWhitelistIP() {
-            if (!settingsKeyVerified) {
-                document.getElementById('ipWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
-                return;
-            }
+            if (!settingsKeyVerified) { document.getElementById('ipWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi</td></tr>'; return; }
             apiCall('ip_whitelist', 'GET').then(function(data) {
                 var html = '';
                 for (var k in data) {
@@ -2508,45 +1772,30 @@
         }
 
         function deleteWhitelistIP(id) {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
-            showConfirm('Hapus IP dari whitelist?', function() {
-                apiCall('ip_whitelist/' + id, 'DELETE').then(function() {
-                    showAlert('Berhasil', 'IP dihapus!', 'success');
-                    loadWhitelistIP();
-                });
+            showConfirm('Hapus IP?', function() {
+                apiCall('ip_whitelist/' + id, 'DELETE').then(function() { showAlert('Berhasil', 'IP dihapus!', 'success'); loadWhitelistIP(); });
             });
         }
 
         function addWhitelistFP() {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
+            if (!settingsKeyVerified) { showAlert('Error', 'Verifikasi key aksi!', 'error'); return; }
             var fp = document.getElementById('newWhitelistFP').value.trim();
-            if (!fp) { showAlert('Error', 'Masukkan fingerprint!', 'error'); return; }
-
+            if (!fp) { showAlert('Error', 'Masukkan FP!', 'error'); return; }
             apiCall('fp_whitelist', 'POST', { fp: fp, createdAt: Date.now() }).then(function() {
-                showAlert('Berhasil', 'Fingerprint ditambahkan ke whitelist!', 'success');
-                document.getElementById('newWhitelistFP').value = '';
-                loadWhitelistFP();
-            }).catch(function(e) { showAlert('Error', e.message, 'error'); });
+                showAlert('Berhasil', 'FP ditambahkan!', 'success');
+                document.getElementById('newWhitelistFP').value = ''; loadWhitelistFP();
+            });
         }
 
         function loadWhitelistFP() {
-            if (!settingsKeyVerified) {
-                document.getElementById('fpWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi terlebih dahulu</td></tr>';
-                return;
-            }
+            if (!settingsKeyVerified) { document.getElementById('fpWhitelistTable').innerHTML = '<tr><td colspan="3" style="text-align:center;">Verifikasi key aksi</td></tr>'; return; }
             apiCall('fp_whitelist', 'GET').then(function(data) {
                 var html = '';
                 for (var k in data) {
                     if (data[k] && data[k].fp) {
-                        var masked = data[k].fp.substring(0, 20) + '...';
+                        var masked = data[k].fp;
                         var date = data[k].createdAt ? new Date(data[k].createdAt).toLocaleString('id-ID') : '-';
-                        html += '<tr><td>' + masked + '</td><td>' + date + '</td><td><button class="btn btn-danger btn-xs" onclick="deleteWhitelistFP(\'' + k + '\')"><i class="fas fa-trash"></i></button></td></tr>';
+                        html += '<tr><td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;">' + masked + '</code></td><td>' + date + '</td><td><button class="btn btn-danger btn-xs" onclick="deleteWhitelistFP(\'' + k + '\')"><i class="fas fa-trash"></i></button></td></tr>';
                     }
                 }
                 document.getElementById('fpWhitelistTable').innerHTML = html || '<tr><td colspan="3" style="text-align:center;">Tidak ada FP</td></tr>';
@@ -2554,100 +1803,59 @@
         }
 
         function deleteWhitelistFP(id) {
-            if (!settingsKeyVerified) {
-                showAlert('Error', 'Verifikasi key aksi terlebih dahulu!', 'error');
-                return;
-            }
-            showConfirm('Hapus fingerprint dari whitelist?', function() {
-                apiCall('fp_whitelist/' + id, 'DELETE').then(function() {
-                    showAlert('Berhasil', 'Fingerprint dihapus!', 'success');
-                    loadWhitelistFP();
-                });
+            showConfirm('Hapus FP?', function() {
+                apiCall('fp_whitelist/' + id, 'DELETE').then(function() { showAlert('Berhasil', 'FP dihapus!', 'success'); loadWhitelistFP(); });
             });
         }
 
         function getAdminKeyFromServer() {
-            if (!currentAdmin) {
-                document.getElementById('serverKeyStatus').innerHTML = 'Login dulu!';
-                showAlert('Error', 'Login terlebih dahulu!', 'error');
-                return;
-            }
-            
-            try {
-                document.getElementById('serverKeyStatus').innerHTML = 'Mengambil key dari server...';
-                
-                apiCall('admin/get_key', 'GET', {}).then(function(result) {
-                    if (result && result.adminKey) {
-                        serverAdminKey = result.adminKey;
-                        document.getElementById('serverAdminKey').value = 'Key didapat dari server!';
-                        document.getElementById('serverKeyStatus').innerHTML = 'Key berhasil diambil dari server!';
-                        showAlert('Berhasil', 'Admin Key berhasil diambil dari server!', 'success');
-                        localStorage.setItem('server_admin_key', result.adminKey);
-                    } else {
-                        document.getElementById('serverKeyStatus').innerHTML = 'Gagal mengambil key!';
-                        showAlert('Error', 'Gagal mengambil key dari server!', 'error');
-                    }
-                });
-            } catch(e) {
-                document.getElementById('serverKeyStatus').innerHTML = 'Error: ' + e.message;
-                showAlert('Error', e.message, 'error');
-            }
+            if (!currentAdmin) { showAlert('Error', 'Login dulu!', 'error'); return; }
+            apiCall('admin/get_key', 'GET', {}).then(function(result) {
+                if (result && result.adminKey) {
+                    serverAdminKey = result.adminKey;
+                    document.getElementById('serverAdminKey').value = 'Key didapat!';
+                    document.getElementById('serverKeyStatus').innerHTML = 'Berhasil!';
+                    localStorage.setItem('server_admin_key', result.adminKey);
+                    showAlert('Berhasil', 'Key diambil!', 'success');
+                } else {
+                    showAlert('Error', 'Gagal ambil key!', 'error');
+                }
+            });
         }
 
         function clearServerKey() {
             serverAdminKey = null;
             localStorage.removeItem('server_admin_key');
             document.getElementById('serverAdminKey').value = 'Belum login';
-            document.getElementById('serverKeyStatus').innerHTML = 'Key dihapus dari memori.';
-            showAlert('Info', 'Key berhasil dihapus.', 'info');
+            document.getElementById('serverKeyStatus').innerHTML = 'Key dihapus.';
         }
 
         function loadServerKeyFromStorage() {
             var saved = localStorage.getItem('server_admin_key');
             if (saved) {
-                document.getElementById('serverAdminKey').value = 'Key tersedia (dari penyimpanan)';
-                document.getElementById('serverKeyStatus').innerHTML = 'Key tersedia di localStorage (terenkripsi)';
+                document.getElementById('serverAdminKey').value = 'Key tersedia';
+                document.getElementById('serverKeyStatus').innerHTML = 'Key tersedia di localStorage';
             }
         }
 
-        // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', async function() {
             document.querySelectorAll('.modal').forEach(function(m) {
-                m.addEventListener('click', function(e) {
-                    if (e.target === this) this.classList.remove('show');
-                });
+                m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
             });
-
-            document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') login();
-            });
-
-            document.getElementById('accessKey').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') verifyKey();
-            });
-
-            document.getElementById('settingsActionKeyInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') verifySettingsActionKey();
-            });
-
+            document.getElementById('loginPassword').addEventListener('keypress', function(e) { if (e.key === 'Enter') login(); });
+            document.getElementById('accessKey').addEventListener('keypress', function(e) { if (e.key === 'Enter') verifyKey(); });
+            document.getElementById('settingsActionKeyInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') verifySettingsActionKey(); });
             document.addEventListener('click', function() {
                 if (currentAdmin && sessionTimer) {
                     clearTimeout(sessionTimer);
-                    sessionTimer = setTimeout(function() {
-                        if (currentAdmin) {
-                            logout();
-                            showAlert('Sesi Berakhir', '30 menit idle.', 'info');
-                        }
-                    }, 1800000);
+                    sessionTimer = setTimeout(function() { if (currentAdmin) { logout(); showAlert('Sesi Berakhir', '30 menit idle.', 'info'); } }, 1800000);
                 }
             });
-
             var savedSession = localStorage.getItem('sessionId');
             if (savedSession) {
                 sessionId = savedSession;
                 try {
-                    await loadUsers();
-                    await loadActivity();
+                    await loadUsers(); await loadActivity();
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('loginWrapper').style.display = 'none';
                     document.getElementById('appContainer').style.display = 'block';
@@ -2655,12 +1863,8 @@
                     document.getElementById('loggedUser').textContent = 'Admin';
                     document.getElementById('navbarUserName').textContent = 'Admin';
                     switchPage('dashboard');
-                } catch(e) {
-                    sessionId = null;
-                    localStorage.removeItem('sessionId');
-                }
+                } catch(e) { sessionId = null; localStorage.removeItem('sessionId'); }
             }
-
             if (!fingerprint) fingerprint = await getFingerprint();
         });
     </script>
