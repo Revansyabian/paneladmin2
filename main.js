@@ -124,7 +124,7 @@ function showAlert(title, msg, type) {
     
     overlay.classList.add('show');
     if (type !== 'loading') {
-        setTimeout(() => overlay.classList.remove('show'), 2000);
+        setTimeout(() => overlay.classList.remove('show'), 3000);
     }
 }
 
@@ -161,12 +161,19 @@ function showBlockedScreen(ipAddress, fpValue) {
 async function checkBlockedOnLoad() {
     try {
         if (!fingerprint) fingerprint = await getFingerprint();
+        
+        console.log('[CHECK BLOCKED] Fingerprint:', fingerprint);
+        
         const result = await apiCall('check_blocked', 'GET', {});
-        if (result && result.blocked) {
+        
+        console.log('[CHECK BLOCKED] Result:', result);
+        
+        if (result && result.blocked === true) {
             const ipValue = result.ip || fingerprint;
             showBlockedScreen(ipValue, fingerprint);
             return true;
         }
+        
         return false;
     } catch (e) {
         console.error('[Check Blocked] Error:', e);
@@ -176,14 +183,20 @@ async function checkBlockedOnLoad() {
 
 function blockIP(ip) {
     if (!ip || ip === '-' || ip === '') return;
-    apiCall('block_ip', 'POST', { ip: ip }).catch(err => {
+    console.log('[BLOCK IP] Blocking:', ip);
+    apiCall('block_ip', 'POST', { ip: ip }).then(result => {
+        console.log('[BLOCK IP] Result:', result);
+    }).catch(err => {
         console.error('[Block IP] Gagal:', err);
     });
 }
 
 function blockFP(fp) {
     if (!fp || fp === '-' || fp === '') return;
-    apiCall('block_fp', 'POST', { fp: fp }).catch(err => {
+    console.log('[BLOCK FP] Blocking:', fp);
+    apiCall('block_fp', 'POST', { fp: fp }).then(result => {
+        console.log('[BLOCK FP] Result:', result);
+    }).catch(err => {
         console.error('[Block FP] Gagal:', err);
     });
 }
@@ -223,6 +236,7 @@ function verifyKey() {
                 document.getElementById('accessKey').value = '';
                 hideAlert();
                 if (keyAttempts >= 3) {
+                    console.log('[VERIFY KEY] 3x salah, blocking IP & FP');
                     blockIP(fingerprint);
                     blockFP(fingerprint);
                     showAlert('Akses Diblokir', 'Terlalu banyak percobaan! IP & Perangkat Anda diblokir.', 'error');
@@ -292,6 +306,7 @@ function login() {
                     .then(() => {
                         hideAlert();
                         if (loginAttempts >= 3) {
+                            console.log('[LOGIN] 3x salah, blocking IP & FP');
                             showAlert('Diblokir', 'Password salah 3x! IP & FP Anda diblokir.', 'error');
                             blockIP(fingerprint);
                             blockFP(fingerprint);
@@ -1563,8 +1578,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             }, 1800000);
         }
     });
+    
     const isBlocked = await checkBlockedOnLoad();
     if (isBlocked) return;
+    
     const savedSession = localStorage.getItem('sessionId');
     if (savedSession) {
         sessionId = savedSession;
