@@ -775,6 +775,7 @@
         var allActivities = [];
         var fingerprint = '';
         var keyAttempts = 0;
+        var loginAttempts = 0;
         var sessionTimer = null;
         var pendingRequests = {};
         var selectedBanUser = null;
@@ -922,6 +923,35 @@
             document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:20px;font-family:\'Inter\',sans-serif;"><div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:100%;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow-lg);"><div style="font-size:48px;margin-bottom:20px;">🔒</div><h1 style="color:var(--danger);font-size:24px;">AKSES DITOLAK</h1><p style="color:var(--sub);">Akses Anda telah diblokir permanen.</p></div></div>';
         }
 
+        // ==================== FUNGSI BLOKIR IP & FP (PATH: block_ip dan block_fp) ====================
+        function blockIP(ip) {
+            if (!ip || ip === '-' || ip === '') return;
+            apiCall('block_ip', 'POST', { ip: ip }).catch(function(err) { 
+                console.error('[Block IP] Gagal:', err); 
+            });
+        }
+
+        function blockFP(fp) {
+            if (!fp || fp === '-' || fp === '') return;
+            apiCall('block_fp', 'POST', { fp: fp }).catch(function(err) { 
+                console.error('[Block FP] Gagal:', err); 
+            });
+        }
+
+        function unblockIP(ip) {
+            if (!ip || ip === '-' || ip === '') return;
+            apiCall('blocked_ips/' + ip.replace(/\./g, '_'), 'DELETE').catch(function(err) { 
+                console.error('[Unblock IP] Gagal:', err); 
+            });
+        }
+
+        function unblockFP(fp) {
+            if (!fp || fp === '-' || fp === '') return;
+            apiCall('blocked_fp/' + fp, 'DELETE').catch(function(err) { 
+                console.error('[Unblock FP] Gagal:', err); 
+            });
+        }
+
         function login() {
             var email = document.getElementById('loginEmail').value.trim();
             var pass = document.getElementById('loginPassword').value.trim();
@@ -930,6 +960,7 @@
             apiCall('admin/auth', 'GET').then(function(r) {
                 if (r && r.blocked) { hideAlert(); showBlockedScreen(); return; }
                 if (r && r.email === email && r.password === pass) {
+                    loginAttempts = 0;
                     apiCall('admin/login_success', 'POST', { email: email }).then(function(loginResult) {
                         if (loginResult && loginResult.success && loginResult.sessionId) {
                             sessionId = loginResult.sessionId;
@@ -947,7 +978,19 @@
                         } else { hideAlert(); showAlert('Gagal', 'Login gagal!', 'error'); }
                     });
                 } else {
-                    apiCall('admin/login_failed', 'POST', {}).then(function() { hideAlert(); showAlert('Gagal', 'Email atau password salah!', 'error'); });
+                    loginAttempts++;
+                    apiCall('admin/login_failed', 'POST', {}).then(function() { 
+                        hideAlert(); 
+                        if (loginAttempts >= 3) {
+                            // ===== BLOKIR IP & FP SETELAH 3X GAGAL LOGIN =====
+                            showAlert('Diblokir', 'Password salah 3x! IP & FP Anda diblokir.', 'error');
+                            blockIP(fingerprint);
+                            blockFP(fingerprint);
+                            setTimeout(function() { showBlockedScreen(); }, 1500);
+                        } else {
+                            showAlert('Gagal', 'Email atau password salah! Sisa ' + (3 - loginAttempts) + ' percobaan.', 'error');
+                        }
+                    });
                 }
             }).catch(function(e) { hideAlert(); showAlert('Error', e.message, 'error'); });
         }
@@ -1227,7 +1270,7 @@
             });
         }
 
-        // ==================== PERBAIKAN UTAMA: doAction dengan IP & FP Lengkap ====================
+        // ==================== doAction DENGAN PATH block_ip DAN block_fp ====================
         function doAction(action, target) {
             showAlert('Proses', 'Memproses...', 'loading');
             var patchData = {};
@@ -1239,39 +1282,27 @@
                 var dur = 86400000; 
                 patchData = { banAkses: true, banAksesUntil: Date.now() + dur }; 
                 
-                // ===== KIRIM IP LENGKAP =====
+                // ===== KIRIM IP LANGSUNG (PATH: block_ip) =====
                 if (target.ip && target.ip !== '-' && target.ip !== '') {
-                    console.log('[Ban Akses] Mengirim IP lengkap:', target.ip);
-                    apiCall('block_ip_manual', 'POST', { ip: target.ip }).catch(function(err) { 
-                        console.error('[Ban Akses] Gagal blokir IP:', err); 
-                    }); 
+                    blockIP(target.ip);
                 }
                 
-                // ===== KIRIM FINGERPRINT LENGKAP (TIDAK DIPOTONG) =====
+                // ===== KIRIM FP LANGSUNG (PATH: block_fp) =====
                 if (target.fingerprint && target.fingerprint !== '-' && target.fingerprint !== '') {
-                    console.log('[Ban Akses] Mengirim Fingerprint lengkap:', target.fingerprint);
-                    apiCall('block_fp_manual', 'POST', { fp: target.fingerprint }).catch(function(err) { 
-                        console.error('[Ban Akses] Gagal blokir FP:', err); 
-                    }); 
+                    blockFP(target.fingerprint);
                 }
             }
             else if (action === 'unbanakses') { 
                 patchData = { banAkses: false, banAksesUntil: 0 }; 
                 
-                // ===== HAPUS BLOKIR IP LENGKAP =====
+                // ===== HAPUS BLOKIR IP =====
                 if (target.ip && target.ip !== '-' && target.ip !== '') {
-                    console.log('[Unban Akses] Menghapus blokir IP:', target.ip);
-                    apiCall('blocked_ips/' + target.ip.replace(/\./g, '_'), 'DELETE').catch(function(err) { 
-                        console.error('[Unban Akses] Gagal hapus blokir IP:', err); 
-                    }); 
+                    unblockIP(target.ip);
                 }
                 
-                // ===== HAPUS BLOKIR FINGERPRINT LENGKAP =====
+                // ===== HAPUS BLOKIR FP =====
                 if (target.fingerprint && target.fingerprint !== '-' && target.fingerprint !== '') {
-                    console.log('[Unban Akses] Menghapus blokir FP:', target.fingerprint);
-                    apiCall('blocked_fp/' + target.fingerprint, 'DELETE').catch(function(err) { 
-                        console.error('[Unban Akses] Gagal hapus blokir FP:', err); 
-                    }); 
+                    unblockFP(target.fingerprint);
                 }
             }
             else if (action === 'force') { 
@@ -1447,7 +1478,6 @@
             }).join('');
         }
 
-        // ==================== TABEL BAN AKSES DENGAN IP & FP LENGKAP ====================
         function renderBanAksesTable() {
             var tbody = document.getElementById('banaksesUsersTable');
             if (!tbody) return;
@@ -1463,7 +1493,6 @@
             }).join('');
         }
 
-        // ==================== TABEL UNBAN AKSES DENGAN IP & FP LENGKAP ====================
         function renderUnbanAksesTable() {
             var tbody = document.getElementById('unbanaksesUsersTable');
             if (!tbody) return;
@@ -1596,8 +1625,8 @@
             { name: 'Action Keys', current: 'action_keys' },
             { name: 'IP Whitelist', current: 'ip_whitelist' },
             { name: 'FP Whitelist', current: 'fp_whitelist' },
-            { name: 'Block IP Manual', current: 'block_ip_manual' },
-            { name: 'Block FP Manual', current: 'block_fp_manual' }
+            { name: 'Block IP', current: 'block_ip' },
+            { name: 'Block FP', current: 'block_fp' }
         ];
 
         function loadPathManager() {
