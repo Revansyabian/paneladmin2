@@ -199,8 +199,8 @@ export default async function handler(req, res) {
             }
         }
 
-        // ==================== CHECK BLOCKED (RESPONSE TERENKRIPSI) ====================
-        if (parsed.path === 'check_blocked' && parsed.method === 'POST') {
+        // ==================== CHECK BLOCKED ====================
+        if (parsed.path === 'check_blocked') {
             const ipBlocked = await isIPBlocked(ip);
             const fpBlocked = fp ? await isFPBlocked(fp) : false;
             const result = { 
@@ -265,7 +265,9 @@ export default async function handler(req, res) {
         // ==================== BLOCK IP ====================
         if (parsed.path === 'block_ip' && parsed.method === 'POST') {
             const ipToBlock = parsed.data?.ip || ip;
-            if (!ipToBlock) return res.status(400).json(encryptResponse({ error: 'IP required' }));
+            if (!ipToBlock || ipToBlock === 'unknown') {
+                return res.status(400).json(encryptResponse({ error: 'IP required' }));
+            }
             await blockIP(ipToBlock);
             return res.status(200).json(encryptResponse({ success: true, blocked: true, ip: ipToBlock }));
         }
@@ -273,7 +275,9 @@ export default async function handler(req, res) {
         // ==================== BLOCK FP ====================
         if (parsed.path === 'block_fp' && parsed.method === 'POST') {
             const fpToBlock = parsed.data?.fp || fp;
-            if (!fpToBlock) return res.status(400).json(encryptResponse({ error: 'FP required' }));
+            if (!fpToBlock) {
+                return res.status(400).json(encryptResponse({ error: 'FP required' }));
+            }
             await blockFP(fpToBlock);
             return res.status(200).json(encryptResponse({ success: true, blocked: true, fp: fpToBlock }));
         }
@@ -440,51 +444,77 @@ export default async function handler(req, res) {
 
 // ==================== HELPER FUNCTIONS ====================
 async function isIPBlocked(ip) {
-    if (!ip) return false;
+    if (!ip || ip === 'unknown') return false;
+    
+    // Cek dengan key yang di-replace (underscore)
     const key = ip.replace(/\./g, '_');
     const snap = await db.ref('blocked_ips/' + key).once('value');
     const raw = snap.val();
+    
     if (raw && raw.data) {
         try {
             const data = decryptData(raw.data);
-            if (data && data.blocked) return true;
+            if (data && data.blocked === true) {
+                return true;
+            }
         } catch (e) {}
     }
-    // Cek juga dengan key yang tidak di-replace
+    
+    // Cek juga dengan key asli (tanpa replace)
     const snap2 = await db.ref('blocked_ips/' + ip).once('value');
     const raw2 = snap2.val();
     if (raw2 && raw2.data) {
         try {
             const data = decryptData(raw2.data);
-            if (data && data.blocked) return true;
+            if (data && data.blocked === true) {
+                return true;
+            }
         } catch (e) {}
     }
+    
     return false;
 }
 
 async function isFPBlocked(fp) {
     if (!fp) return false;
+    
     const snap = await db.ref('blocked_fp/' + fp).once('value');
     const raw = snap.val();
+    
     if (raw && raw.data) {
         try {
             const data = decryptData(raw.data);
-            if (data && data.blocked) return true;
+            if (data && data.blocked === true) {
+                return true;
+            }
         } catch (e) {}
     }
+    
     return false;
 }
 
 async function blockIP(ip) {
-    if (!ip) return;
-    const enc = encryptData({ ip, blocked: true, blocked_at: new Date().toISOString() });
+    if (!ip || ip === 'unknown') return;
+    
+    const data = { 
+        ip: ip, 
+        blocked: true, 
+        blocked_at: Date.now() 
+    };
+    const enc = encryptData(data);
     const key = ip.replace(/\./g, '_');
     await db.ref('blocked_ips/' + key).set({ data: enc });
 }
 
 async function blockFP(fp) {
     if (!fp) return;
-    const enc = encryptData({ fingerprint: fp, blocked: true, blocked_at: new Date().toISOString() });
+    
+    const data = { 
+        fingerprint: fp, 
+        blocked: true, 
+        blocked_at: Date.now() 
+    };
+    const enc = encryptData(data);
     await db.ref('blocked_fp/' + fp).set({ data: enc });
 }
 
