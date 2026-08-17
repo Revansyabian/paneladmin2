@@ -485,6 +485,7 @@ function loadUsers() {
                 data[key].email = data[key].email || '';
                 data[key].expiry_date = data[key].expiry_date || '';
                 data[key].activationStatus = data[key].activationStatus || 'none';
+                data[key].paket = data[key].paket || '';
                 allUsers.push(data[key]);
             }
         }
@@ -973,24 +974,80 @@ function switchActivationTab(tab) {
     }
 }
 
+// ==================== FUNGSI HITUNG MASA AKTIF ====================
+function calculateExpiryDate(paket) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    let expiryDate = new Date(today);
+    
+    if (!paket) {
+        // Default 7 hari jika tidak ada paket
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        return formatDate(expiryDate);
+    }
+    
+    const paketLower = paket.toLowerCase().trim();
+    
+    if (paketLower.includes('permanen') || paketLower === 'permanen') {
+        return '12/31/9999';
+    }
+    
+    // Ekstrak angka dari paket
+    const angkaMatch = paket.match(/\d+/);
+    if (!angkaMatch) {
+        // Jika tidak ada angka, default 7 hari
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        return formatDate(expiryDate);
+    }
+    
+    const jumlah = parseInt(angkaMatch[0]);
+    
+    if (paketLower.includes('minggu') || paketLower.includes('pekan')) {
+        expiryDate.setDate(expiryDate.getDate() + (jumlah * 7));
+    } else if (paketLower.includes('bulan')) {
+        expiryDate.setMonth(expiryDate.getMonth() + jumlah);
+    } else if (paketLower.includes('tahun')) {
+        expiryDate.setFullYear(expiryDate.getFullYear() + jumlah);
+    } else if (paketLower.includes('hari')) {
+        expiryDate.setDate(expiryDate.getDate() + jumlah);
+    } else {
+        // Default 7 hari jika tidak dikenal
+        expiryDate.setDate(expiryDate.getDate() + 7);
+    }
+    
+    return formatDate(expiryDate);
+}
+
+// ==================== ACCEPT ACTIVATION (FIX) ====================
 function acceptActivation(id) {
     const u = allUsers.find(x => x.id === id);
     if (!u) return;
-    showConfirm('Terima aktivasi akun "' + u.username + '"?', function() {
+    
+    let paket = u.paket || '';
+    let expiryDate = u.expiry_date || '';
+    
+    // Jika tidak ada expiry_date, hitung dari paket
+    if (!expiryDate || expiryDate === '') {
+        expiryDate = calculateExpiryDate(paket);
+    }
+    
+    const paketDisplay = paket || 'Tidak ada paket';
+    
+    showConfirm('Terima aktivasi akun "' + u.username + '"?\nPaket: ' + paketDisplay + '\nMasa aktif: ' + expiryDate, function() {
         showAlert('Proses', 'Menerima aktivasi...', 'loading');
-        const expiryDate = u.expiry_date || '';
+        
         const updateData = {
             activationStatus: 'accepted',
             isActive: true,
             banned: false,
             banAkses: false,
-            forceLogout: false
+            forceLogout: false,
+            expiry_date: expiryDate
         };
-        if (expiryDate) {
-            updateData.expiry_date = expiryDate;
-        }
+        
         apiCall('users/' + id, 'PATCH', updateData).then(function() {
-            showAlert('Berhasil', 'Akun "' + u.username + '" telah diaktifkan!', 'success');
+            showAlert('Berhasil', 'Akun "' + u.username + '" telah diaktifkan!\nMasa aktif: ' + expiryDate, 'success');
             loadUsers();
         }).catch(function(e) {
             showAlert('Error', e.message, 'error');
